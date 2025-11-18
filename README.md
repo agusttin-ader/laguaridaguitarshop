@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# La Guarida Guitarshop — README (versión "fachera")
 
-## Getting Started
+Bienvenido/a al repositorio de La Guarida Guitarshop 🎸 — versión rápida y con estilo.
 
-First, run the development server:
+---
+
+📌 ¿Qué es esto?
+
+Un frontend minimalista para mostrar guitarras destacadas y fichas de producto, construido con:
+
+- Next.js (App Router)
+- Tailwind CSS
+- Framer Motion (animaciones suaves)
+- `next/image` para imágenes optimizadas
+
+---
+
+🚀 Arranque rápido
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visitar: `http://localhost:3000/`
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🏠 Páginas clave
 
-## Learn More
+- Home: `/` — sección **Destacados** con layout alternado (imagen + descripción).
+- Modelos: `/modelos` — grilla de cards con "Ver detalles".
+- Producto: `/modelos/<slug>` — galería principal grande, navegación prev/next y botón "Me interesa" (abre WhatsApp).
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+🎨 Diseño y UX
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Fondo oscuro y contraste alto para foco en las imágenes.
+- Acento dorado `#D4AF37` en hover de botones.
+- Hero con imagen grande y CTA claro.
+- Galería de producto con transición suave (fade + scale).
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🛠 Estructura
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `app/components/` — componentes reutilizables
+- `app/data/models.js` — datos de modelos (slug, title, teaser, price, images)
+- `public/images/` — assets de imagen
+
+---
+
+✍️ Notas rápidas para editar
+
+- Cambiar teasers en `app/data/models.js` (campo `teaser`).
+- Ajustar alturas en `app/components/ProductPage.jsx` (min-h en el contenedor principal).
+- Reemplazar imágenes en `public/images/` para URLs limpias (sin espacios).
+
+---
+
+© La Guarida Guitarshop
