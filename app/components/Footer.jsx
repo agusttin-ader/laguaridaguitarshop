@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="w-full text-center text-sm font-sans">
           <div className="mb-3 flex items-center justify-center gap-6">
             <Link
-              href="https://www.instagram.com/laguaridainstrumentos?igsh=MWlkd2ZibGNpanp0OA=="
+              href="https://www.instagram.com/laguaridainstrumentos/"
               className="inline-flex items-center gap-2 transition-colors duration-200 hover:text-[#D4AF37]"
               aria-label="Instagram"
               target="_blank"

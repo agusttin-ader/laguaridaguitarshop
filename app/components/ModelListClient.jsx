@@ -46,8 +46,19 @@ export default function ModelListClient({ products = [] }) {
   const filtered = useMemo(() => {
     if (!filters) return cleaned
     return cleaned.filter(p => {
-      // marca
-      if (filters.marca && String((p.marca || p.specs?.marca || p.specs?.brand || '')).toLowerCase().indexOf(String(filters.marca).toLowerCase()) === -1) return false
+      // marca (match against several possible fields: top-level marca, specs, title, slug)
+      if (filters.marca) {
+        const needle = String(filters.marca).trim().toLowerCase()
+        const haystack = [
+          p.marca,
+          p.specs?.marca,
+          p.specs?.brand,
+          p.title,
+          p.modelo,
+          p.slug
+        ].filter(Boolean).map(v => String(v).toLowerCase()).join(' ')
+        if (haystack.indexOf(needle) === -1) return false
+      }
       if (filters.modelo && String((p.modelo || p.specs?.modelo || p.title || '')).toLowerCase().indexOf(String(filters.modelo).toLowerCase()) === -1) return false
 
       const year = (p.anio || p.año || p.specs?.anio || p.specs?.year || '')
