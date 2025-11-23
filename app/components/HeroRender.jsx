@@ -32,7 +32,8 @@ export default function HeroRender({ heroImage }) {
           alt=""
           fill
           sizes="100vw"
-          className="object-cover filter blur-[40px] opacity-55 scale-105"
+          priority={typeof (heroImage || '') === 'string' && (heroImage || '/images/homepage.jpeg').startsWith('/')}
+          className="object-cover filter blur-[40px] opacity-60 scale-105"
         />
 
         {/* Lightening at bottom so lower area appears clearer */}
