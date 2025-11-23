@@ -76,12 +76,10 @@ export default function NewProductForm({ onCreated }){
         // refresh token/session in case it expired during multiple uploads
         const { data: sd } = await supabase.auth.getSession()
         accessToken = sd.session?.access_token
-        if (!accessToken) { setStatus('No autenticado. Inicia sesión como administrador.'); return }
-
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
-
-        const accessToken = sessionData.session?.access_token
-        if (!accessToken) { setStatus('Not authenticated. Please login as admin.'); return }
+        if (!accessToken) {
+          setStatus('No autenticado. Inicia sesión como administrador.')
+          return
+        }
 
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
         const filename = `${Date.now()}_${safeName}`
@@ -100,13 +98,13 @@ export default function NewProductForm({ onCreated }){
         const publicUrl = json?.publicUrl ? encodeURI(json.publicUrl) : null
         const variants = json?.variants || {}
         uploadedImages.push({ url: publicUrl, variants, name: filename, originalName: file.name })
-        setStatus('Producto creado con éxito')
-        console.error(err)
-        setStatus('Unexpected upload error')
+      } catch (err) {
+        console.error('Unexpected upload error', err)
+        setStatus('Error durante la subida: ' + (err?.message || String(err)))
         return
       }
     }
-        setStatus('Error al crear el producto: ' + err)
+    // All files uploaded (or there were none)
     setStatus('Saving product...')
 
     const parsedSpecs = {}
