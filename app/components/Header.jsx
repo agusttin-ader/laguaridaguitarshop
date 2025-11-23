@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { FiMenu, FiX } from 'react-icons/fi'
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -37,25 +38,12 @@ export default function Header() {
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-md p-2 hover:opacity-80 md:hidden"
-          aria-label="Abrir menú"
+          aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
           <span className="sr-only">Abrir menú</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="h-6 w-6"
-          >
-            {open ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
-            )}
-          </svg>
+          {open ? <FiX className="h-6 w-6" aria-hidden /> : <FiMenu className="h-6 w-6" aria-hidden />}
         </button>
       </div>
 

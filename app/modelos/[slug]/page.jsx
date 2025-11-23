@@ -1,9 +1,37 @@
-import { getModelBySlug, models } from "../../data/models";
+import { getProducts } from "../../lib/getProducts";
 import ProductPage from "../../components/ProductPage";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://laguaridaguitarshop.com'
+
+export async function generateMetadata({ params }) {
+  const { slug } = params
+  const products = await getProducts()
+  const model = (products || []).find((m) => m.slug === slug)
+  if (!model) return { title: 'Modelo - La Guarida Guitarshop' }
+
+  const title = model.title || model.slug
+  const description = (model.description || '').split('\n').join(' ').slice(0,160)
+  const images = (model.images || []).slice(0,3)
+  const url = `${SITE_URL}/modelos/${encodeURIComponent(model.slug)}`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      images,
+      type: 'product'
+    },
+    twitter: { card: 'summary_large_image', title, description }
+  }
+}
 
 export default async function ModelRoute({ params }) {
   const { slug } = await params;
-  const model = getModelBySlug(slug);
+  const products = await getProducts()
+  const model = (products || []).find((m) => m.slug === slug)
 
   if (!model) {
     return (
@@ -14,7 +42,7 @@ export default async function ModelRoute({ params }) {
           <div>Slug solicitado: <strong>{slug}</strong></div>
           <div className="mt-3">Slugs disponibles:</div>
           <ul className="mt-2 list-disc list-inside text-sm text-white/60">
-            {models.map((mm) => (
+            {(products || []).map((mm) => (
               <li key={mm.slug}>{mm.slug}</li>
             ))}
           </ul>
@@ -23,6 +51,29 @@ export default async function ModelRoute({ params }) {
     );
   }
 
+  // Build JSON-LD Product structured data
+  const productLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": model.title,
+    "description": (model.description || '').split('\n').join(' '),
+    "image": model.images || [],
+    "sku": model.id || model.slug,
+    "url": `${SITE_URL}/modelos/${encodeURIComponent(model.slug)}`,
+    "offers": {
+      "@type": "Offer",
+      "url": `${SITE_URL}/modelos/${encodeURIComponent(model.slug)}`,
+      "price": model.price ? String(model.price).replace(/[^[0-9\.,\-]]/g, '') : undefined,
+      "priceCurrency": model.price && String(model.price).includes('U$S') ? 'USD' : 'ARS',
+      "availability": "https://schema.org/InStock"
+    }
+  }
+
   // ProductPage is a client component that handles the interactive gallery
-  return <ProductPage model={model} />;
+  return (
+    <>
+      <script type="application/ld+json">{JSON.stringify(productLd)}</script>
+      <ProductPage model={model} />
+    </>
+  )
 }

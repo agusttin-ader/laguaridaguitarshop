@@ -1,0 +1,29 @@
+name: Optimize Images
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  optimize:
+    name: Run image optimizer (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run optimize script
+        run: npm run optimize:images
+
+      - name: Upload optimized images
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimized-images
+          path: public/_optimized

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaWhatsapp } from 'react-icons/fa'
 import Image from "next/image";
 
 export default function ProductPage({ model }) {
@@ -10,17 +11,48 @@ export default function ProductPage({ model }) {
     setSelected(i);
   }
 
+  const images = Array.isArray(model.images) ? model.images : []
   function prevThumb() {
-    const next = (selected - 1 + model.images.length) % model.images.length;
-    handleSelect(next);
+    if (images.length === 0) return
+    const next = (selected - 1 + images.length) % images.length
+    handleSelect(next)
   }
 
   function nextThumb() {
-    const next = (selected + 1) % model.images.length;
-    handleSelect(next);
+    if (images.length === 0) return
+    const next = (selected + 1) % images.length
+    handleSelect(next)
   }
 
   if (!model) return null;
+
+  function prettyKey(k) {
+    if (!k) return ''
+    return k.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  }
+
+  function getVisibleSpecs(specs) {
+    const map = {}
+    // prefer model.specs object
+    if (specs && typeof specs === 'object') {
+      Object.entries(specs).forEach(([k, v]) => (map[k.toLowerCase()] = v))
+    }
+    // also allow top-level keys on model (marca, modelo, anio, año)
+    if (model && typeof model === 'object') {
+      for (const k of ['marca', 'modelo', 'anio', 'año']) {
+        if (k in model && model[k] != null && String(model[k]).trim() !== '') map[k] = model[k]
+      }
+    }
+    const order = ["marca", "modelo", "anio", "año"]
+    const labels = { marca: 'Marca', modelo: 'Modelo', anio: 'Año', 'año': 'Año' }
+    const out = []
+    for (const k of order) {
+      if (k in map && map[k] != null && String(map[k]).trim() !== '') {
+        out.push({ key: k, label: labels[k] || prettyKey(k), value: map[k] })
+      }
+    }
+    return out
+  }
 
   const phone = "541168696491"; // +54 11 68696491 formatted for wa.me
   const whatsappHref = `https://wa.me/${phone}?text=${encodeURIComponent(
@@ -42,14 +74,40 @@ export default function ProductPage({ model }) {
                 transition={{ duration: 0.45, ease: "easeOut" }}
                 className="absolute inset-0"
               >
-                <Image
-                  src={encodeURI(model.images[selected] || "/images/homepage.jpeg")}
-                  alt={`${model.title} imagen principal`}
-                  fill
-                  sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
-                  className="object-contain object-center bg-black"
-                  priority
-                />
+                {(() => {
+                  const imgEntry = images[selected]
+                  let src = '/images/homepage.jpeg'
+                  if (imgEntry) {
+                    if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
+                    else if (typeof imgEntry === 'object' && imgEntry !== null) {
+                      if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
+                      else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
+                    }
+                  }
+
+                  const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
+
+                  if (isExternal) {
+                    return (
+                      <img
+                        src={src}
+                        alt={`${model.title} imagen principal`}
+                        className="absolute inset-0 h-full w-full object-contain bg-black"
+                      />
+                    )
+                  }
+
+                  return (
+                    <Image
+                      src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
+                      alt={`${model.title} imagen principal`}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
+                      className="object-contain object-center bg-black"
+                      priority
+                    />
+                  )
+                })()}
               </motion.div>
             </AnimatePresence>
 
@@ -57,18 +115,18 @@ export default function ProductPage({ model }) {
             <button
               onClick={prevThumb}
               aria-label="Anterior imagen"
-              className="absolute left-3 top-1/2 z-20 h-10 w-10 md:h-12 md:w-12 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/8 text-white/90 transition-all duration-200 opacity-90 hover:scale-105 hover:bg-[#D4AF37] hover:text-[#0D0D0D]"
+              className="absolute left-4 top-1/2 z-20 h-12 w-12 md:h-14 md:w-14 -translate-y-1/2 flex items-center justify-center rounded-full bg-[#D4AF37] text-[#0D0D0D] transition-transform duration-200 opacity-95 hover:opacity-100 shadow-md hover:shadow-lg ring-2 ring-transparent hover:ring-[#D4AF37]/40"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 md:h-6 md:w-6">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 md:h-7 md:w-7">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
             <button
               onClick={nextThumb}
               aria-label="Siguiente imagen"
-              className="absolute right-3 top-1/2 z-20 h-10 w-10 md:h-12 md:w-12 -translate-y-1/2 flex items-center justify-center rounded-full bg-white/8 text-white/90 transition-all duration-200 opacity-90 hover:scale-105 hover:bg-[#D4AF37] hover:text-[#0D0D0D]"
+              className="absolute right-4 top-1/2 z-20 h-12 w-12 md:h-14 md:w-14 -translate-y-1/2 flex items-center justify-center rounded-full bg-[#D4AF37] text-[#0D0D0D] transition-transform duration-200 opacity-95 hover:opacity-100 shadow-md hover:shadow-lg ring-2 ring-transparent hover:ring-[#D4AF37]/40"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 md:h-6 md:w-6">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 md:h-7 md:w-7">
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </button>
@@ -79,8 +137,9 @@ export default function ProductPage({ model }) {
 
         {/* Right: details */}
         <div className="flex flex-col justify-start">
-          <h1 className="text-3xl font-semibold text-[#EDEDED]">{model.title}</h1>
-          <p className="mt-4 text-lg text-white/70">{model.description}</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-[#EDEDED]">{model.title}</h1>
+
+          <p className="mt-4 text-base text-white/75">{model.description}</p>
 
           <div className="mt-6 flex items-center gap-4">
             <span className="text-2xl font-semibold text-[#EDEDED]">{model.price}</span>
@@ -90,8 +149,9 @@ export default function ProductPage({ model }) {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-flex w-max items-center justify-center gap-2 rounded-full bg-[#EDEDED] px-6 py-3 text-sm font-medium text-[#0D0D0D] shadow-sm transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-lg hover:shadow-[#D4AF37]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
+            className="mt-6 inline-flex w-max items-center justify-center gap-3 rounded-full bg-[#EDEDED] px-6 py-3 text-sm font-medium text-[#0D0D0D] shadow-md transition-transform duration-200 ease-out hover:-translate-y-1 hover:bg-[#D4AF37] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
           >
+            <FaWhatsapp className="h-4 w-4 text-[#0D0D0D]" aria-hidden />
             Me interesa
           </a>
         </div>

@@ -1,0 +1,28 @@
+{
+  "featured": [
+    "39f2c35f-b475-4b90-9d19-94b24f6f0463",
+    "071cc615-5c59-4721-ab25-44f998b1b9df",
+    "f578651c-9de8-4f4f-b4b1-cef9f363a47f"
+  ],
+  "featuredMain": {
+    "39f2c35f-b475-4b90-9d19-94b24f6f0463": {
+      "url": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763842023833_IMG_7891.jpg",
+      "name": "1763842023833_IMG_7891.jpg",
+      "path": "1763842023833_IMG_7891.jpg",
+      "originalName": "IMG_7891.jpg"
+    },
+    "071cc615-5c59-4721-ab25-44f998b1b9df": {
+      "url": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763916434508_IMG_9033.jpg",
+      "name": "1763916434508_IMG_9033.jpg",
+      "path": "1763916434508_IMG_9033.jpg",
+      "originalName": "IMG_9033.jpg"
+    },
+    "f578651c-9de8-4f4f-b4b1-cef9f363a47f": {
+      "url": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763916871607_WhatsApp-Image-2025-11-21-at-18.24.39--2-.jpeg",
+      "name": "1763916871607_WhatsApp-Image-2025-11-21-at-18.24.39--2-.jpeg",
+      "path": "1763916871607_WhatsApp-Image-2025-11-21-at-18.24.39--2-.jpeg",
+      "originalName": "WhatsApp Image 2025-11-21 at 18.24.39 (2).jpeg"
+    }
+  },
+  "heroImage": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763908165586_IMG_7905.jpg"
+}

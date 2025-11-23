@@ -1,0 +1,164 @@
+"use client"
+import { useState, useMemo, useEffect } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import FilterModal from './FilterModal'
+
+function pickImage(m) {
+  const imgEntry = (m.images && m.images[0]) || null
+  let src = '/images/homepage.jpeg'
+  if (imgEntry) {
+    if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
+    else if (typeof imgEntry === 'object' && imgEntry !== null) {
+      if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
+      else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
+    }
+  }
+  return src
+}
+
+export default function ModelListClient({ products = [] }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [filters, setFilters] = useState(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+
+  // Read filters from URL on mount and whenever search params change
+  useEffect(() => {
+    if (!searchParams) return
+    const q = Object.fromEntries(searchParams.entries())
+    const parsed = {}
+    if (q.marca) parsed.marca = q.marca
+    if (q.modelo) parsed.modelo = q.modelo
+    if (q.year) parsed.year = q.year
+    if (q.color) parsed.color = q.color
+    if (q.pickups) parsed.pickups = q.pickups
+    if (q.priceFrom) parsed.priceFrom = Number(q.priceFrom)
+    if (q.priceTo) parsed.priceTo = Number(q.priceTo)
+    // Only set if we have any keys
+    if (Object.keys(parsed).length > 0) setFilters(prev => ({ ...(prev || {}), ...parsed }))
+  }, [searchParams])
+
+  const cleaned = useMemo(() => products || [], [products])
+
+  const filtered = useMemo(() => {
+    if (!filters) return cleaned
+    return cleaned.filter(p => {
+      // marca
+      if (filters.marca && String((p.marca || p.specs?.marca || p.specs?.brand || '')).toLowerCase().indexOf(String(filters.marca).toLowerCase()) === -1) return false
+      if (filters.modelo && String((p.modelo || p.specs?.modelo || p.title || '')).toLowerCase().indexOf(String(filters.modelo).toLowerCase()) === -1) return false
+
+      const year = (p.anio || p.año || p.specs?.anio || p.specs?.year || '')
+      if (filters.year && String(filters.year).trim() !== '') {
+        const fy = parseInt(String(filters.year).replace(/[^0-9-]/g, ''), 10)
+        if (!isNaN(fy) && Number(year) && Number(year) !== fy) return false
+      }
+
+      if (filters.color && String((p.specs?.color || p.color || '')).toLowerCase().indexOf(String(filters.color).toLowerCase()) === -1) return false
+      if (filters.pickups && String((p.specs?.pickups || p.microfonos || '')).toLowerCase().indexOf(String(filters.pickups).toLowerCase()) === -1) return false
+
+      const priceNum = Number(String(p.price || p.priceRaw || '').replace(/[^0-9.]/g, '')) || 0
+      if (typeof filters.priceFrom !== 'undefined' && filters.priceFrom !== null && Number(filters.priceFrom) && priceNum < Number(filters.priceFrom)) return false
+      if (typeof filters.priceTo !== 'undefined' && filters.priceTo !== null && Number(filters.priceTo) && priceNum > Number(filters.priceTo)) return false
+
+      return true
+    })
+  }, [cleaned, filters])
+
+  function handleApply(f) {
+    // Normalize numeric fields
+    const next = { ...f }
+    if (typeof next.priceFrom === 'string') next.priceFrom = Number(next.priceFrom) || 0
+    if (typeof next.priceTo === 'string') next.priceTo = Number(next.priceTo) || 0
+    // set state
+    setFilters(next)
+
+    // build query string
+    const params = new URLSearchParams()
+    if (next.marca) params.set('marca', String(next.marca))
+    if (next.modelo) params.set('modelo', String(next.modelo))
+    if (next.year) params.set('year', String(next.year))
+    if (next.color) params.set('color', String(next.color))
+    if (next.pickups) params.set('pickups', String(next.pickups))
+    if (typeof next.priceFrom !== 'undefined' && next.priceFrom !== null) params.set('priceFrom', String(Math.round(Number(next.priceFrom) || 0)))
+    if (typeof next.priceTo !== 'undefined' && next.priceTo !== null) params.set('priceTo', String(Math.round(Number(next.priceTo) || 0)))
+
+    const qs = params.toString()
+    const dest = qs ? `${pathname}?${qs}` : pathname
+    // update URL without reload
+    router.push(dest)
+  }
+
+  function clearFilters() {
+    setFilters(null)
+    // remove query params
+    router.push(pathname)
+  }
+
+  return (
+    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-semibold text-[#EDEDED]">Modelos</h1>
+
+        <div className="flex items-center gap-3">
+          {filters ? (
+            <button onClick={clearFilters} className="text-sm text-white/80 hover:text-white">Limpiar</button>
+          ) : null}
+
+          <button
+            aria-label="Filtrar modelos"
+            onClick={() => setIsOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-transparent px-3 py-2 hover:bg-white/4 transition"
+            title="Filtrar"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01.293.707l-6.586 6.586A2 2 0 0013 14v6l-2-1v-5a2 2 0 00-.293-.707L3.293 6.707A1 1 0 013 6V4z" />
+            </svg>
+            <span className="text-sm text-white/90">Filtrar</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((m) => (
+          <article key={m.slug} className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
+            <Link href={`/modelos/${encodeURIComponent(m.slug)}`} className="block">
+              <div className="relative h-48 w-full">
+                {(() => {
+                  const src = pickImage(m)
+                  // Use Next/Image for both local and remote images so Next can optimize them
+                  return (
+                    <Image
+                      src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
+                      alt={m.title}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  )
+                })()}
+              </div>
+
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-[#EDEDED]">{m.title}</h2>
+                <p className="mt-2 text-sm text-white/70 line-clamp-3">{m.description}</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="text-sm font-medium text-[#EDEDED]">{(() => {
+                    const n = Number(String(m.price || m.priceRaw || '').replace(/[^0-9.]/g, ''))
+                    if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+                    return m.price || '$0'
+                  })()}</div>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition-transform duration-150 group-hover:scale-105">Ver detalles</span>
+                </div>
+              </div>
+            </Link>
+          </article>
+        ))}
+      </div>
+
+      <FilterModal isOpen={isOpen} onClose={() => setIsOpen(false)} onApply={handleApply} initial={filters || {}} />
+    </main>
+  )
+}

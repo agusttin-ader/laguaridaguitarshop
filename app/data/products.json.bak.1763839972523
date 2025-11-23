@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "fender-american-professional-ii",
+    "title": "Fender American Professional II",
+    "description": "Una guitarra hermosa ",
+    "price": "U$S 2399",
+    "images": [
+      "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763837458890_WhatsApp-Image-2025-11-21-at-18.25.56--1-.jpeg",
+      "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763837460756_WhatsApp-Image-2025-11-21-at-18.25.56--2-.jpeg",
+      "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763837461575_WhatsApp-Image-2025-11-21-at-18.25.56--3-.jpeg",
+      "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763837462497_WhatsApp-Image-2025-11-21-at-18.25.56.jpeg"
+    ]
+  }
+]

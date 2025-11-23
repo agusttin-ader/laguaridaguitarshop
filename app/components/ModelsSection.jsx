@@ -1,10 +1,37 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { models } from "../data/models";
+import { getProducts } from "../lib/getProducts";
+import fs from 'fs'
+import path from 'path'
 
-export default function ModelsSection() {
+export default async function ModelsSection() {
+  const products = await getProducts()
+  // Try to read settings to determine featured list and main images
+  let settings = { featured: [], featuredMain: {} }
+  try {
+    const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
+    const raw = fs.readFileSync(settingsPath, 'utf8')
+    settings = JSON.parse(raw || '{}')
+  } catch (e) {
+    // ignore and use defaults
+  }
+
+  // If featured is defined, build the list preserving order in settings.featured
+  let displayList = products || []
+  if (settings.featured && Array.isArray(settings.featured) && settings.featured.length > 0) {
+    const map = new Map((products || []).map(p => [p.id || p.slug || p.title, p]))
+    displayList = settings.featured.map(key => map.get(key)).filter(Boolean)
+  }
+
+  function getTeaser(m) {
+    if (m.teaser) return m.teaser;
+    if (!m.description) return "Guitarra única, sonido impecable.";
+    const firstSentence = m.description.split(".").find((s) => s && s.trim().length > 0);
+    if (firstSentence && firstSentence.trim().length <= 140) return firstSentence.trim() + ".";
+    const short = m.description.slice(0, 120).trim();
+    return short.replace(/\s+\S*$/, "") + "...";
+  }
+
   function getTeaser(m) {
     if (m.teaser) return m.teaser;
     if (!m.description) return "Guitarra única, sonido impecable.";
@@ -19,10 +46,11 @@ export default function ModelsSection() {
       <h2 className="mb-8 text-3xl font-semibold text-[#EDEDED]">Destacados</h2>
 
       <div className="flex flex-col gap-12">
-        {models.map((m, idx) => {
+        {(displayList || []).map((m, idx) => {
+          const middleIndex = Math.floor((displayList || []).length / 2)
           let reversed = idx % 2 === 1;
-          // Force invert for the middle card (index 1) per user request
-          if (idx === 1) reversed = !reversed;
+          // Force invert for the middle card (computed) so text is left, image right
+          if (idx === middleIndex) reversed = true;
           // Ensure Gibson LPJ 2014 has image on the right
           if (m.slug === "gibson-lpj-2014") reversed = true;
           return (
@@ -33,19 +61,77 @@ export default function ModelsSection() {
               }`}
             >
               <div className="relative w-full md:w-1/2 h-64 md:h-[520px] lg:h-[640px] overflow-hidden rounded-lg">
-                <Image
-                  src={encodeURI(m.images && m.images[0] ? m.images[0] : "/images/homepage.jpeg")}
-                  alt={m.title}
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover object-center transition-transform duration-500 transform-gpu group-hover:scale-105"
-                />
+                {(() => {
+                  // Prefer the featuredMain selection if available in settings
+                  const id = m.id || m.slug || m.title
+                  const mainFromSettings = settings.featuredMain && settings.featuredMain[id]
+                  const imgEntry = mainFromSettings || (m.images && m.images[0])
+                  let src = '/images/homepage.jpeg'
+                  if (imgEntry) {
+                    if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
+                    else if (typeof imgEntry === 'object' && imgEntry !== null) {
+                      if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
+                      else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
+                    }
+                  }
+
+                  const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
+
+                  if (isExternal) {
+                    return (
+                      <Image
+                        src={encodeURI(src)}
+                        alt={m.title}
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="object-cover object-center transition-transform duration-500 transform-gpu group-hover:scale-105"
+                      />
+                    )
+                  }
+
+                  return (
+                    <Image
+                      src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
+                      alt={m.title}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover object-center transition-transform duration-500 transform-gpu group-hover:scale-105"
+                    />
+                  )
+                })()}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
 
               <div className="w-full md:w-1/2 flex flex-col justify-center px-0 md:px-8 py-6">
                 <h3 className="text-3xl font-semibold text-[#EDEDED]">{m.title}</h3>
                 <p className="mt-4 text-lg font-medium text-white/90">{getTeaser(m)}</p>
+
+                {(() => {
+                  const map = {}
+                  if (m.specs && typeof m.specs === 'object') Object.entries(m.specs).forEach(([k, v]) => (map[k.toLowerCase()] = v))
+                  // also accept top-level keys
+                  for (const k of ['marca','modelo','anio','año']) {
+                    if (k in m && m[k] != null && String(m[k]).trim() !== '') map[k] = m[k]
+                  }
+                  const order = ["marca", "modelo", "anio", "año"]
+                  const labels = { marca: 'Marca', modelo: 'Modelo', anio: 'Año', 'año': 'Año' }
+                  const visible = []
+                  for (const k of order) {
+                    if (k in map && map[k] != null && String(map[k]).trim() !== '') visible.push({ key: k, label: labels[k] || k, value: map[k] })
+                  }
+                  if (visible.length === 0) return null
+                  return (
+                    <div className="mt-4">
+                      <ul className="list-disc list-inside text-sm text-white/75">
+                        {visible.map(({ key, label, value }) => (
+                          <li key={key} className="truncate">
+                            <strong className="text-white">{label}:</strong> <span className="text-white/90">{String(value)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                })()}
 
                 <div className="mt-6 flex items-center gap-4">
                   <a
