@@ -27,13 +27,15 @@ export default function HeroRender({ heroImage }) {
     >
       {/* Background: single blurred image so the page stays performant and the hero is faded */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <Image
-          src={heroImage || '/images/homepage.jpeg'}
+        {/* Use a plain <img> for the blurred background so it always matches the
+            displayed hero image (local or external). We load eagerly and hint
+            high fetch priority so the blur is visible ASAP after deploy/admin change. */}
+        <img
+          src={encodeURI(heroImage || '/images/homepage.jpeg')}
           alt=""
-          fill
-          sizes="100vw"
-          priority={typeof (heroImage || '') === 'string' && (heroImage || '/images/homepage.jpeg').startsWith('/')}
-          className="object-cover filter blur-[40px] opacity-60 scale-105"
+          loading="eager"
+          fetchpriority="high"
+          className="absolute inset-0 h-full w-full object-cover filter blur-[40px] opacity-60 scale-105"
         />
 
         {/* Lightening at bottom so lower area appears clearer */}
