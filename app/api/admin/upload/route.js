@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin'
 import { getUserFromRequest, isAdmin, rateCheck, validateOrigin } from '../../../../lib/adminAuth'
+import sharp from 'sharp'
 
 async function unauthorized() {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
@@ -28,11 +29,30 @@ export async function POST(request) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
+    // Upload original
     const { data: uploadData, error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, buffer, { contentType: file.type })
     if (uploadErr) return new Response(JSON.stringify({ error: String(uploadErr) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
 
+    // Generate optimized variants (webp) at multiple widths
+    const SIZES = [320, 640, 1024]
+    const variants = {}
+    for (const w of SIZES) {
+      try {
+        const outBuffer = await sharp(buffer).resize({ width: w }).webp({ quality: 80 }).toBuffer()
+        const outName = `${Date.now()}_${safeName}-w${w}.webp`
+        const { error: upErr } = await supabaseAdmin.storage.from(bucket).upload(outName, outBuffer, { contentType: 'image/webp' })
+        if (!upErr) {
+          const { data: publicData } = supabaseAdmin.storage.from(bucket).getPublicUrl(outName)
+          variants[`w${w}`] = publicData.publicUrl
+        }
+      } catch (err) {
+        // continue on individual variant failures
+        console.error('variant error', err)
+      }
+    }
+
     const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(filename)
-    return new Response(JSON.stringify({ publicUrl: data.publicUrl }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ publicUrl: data.publicUrl, variants }), { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }

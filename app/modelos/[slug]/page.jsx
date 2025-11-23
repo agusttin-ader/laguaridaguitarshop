@@ -4,7 +4,7 @@ import ProductPage from "../../components/ProductPage";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://laguaridaguitarshop.com'
 
 export async function generateMetadata({ params }) {
-  const { slug } = params
+  const { slug } = await params
   const products = await getProducts()
   const model = (products || []).find((m) => m.slug === slug)
   if (!model) return { title: 'Modelo - La Guarida Guitarshop' }
@@ -22,7 +22,9 @@ export async function generateMetadata({ params }) {
       description,
       url,
       images,
-      type: 'product'
+      // Next.js enforces a small set of OG types; 'product' can cause
+      // a runtime validation error. Use 'website' for compatibility.
+      type: 'website'
     },
     twitter: { card: 'summary_large_image', title, description }
   }

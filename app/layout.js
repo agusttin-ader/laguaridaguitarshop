@@ -74,6 +74,8 @@ export default function RootLayout({ children }) {
         <script type="application/ld+json">{JSON.stringify(ld)}</script>
         <script type="application/ld+json">{JSON.stringify(siteLd)}</script>
         <link rel="canonical" href={SITE_URL} />
+        {/* Preconnect to Supabase image host for faster image fetch when needed */}
+        <link rel="preconnect" href="https://nlxihuohlbzxfsumnfxk.supabase.co" crossOrigin="" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

@@ -93,6 +93,7 @@ export default function ProductPage({ model }) {
                         src={src}
                         alt={`${model.title} imagen principal`}
                         className="absolute inset-0 h-full w-full object-contain bg-black"
+                        loading="eager"
                       />
                     )
                   }
@@ -104,7 +105,6 @@ export default function ProductPage({ model }) {
                       fill
                       sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
                       className="object-contain object-center bg-black"
-                      priority
                     />
                   )
                 })()}

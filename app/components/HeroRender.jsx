@@ -19,11 +19,26 @@ const item = {
 };
 
 export default function HeroRender({ heroImage }) {
+  // Server-side read of settings to avoid client flash of default image.
   return (
     <section
-      className="relative w-full min-h-screen bg-gradient-to-b from-[#0D0D0D] to-[#1A1A1A] text-[#EDEDED]"
+      className="relative w-full min-h-screen text-[#EDEDED]"
       aria-label="Hero guitarras"
     >
+      {/* Background: single blurred image so the page stays performant and the hero is faded */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <Image
+          src={heroImage || '/images/homepage.jpeg'}
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover filter blur-[40px] opacity-55 scale-105"
+        />
+
+        {/* Lightening at bottom so lower area appears clearer */}
+        <div className="absolute left-0 right-0 bottom-0 h-1/3 bg-gradient-to-t from-white/8 to-transparent pointer-events-none" />
+      </div>
+
       <div className="mx-auto grid max-w-7xl min-h-screen grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:px-8">
         {/* Left: copy */}
         <motion.div
@@ -34,13 +49,13 @@ export default function HeroRender({ heroImage }) {
         >
           <motion.h1
             variants={item}
-            className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl"
+            className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
           >
             Encontrá tu próximo sonido
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-4 max-w-xl text-base leading-7 text-[#cfcfcf] sm:text-lg"
+            className="mt-4 max-w-xl text-base leading-7 text-[#cfcfcf] sm:text-lg drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]"
           >
             Descubrí guitarras seleccionadas para inspirarte todos los días: calidad
             premium, envío rápido y atención experta para que toques sin límites.
@@ -67,7 +82,6 @@ export default function HeroRender({ heroImage }) {
               src={heroImage || '/images/homepage.jpeg'}
               alt="Guitarra eléctrica premium"
               fill
-              priority
               sizes="(min-width: 1024px) 40vw, (min-width: 768px) 50vw, 100vw"
               className="object-cover"
             />

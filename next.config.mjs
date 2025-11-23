@@ -19,6 +19,10 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    // Disable Next image optimization in development to avoid proxying remote
+    // image requests through the dev server (which can cause 504 Gateway Timeout
+    // when the remote host is slow). Keep optimizer enabled in production.
+    unoptimized: process.env.NODE_ENV !== 'production',
   },
   async headers() {
     // Security headers. We remove 'unsafe-eval' from script-src and tighten
@@ -26,6 +30,13 @@ const nextConfig = {
     // for now to avoid breaking existing inline JSON-LD and style usage; a
     // follow-up would replace inline scripts with nonces/hashes and remove
     // 'unsafe-inline' entirely.
+    // Build CSP with a small dev-only relaxation for tooling that uses eval
+    // (e.g. Turbopack / React dev helpers). We only allow 'unsafe-eval' when
+    // not in production to avoid weakening CSP in deployed sites.
+    const scriptSrcDirective = process.env.NODE_ENV === 'production'
+      ? "script-src 'self' 'unsafe-inline' https:;"
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;"
+
     const common = [
       { key: 'Referrer-Policy', value: 'no-referrer-when-downgrade' },
       { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -34,7 +45,7 @@ const nextConfig = {
       // Hardened Content-Security-Policy (progressive tightening)
       {
         key: 'Content-Security-Policy',
-        value: "default-src 'self' https:; img-src 'self' data: blob: https://nlxihuohlbzxfsumnfxk.supabase.co; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; connect-src 'self' https://nlxihuohlbzxfsumnfxk.supabase.co wss:; script-src 'self' 'unsafe-inline' https:; frame-ancestors 'none';",
+        value: `default-src 'self' https:; img-src 'self' data: blob: https://nlxihuohlbzxfsumnfxk.supabase.co; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; connect-src 'self' https://nlxihuohlbzxfsumnfxk.supabase.co wss:; ${scriptSrcDirective} frame-ancestors 'none';`,
       },
     ]
 
@@ -45,6 +56,19 @@ const nextConfig = {
 
     return [
       { source: '/(.*)', headers: common },
+      // Long cache for public images and optimized assets
+      {
+        source: '/images/:all*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
+        ]
+      },
+      {
+        source: '/_optimized/:all*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
+        ]
+      },
     ]
   },
 };

@@ -72,6 +72,12 @@ export default function AdminDashboard(){
       await supabase.auth.signOut()
     } catch (_) { }
     setUser(null)
+    // Redirect to admin login after signing out
+    try {
+      router.replace('/admin/login')
+    } catch (_) {
+      if (typeof window !== 'undefined') window.location.href = '/admin/login'
+    }
   }
 
   useEffect(()=>{

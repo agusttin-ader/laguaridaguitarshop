@@ -24,33 +24,89 @@ export default function NewProductForm({ onCreated }){
 
   const fileInputRef = useRef(null)
   function openFilePicker() { if (fileInputRef.current) fileInputRef.current.click() }
-  function handleFiles(e){ setFiles(Array.from(e.target.files)) }
+  function handleFiles(e){ setFiles(Array.from(e.target.files || [])) }
+
+  // Resize image client-side using canvas and createImageBitmap
+  async function resizeImage(file, maxWidth = 2048, quality = 0.8) {
+    try {
+      const imgBitmap = await createImageBitmap(file)
+      const ratio = Math.min(1, maxWidth / imgBitmap.width)
+      const width = Math.round(imgBitmap.width * ratio)
+      const height = Math.round(imgBitmap.height * ratio)
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(imgBitmap, 0, 0, width, height)
+      return await new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          if (!blob) return resolve(file)
+          resolve(new File([blob], file.name, { type: blob.type }))
+        }, 'image/webp', quality)
+      })
+    } catch (err) {
+      return file
+    }
+  }
 
   async function handleSubmit(e){
     e.preventDefault()
-    setStatus('Uploading images...')
+    setStatus('Preparando subida...')
 
     const { data: sessionData } = await supabase.auth.getSession()
-    const accessToken = sessionData.session?.access_token
+    let accessToken = sessionData.session?.access_token
     if (!accessToken) {
-      setStatus('Not authenticated. Please login as admin.')
+      setStatus('No autenticado. Inicia sesión como administrador.')
       return
     }
 
     const uploadedImages = []
-    for (const file of files){
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
-      const filename = `${Date.now()}_${safeName}`
-      try {
-        const { data, error } = await supabase.storage.from('product-images').upload(filename, file, { cacheControl: '3600' })
-        if (error) { console.error('Upload error', error); setStatus('Upload failed for ' + file.name); return }
-        const { data: publicData } = supabase.storage.from('product-images').getPublicUrl(data.path)
-        const savedName = data.path ? data.path.split('/').pop() : file.name
-        const publicUrl = publicData?.publicUrl ? encodeURI(publicData.publicUrl) : null
-        uploadedImages.push({ url: publicUrl, path: data.path, name: savedName, originalName: file.name })
-      } catch (err) { console.error(err); setStatus('Unexpected upload error'); return }
-    }
 
+    // Upload each file via server endpoint which generates optimized variants
+    for (let i = 0; i < files.length; i++){
+      const file = files[i]
+      setStatus(`Subiendo ${i + 1} de ${files.length}: ${file.name}`)
+      try {
+        let toUpload = file
+        const MAX_CLIENT_SIZE = 2 * 1024 * 1024 // 2MB
+        if (file.size > MAX_CLIENT_SIZE) {
+          toUpload = await resizeImage(file, 2048, 0.8)
+        }
+
+        // refresh token/session in case it expired during multiple uploads
+        const { data: sd } = await supabase.auth.getSession()
+        accessToken = sd.session?.access_token
+        if (!accessToken) { setStatus('No autenticado. Inicia sesión como administrador.'); return }
+
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
+
+        const accessToken = sessionData.session?.access_token
+        if (!accessToken) { setStatus('Not authenticated. Please login as admin.'); return }
+
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-')
+        const filename = `${Date.now()}_${safeName}`
+        const form = new FormData()
+        form.append('file', toUpload, filename)
+        form.append('bucket', 'product-images')
+
+        const res = await fetch('/api/admin/upload', { method: 'POST', headers: { Authorization: `Bearer ${accessToken}` }, body: form })
+        if (!res.ok) {
+          const txt = await res.text().catch(()=>null)
+          console.error('Upload failed', txt)
+          setStatus('Upload failed for ' + file.name)
+          return
+        }
+        const json = await res.json().catch(()=>null)
+        const publicUrl = json?.publicUrl ? encodeURI(json.publicUrl) : null
+        const variants = json?.variants || {}
+        uploadedImages.push({ url: publicUrl, variants, name: filename, originalName: file.name })
+        setStatus('Producto creado con éxito')
+        console.error(err)
+        setStatus('Unexpected upload error')
+        return
+      }
+    }
+        setStatus('Error al crear el producto: ' + err)
     setStatus('Saving product...')
 
     const parsedSpecs = {}
