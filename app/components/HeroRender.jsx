@@ -34,7 +34,7 @@ export default function HeroRender({ heroImage }) {
           src={encodeURI(heroImage || '/images/homepage.jpeg')}
           alt=""
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover filter blur-[40px] opacity-60 scale-105"
         />
 
