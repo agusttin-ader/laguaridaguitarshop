@@ -159,21 +159,6 @@ export default function AdminDashboard(){
       return ok ? url.href : null
     } catch (err) { return null }
   }
-
-  // Resolve a valid image URL for a product, preferring settings.featuredMain[fid]
-  function resolveImageForProduct(prod, fid) {
-    try {
-      const main = settings && settings.featuredMain && settings.featuredMain[fid]
-      const m = normalizeSrc(main)
-      if (m) return m
-      const imgs = prod?.images || []
-      for (const im of imgs) {
-        const s = normalizeSrc(im)
-        if (s) return s
-      }
-      return null
-    } catch (e) { return null }
-  }
   async function fetchProducts(){
     setLoadingProducts(true)
     try {
@@ -338,11 +323,7 @@ export default function AdminDashboard(){
   function handleFeaturedDragStart(e, idx) {
     dragIndexRef.current = idx
     try { e.dataTransfer?.setData('text/plain', String(idx)) } catch (_) {}
-    try {
-      if (typeof window !== 'undefined' && typeof window.Image === 'function') {
-        e.dataTransfer?.setDragImage?.(new window.Image(), 0, 0)
-      }
-    } catch (_) {}
+    e.dataTransfer?.setDragImage?.(new Image(), 0, 0)
   }
 
   function findFidFromPoint(x, y) {
@@ -383,11 +364,7 @@ export default function AdminDashboard(){
   function handleDragStart(e, idx) {
     editDragIndexRef.current = idx
     try { e.dataTransfer?.setData('text/plain', String(idx)) } catch (_) {}
-    try {
-      if (typeof window !== 'undefined' && typeof window.Image === 'function') {
-        e.dataTransfer?.setDragImage?.(new window.Image(), 0, 0)
-      }
-    } catch (_) {}
+    e.dataTransfer?.setDragImage?.(new Image(), 0, 0)
   }
 
   function handleDragOver(e) {
@@ -477,7 +454,34 @@ export default function AdminDashboard(){
             <div style={{marginTop:12}}>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {/* Featured preview removed here to avoid duplication; manage destacados from the panel header */}
+                  {/* Featured preview and reorder area (mejor UX) */}
+                  {(settings.featured && settings.featured.length > 0) ? (
+                    <div style={{marginBottom:10}}>
+                      <div style={{fontSize:13,fontWeight:700,marginBottom:6}}>Destacados ordenados (arrastrá para reordenar)</div>
+                      <div style={{display:'flex',gap:8,overflowX:'auto',padding:6}}>
+                        {settings.featured.map((fid, idx) => {
+                          const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || { title: fid, images: [] }
+                          const thumb = normalizeSrc((settings.featuredMain && settings.featuredMain[fid]) || (prod.images && prod.images[0]) || '')
+                          return (
+                            <div key={fid} data-fid={fid} onDragOver={handleFeaturedDragOver} onDrop={(e)=>handleFeaturedDrop(e, idx)} style={{minWidth:160,display:'flex',flexDirection:'column',alignItems:'stretch',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',boxShadow:'inset 0 1px 0 rgba(255,255,255,0.02)'}}>
+                              <div style={{width:'100%',height:80,overflow:'hidden',borderRadius:6,background:'#111'}}>
+                                {thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+                              </div>
+                              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                  <button draggable onDragStart={(e)=>handleFeaturedDragStart(e, idx)} onTouchStart={(e)=>handleFeaturedTouchStart(e, idx)} onTouchEnd={(e)=>handleFeaturedTouchEnd(e)} className="btn btn-ghost" aria-label="Arrastrar para reordenar" title="Arrastrar" style={{width:30,height:30,display:'inline-flex',alignItems:'center',justifyContent:'center',cursor:'grab',borderRadius:6,background:'#0d0d0d',border:'1px solid #222'}}>
+                                    <span style={{fontSize:14,transform:'translateY(1px)'}}>☰</span>
+                                  </button>
+                                  <div style={{fontSize:13,fontWeight:700}}>{prod.title}</div>
+                                </div>
+                                {/* Flechas eliminadas: reordenamiento mediante handle o drag */}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
                   {products.map(p => {
                     const id = p.id || p.slug || p.title
                     const expanded = !!expandedProducts[id]
@@ -537,78 +541,127 @@ export default function AdminDashboard(){
                 <div className="muted">Seleccioná hasta 3 productos que se mostrarán como destacados.</div>
               </div>
               <div>
-                <motion.button className="btn btn-ghost" onClick={() => { setFeaturedPanelOpen(s => !s); }} aria-label="Toggle panel destacados" whileTap={{ scale: 0.96 }} animate={{ rotate: featuredPanelOpen ? 90 : 0 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>☰</motion.button>
+                <button className="btn btn-ghost" onClick={() => { setFeaturedPanelOpen(s => !s); if (!requestsModalOpen) { /* noop */ } }} aria-label="Toggle panel destacados">☰</button>
               </div>
             </div>
             <div style={{marginTop:12}}>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {/* When closed, hide the full products list and show a compact summary + thumbnails */}
-                  {!featuredPanelOpen ? (
-                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                      <div className="muted">Pulse el botón ☰ para editar los Destacados</div>
-                      <div style={{display:'flex',gap:8,alignItems:'center',overflowX:'auto',paddingTop:6}}>
-                        {(settings.featured || []).map((fid, idx) => {
-                          const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || null
-                          const thumb = prod ? resolveImageForProduct(prod, fid) : ''
-                          return prod ? (
-                            <div
-                              key={fid}
-                              data-fid={fid}
-                              draggable
-                              onDragStart={(e) => handleFeaturedDragStart(e, idx)}
-                              onDragOver={handleFeaturedDragOver}
-                              onDrop={(e) => handleFeaturedDrop(e, idx)}
-                              onTouchStart={(e) => handleFeaturedTouchStart(e, idx)}
-                              onTouchEnd={(e) => handleFeaturedTouchEnd(e)}
-                              style={{minWidth:120,display:'flex',flexDirection:'column',gap:6,padding:6,borderRadius:6,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
-                            >
-                              <div style={{width:120,height:72,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                {thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+                  {featuredPanelOpen ? (
+                    <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                      <div style={{flex:1,maxHeight:420,overflowY:'auto',paddingRight:8}}>
+                        <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Productos (marcá hasta 3)</div>
+                        {products.map(p => {
+                          const id = p.id || p.slug || p.title
+                          const selected = (settings.featured || []).includes(id)
+                          return (
+                            <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
+                              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                                <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
+                                  { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                </div>
+                                <div>
+                                  <div style={{fontWeight:700}}>{p.title}</div>
+                                  <div className="muted" style={{fontSize:12}}>{p.price}</div>
+                                </div>
                               </div>
-                              <div style={{fontSize:13,fontWeight:700}}>{prod.title}</div>
+                              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                <input type="checkbox" checked={selected} onChange={(e)=>{
+                                  const next = new Set(settings.featured || [])
+                                  if (e.target.checked) {
+                                    if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
+                                    next.add(id)
+                                  } else { next.delete(id) }
+                                  setSettings({...settings, featured: Array.from(next)})
+                                }} />
+                                {p.images && p.images.length > 0 && <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto</button>}
+                              </div>
                             </div>
-                          ) : null
+                          )
                         })}
                       </div>
-                    </div>
-                  ) : (
-                    <AnimatePresence>
-                      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
-                        <div style={{flex:1,maxHeight:420,overflowY:'auto',paddingRight:8}}>
-                          <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Productos (marcá hasta 3)</div>
-                          {products.map(p => {
-                            const id = p.id || p.slug || p.title
-                            const selected = (settings.featured || []).includes(id)
+                      <div style={{width:320}}>
+                        <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Destacados ordenados</div>
+                        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                          {(settings.featured || []).map((fid, idx) => {
+                            const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || { title: fid, images: [] }
+                            const thumb = normalizeSrc((settings.featuredMain && settings.featuredMain[fid]) || (prod.images && prod.images[0]) || '')
                             return (
-                              <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
-                                <div style={{display:'flex',alignItems:'center',gap:10}}>
-                                  <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
-                                  </div>
-                                  <div>
-                                    <div style={{fontWeight:700}}>{p.title}</div>
-                                    <div className="muted" style={{fontSize:12}}>{p.price}</div>
-                                  </div>
+                              <div key={fid} data-fid={fid} onDragOver={handleFeaturedDragOver} onDrop={(e)=>handleFeaturedDrop(e, idx)} style={{display:'flex',alignItems:'center',gap:8,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222'}}>
+                                <div draggable onDragStart={(e)=>handleFeaturedDragStart(e, idx)} onTouchStart={(e)=>handleFeaturedTouchStart(e, idx)} onTouchEnd={(e)=>handleFeaturedTouchEnd(e, idx)} style={{width:28,display:'flex',alignItems:'center',justifyContent:'center',cursor:'grab'}}>☰</div>
+                                <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
+                                  <div style={{width:72,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>{thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}</div>
+                                  <div style={{fontWeight:700}}>{prod.title}</div>
                                 </div>
-                                <div style={{display:'flex',alignItems:'center',gap:8}}>
-                                  <input type="checkbox" checked={selected} onChange={(e)=>{
-                                    const next = new Set(settings.featured || [])
-                                    if (e.target.checked) {
-                                      if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
-                                      next.add(id)
-                                    } else { next.delete(id) }
-                                    setSettings({...settings, featured: Array.from(next)})
-                                  }} />
-                                  {p.images && p.images.length > 0 && <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto</button>}
+                                <div style={{display:'flex',gap:8}}>
+                                  <button className="btn btn-ghost" onClick={() => moveFeatured(fid, -1)}>▲</button>
+                                  <button className="btn btn-ghost" onClick={() => moveFeatured(fid, 1)}>▼</button>
                                 </div>
                               </div>
                             )
                           })}
                         </div>
-                      </motion.div>
-                    </AnimatePresence>
-                  )}
+                        <div style={{display:'flex',gap:8,marginTop:12,justifyContent:'flex-end'}}>
+                          <button className="btn btn-primary" onClick={async ()=>{ await saveFeaturedToServer(settings); setFeaturedPanelOpen(false) }}>Guardar</button>
+                          <button className="btn btn-ghost" onClick={()=>{ fetchSettings(); setFeaturedPanelOpen(false) }}>Cancelar</button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    products.map(p => {
+                    const id = p.id || p.slug || p.title
+                    const selected = (settings.featured || []).includes(id)
+                    const expanded = !!expandedProducts[id]
+                    const currentMain = (settings.featuredMain && settings.featuredMain[id]) || (p.images && p.images[0]) || null
+                    return (
+                      <div key={id} style={{padding:8,borderRadius:8,background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent'}}>
+                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div style={{display:'flex',alignItems:'center',gap:10}}>
+                            <div style={{display:'flex',alignItems:'center',gap:8}}>
+                              <strong style={{display:'block'}}>{p.title}</strong>
+                              {currentMain ? (
+                                <img src={normalizeSrc(currentMain)} alt="mini" style={{width:56,height:36,objectFit:'cover',borderRadius:6,border:'1px solid #222'}} />
+                              ) : null}
+                            </div>
+                            <span className="muted">{p.price}</span>
+                          </div>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle destacados">☰</button>
+                          </div>
+                        </div>
+
+                        {expanded && (
+                          <div style={{marginTop:8,display:'flex',flexDirection:'column',gap:8}}>
+                            <label style={{display:'flex',alignItems:'center',gap:10}}>
+                              <input type="checkbox" checked={selected} onChange={(e)=>{
+                                const next = new Set(settings.featured || [])
+                                if (e.target.checked) {
+                                  if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
+                                  next.add(id)
+                                } else { next.delete(id) }
+                                setSettings({...settings, featured: Array.from(next)})
+                              }} />
+                              <div style={{flex:1,display:'flex',alignItems:'center',gap:10}}>
+                                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                  <div style={{fontWeight:700}}>{p.title}</div>
+                                </div>
+                                <span className="muted">{p.price}</span>
+                              </div>
+                            </label>
+
+                            {selected && p.images && p.images.length > 0 && (
+                              <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                                <div style={{fontSize:12,color:'#bbb'}}>Foto principal:</div>
+                                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                  <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto principal</button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }))}
                 </div>
               )}
               <div style={{marginTop:12,display:'flex',gap:8}}>
@@ -1041,19 +1094,9 @@ export default function AdminDashboard(){
                 <button className="btn btn-ghost" onClick={() => setImagePickerOpen(false)}>Cancelar</button>
                 <button className="btn btn-primary" onClick={() => {
                   if (imagePickerSelected) {
-                    // build a normalized URL string (avoid storing objects like {url, path})
-                    const selectedSrc = normalizeSrc(imagePickerSelected) || (typeof imagePickerSelected === 'string' ? imagePickerSelected : null)
-                    if (selectedSrc) {
-                      // create next settings object and update state functionally
-                      const nextMain = Object.assign({}, settings.featuredMain || {})
-                      nextMain[imagePickerProduct] = selectedSrc
-                      const nextSettings = Object.assign({}, settings, { featuredMain: nextMain })
-                      setSettings(() => nextSettings)
-                      // schedule a debounced save so change persists and other tabs get the update
-                      try { scheduleSaveFeatured(nextSettings) } catch (_) {}
-                    } else {
-                      toast.error('Imagen inválida')
-                    }
+                    const nextMain = Object.assign({}, settings.featuredMain || {})
+                    nextMain[imagePickerProduct] = imagePickerSelected
+                    setSettings({...settings, featuredMain: nextMain})
                   }
                   setImagePickerOpen(false)
                 }}>Guardar</button>
