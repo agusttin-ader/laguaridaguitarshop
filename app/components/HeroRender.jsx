@@ -22,7 +22,7 @@ export default function HeroRender({ heroImage }) {
   // Server-side read of settings to avoid client flash of default image.
   return (
     <section
-      className="relative w-full min-h-screen text-[#EDEDED]"
+      className="hero-section relative w-full min-h-screen text-[#EDEDED]"
       aria-label="Hero guitarras"
     >
       {/* Background: single blurred image so the page stays performant and the hero is faded */}
@@ -79,18 +79,21 @@ export default function HeroRender({ heroImage }) {
             variants={item}
             initial="hidden"
             animate="show"
-            className="relative mx-auto w-full h-72 md:h-[560px] lg:h-[720px] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 transform-gpu transition-transform transition-shadow duration-500 ease-out cursor-pointer group-focus-visible:ring-2 group-focus-visible:ring-white/30 md:group-hover:scale-[1.02] md:group-hover:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] md:group-hover:ring-white/20 active:scale-[1.02] active:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] active:ring-white/20 will-change-transform"
+            className="relative mx-auto w-full h-[60vh] md:h-[560px] lg:h-[720px] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 transform-gpu transition-transform transition-shadow duration-500 ease-out cursor-pointer group-focus-visible:ring-2 group-focus-visible:ring-white/30 md:group-hover:scale-[1.02] md:group-hover:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] md:group-hover:ring-white/20 active:scale-[1.02] active:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] active:ring-white/20 will-change-transform"
           >
             <Image
               src={heroImage || '/images/homepage.jpeg'}
               alt="Guitarra eléctrica premium"
               fill
               sizes="(min-width: 1024px) 40vw, (min-width: 768px) 50vw, 100vw"
-              className="object-cover"
+              className="object-cover hero-image"
+              loading="eager"
+              fetchPriority="high"
+              priority
             />
             <HeroClient />
-            {/* Subtle white sheen */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_30%_30%,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_70%)]" />
+            {/* Subtle white sheen with tiny vintage shimmer */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_30%_30%,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_70%)] vintage-shimmer" style={{opacity:0.45}} />
             {/* Vignette for depth */}
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_10%,rgba(0,0,0,0.35)_0%,rgba(0,0,0,0)_60%)]" />
             {/* Inner shadow */}

@@ -362,7 +362,7 @@ export default function AdminLogin() {
 
   return (
     <div className="admin-container admin-login" style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}>
-      <motion.div className="card" style={{width:420}}
+      <motion.div className="card" style={{maxWidth:420, width:'100%'}}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -463,7 +463,7 @@ export default function AdminLogin() {
 
         {pendingModalOpen && (
           <div style={{position:'fixed',left:0,right:0,top:0,bottom:0,background:'rgba(0,0,0,0.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1200}}>
-            <div style={{width:420,background:'#fff',padding:20,borderRadius:8,boxShadow:'0 8px 24px rgba(0,0,0,0.2)'}}>
+            <div style={{maxWidth:420, width:'100%', background:'#fff',padding:20,borderRadius:8,boxShadow:'0 8px 24px rgba(0,0,0,0.2)'}}>
               <h3 style={{marginTop:0}}>Acceso en revisión</h3>
               <div style={{marginTop:8,fontSize:13,color:'#333'}}>Tu cuenta ha iniciado sesión pero necesita que el propietario <strong>agusttin.ader@gmail.com</strong> apruebe tu acceso. Se enviará una solicitud de acceso y, por seguridad, la sesión se cerrará automáticamente. Cuando el propietario te habilite, podrás iniciar sesión nuevamente y acceder al panel.</div>
               <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:14}}>

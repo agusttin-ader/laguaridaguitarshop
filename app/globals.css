@@ -25,6 +25,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Prevent horizontal overflow site-wide and ensure consistent box-sizing */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Hide horizontal scrollbar and avoid accidental sideways scrolling caused by shadows/transforms */
+html, body, #__next { overflow-x: hidden; }
+
+/* Ensure replaced elements don't exceed container width */
+img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block; }
+
 /* Admin styles */
 .admin-container {
   max-width: 980px;
@@ -42,7 +51,11 @@ body {
   padding: 16px;
   border-radius: 10px;
   box-shadow: 0 6px 18px rgba(20,20,20,0.03);
+  will-change: transform, box-shadow;
+  transform-origin: center;
+  transition: transform 360ms cubic-bezier(.2,.9,.3,1), box-shadow 360ms ease;
 }
+.card:hover { transform: translateY(-6px) rotateX(0.3deg); box-shadow: 0 36px 80px rgba(2,6,23,0.36); }
 .card h2 { margin: 0 0 10px 0 }
 .form-row { margin-bottom: 12px; display:flex; flex-direction:column }
 .form-row label { font-weight:600; margin-bottom:6px; font-size:14px }
@@ -63,7 +76,12 @@ body {
 .status { margin-top:10px; font-weight:600 }
 .thumbs { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px }
 .thumb { width:120px; height:88px; border-radius:8px; overflow:hidden; border:1px solid #eee; display:flex; align-items:center; justify-content:center }
-.thumb img { width:100%; height:100%; object-fit:cover }
+.thumb img { width:100%; height:100%; object-fit:cover; display:block; transition: transform .28s cubic-bezier(.2,.9,.3,1); }
+
+/* Hover/active polish for thumbnails */
+.thumb { transition: transform .24s cubic-bezier(.2,.9,.3,1), box-shadow .24s ease, border-color .16s ease; will-change: transform; }
+.thumb:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 22px 48px rgba(2,6,23,0.38); border-color: rgba(212,175,55,0.06); }
+.thumb:hover img { transform: scale(1.04); }
 
 /* Small circular delete button shown on image thumbnails */
 .thumb-delete {
@@ -131,6 +149,10 @@ body {
   transition: background .12s ease, transform .08s ease, box-shadow .12s ease;
 }
 .thumb-delete:hover { background: rgba(255,77,79,0.98); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(255,77,79,0.12) }
+
+/* Make preview thumbnails look more professional with subtle entrance animation */
+@keyframes thumbIn { from { opacity: 0; transform: translateY(6px) scale(.995) } to { opacity: 1; transform: translateY(0) scale(1) } }
+.thumb { animation: thumbIn 360ms cubic-bezier(.2,.9,.3,1) both; }
 
 .created-card { margin-top:16px; padding:12px; border-radius:8px; background:linear-gradient(180deg,#fff,#fbfbff); border:1px solid #ececff }
 .muted { color:#666; font-size:13px }
@@ -382,6 +404,34 @@ body {
 .admin-dashboard .product-title { font-size:15px }
 .admin-dashboard .product-price { color: #d4c08a; font-weight:700 }
 
+/* Dashboard: refined hamburger/menu and panel styles */
+.hamburger-button {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; padding:8px; border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.30);
+  transition: transform 300ms cubic-bezier(.2,.9,.3,1), box-shadow 300ms ease, border-color 220ms ease, background 220ms ease;
+}
+.hamburger-button:hover { transform: translateY(-3px) rotate(0.5deg); box-shadow: 0 26px 60px rgba(2,6,23,0.45); border-color: rgba(255,255,255,0.06); }
+.hamburger-button:active { transform: translateY(-1px) scale(0.995); }
+.hamburger-button[aria-expanded="true"] { box-shadow: 0 28px 80px rgba(2,6,23,0.48); border-color: rgba(212,175,55,0.10); }
+
+/* Featured panel styling */
+.featured-panel { width:100%; display:flex; gap:12px; align-items:flex-start; transition: opacity 260ms ease, transform 300ms cubic-bezier(.2,.9,.3,1); }
+.featured-panel { flex-wrap: wrap; }
+.featured-panel .product-list { background: linear-gradient(180deg,#070707,#0c0c0c); border-radius:12px; padding:12px; border:1px solid rgba(255,255,255,0.03); box-shadow: 0 30px 60px rgba(2,6,23,0.45); }
+.featured-panel .product-list .product-row { background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02)); border-left: 3px solid rgba(255,255,255,0.02); }
+
+/* Slightly darker contrast accents for separators and muted text */
+.admin-dashboard .muted { color: #bdb6a3 }
+.admin-dashboard .section-divider { background: rgba(255,255,255,0.02) }
+
+/* Soften product row borders and add subtle dark gray contrast */
+.admin-dashboard .product-row { border: 1px solid rgba(255,255,255,0.02); background: linear-gradient(180deg,#070707,#0b0b0b); }
+.admin-dashboard .product-thumb { border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 10px 28px rgba(0,0,0,0.45); }
+
+
 /* Right column tools card tweaks */
 .admin-dashboard .card > h3 { margin-top:0 }
 .admin-dashboard input[type="text"], .admin-dashboard input[type="number"], .admin-dashboard textarea { width:100%; box-sizing:border-box }
@@ -631,6 +681,34 @@ body {
   .admin-dashboard .edit-modal.compact-edit-modal { max-height: calc(100vh - 40px); overflow: hidden; }
   .admin-dashboard .edit-modal.compact-edit-modal .compact-modal-body { max-height: calc(100vh - 120px); }
 }
+
+/* Hero image: show more of the picture on small screens to avoid heavy cropping */
+.hero-section .hero-image {
+  object-fit: cover;
+  object-position: center center;
+  transition: object-position .28s ease, transform .28s ease;
+}
+
+@media (max-width: 768px) {
+  /* On mobile prefer showing upper part of image (less vertical crop) and use viewport-based height */
+  .hero-section .hero-image {
+    object-position: center 28%;
+  }
+  /* Slightly reduce the vignette opacity on small screens so image reads clearer */
+  .hero-section .vintage-shimmer { opacity: 0.28 !important }
+}
+
+@media (max-width: 425px) {
+  /* Ensure 375px and 425px behave like 320px: show more of the upper part */
+  .hero-section .hero-image { object-position: center 22%; }
+}
+
+/* Protective rules to avoid any remaining horizontal overflow */
+/* Force any top-level app child to not exceed viewport width and allow shrinking flex items */
+#__next > * { max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
+* { min-width: 0; }
+/* Ensure featured/product lists and product rows can wrap/shrink on small screens */
+.admin-dashboard .product-list-inner, .admin-dashboard .product-row, .admin-dashboard .product-meta { min-width: 0; }
 
 
 

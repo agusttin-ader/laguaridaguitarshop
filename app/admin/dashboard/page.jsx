@@ -38,10 +38,23 @@ export default function AdminDashboard(){
   const [expandedProducts, setExpandedProducts] = useState({})
   const [loadingAdmins, setLoadingAdmins] = useState(false)
   const [featuredPanelOpen, setFeaturedPanelOpen] = useState(false)
+  const [productsPanelOpen, setProductsPanelOpen] = useState(false)
   const saveFeaturedTimeout = useRef(null)
   const dragIndexRef = useRef(null)
   const editDragIndexRef = useRef(null)
   const router = useRouter()
+
+  // Motion variants for featured panel and thumbnails (smoother, premium feel)
+  const panelVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.997 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { staggerChildren: 0.04, when: 'beforeChildren', duration: 0.42, ease: 'easeOut' } },
+    exit: { opacity: 0, y: -8, transition: { duration: 0.22 } }
+  }
+
+  const thumbVariants = {
+    hidden: { opacity: 0, y: 6 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.36, ease: 'easeOut' } }
+  }
 
   function openImagePicker(product){
     const id = product.id || product.slug || product.title
@@ -471,58 +484,94 @@ export default function AdminDashboard(){
                 <div className="muted" style={{fontSize:13}}>Listado de productos activos con acciones de editar y eliminar.</div>
               </div>
               <div>
-                <button className="btn btn-primary" onClick={() => router.push('/admin/products/new')}>Cargar producto</button>
+                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                  <motion.button
+                    className="hamburger-button btn btn-ghost"
+                    aria-expanded={productsPanelOpen}
+                    onClick={() => setProductsPanelOpen(s => !s)}
+                    aria-label="Toggle panel productos"
+                    whileTap={{ scale: 0.96 }}
+                    whileHover={{ scale: 1.03 }}
+                    animate={{ rotate: productsPanelOpen ? 90 : 0 }}
+                    transition={{ type: 'spring', stiffness: 160, damping: 26 }}
+                  >☰</motion.button>
+                  <button className="btn btn-primary" onClick={() => router.push('/admin/products/new')}>Cargar producto</button>
+                </div>
               </div>
             </div>
             <div style={{marginTop:12}}>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {/* Featured preview removed here to avoid duplication; manage destacados from the panel header */}
-                  {products.map(p => {
-                    const id = p.id || p.slug || p.title
-                    const expanded = !!expandedProducts[id]
-                    return (
-                      <div key={id} style={{padding:8,borderRadius:8,background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent'}}>
-                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                          <div style={{display:'flex',alignItems:'center',gap:12}}>
-                            <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                              { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                  {/* Compact view when products panel closed */}
+                  {!productsPanelOpen ? (
+                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                      <div className="muted">Pulse el botón ☰ para ver el listado completo de productos</div>
+                      <div style={{display:'flex',gap:8,alignItems:'center',overflowX:'auto',paddingTop:6}}>
+                        {products.map((p) => {
+                          const id = p.id || p.slug || p.title
+                          const src = p.images && p.images[0] ? normalizeSrc(p.images[0]) : ''
+                          return (
+                            <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
+                              <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
+                                {src ? <img src={src} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+                              </div>
+                              <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={p.title}>{p.title}</div>
                             </div>
-                            <div>
-                              <div style={{fontWeight:700}}>{p.title}</div>
-                              <div className="muted" style={{fontSize:12}}>{p.price}</div>
-                            </div>
-                          </div>
-                          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                            <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle detalles">☰</button>
-                          </div>
-                        </div>
-                        {expanded && (
-                          <div style={{marginTop:8,display:'flex',gap:8,alignItems:'center',justifyContent:'flex-end'}}>
-                            <button className="btn btn-ghost" onClick={() => setEditingProduct(p)}>Editar</button>
-                            <button onClick={() => {
-                              setConfirmState({
-                                open: true,
-                                title: 'Eliminar producto',
-                                message: `Eliminar \"${p.title}\"? Esta acción no se puede deshacer.`,
-                                onConfirm: async () => {
-                                  setConfirmState(s => ({ ...s, open: false }))
-                                  try {
-                                    const res = await fetch('/api/admin/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: p.id }) })
-                                    const json = await res.json().catch(()=>null)
-                                    if (!res.ok) throw json || 'error'
-                                    toast.success('Producto eliminado')
-                                    fetchProducts()
-                                    fetchSettings()
-                                  } catch (err) { console.error(err); toast.error('Error eliminando producto') }
-                                }
-                              })
-                            }} aria-label="Eliminar producto" title="Eliminar producto" style={{padding:6,width:36,height:36,display:'inline-flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:'1px solid transparent',background:'transparent'}}><FiTrash2 size={16} color="#ff4d4f" /></button>
-                          </div>
-                        )}
+                          )
+                        })}
                       </div>
-                    )
-                  })}
+                    </div>
+                  ) : (
+                    <AnimatePresence>
+                      <motion.div variants={panelVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.36 }} style={{display:'flex',flexDirection:'column',gap:8}}>
+                        {products.map(p => {
+                          const id = p.id || p.slug || p.title
+                          const expanded = !!expandedProducts[id]
+                          return (
+                            <div key={id} style={{padding:8,borderRadius:8,background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent'}}>
+                              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                                <div style={{display:'flex',alignItems:'center',gap:12}}>
+                                  <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
+                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                  </div>
+                                  <div>
+                                    <div style={{fontWeight:700}}>{p.title}</div>
+                                    <div className="muted" style={{fontSize:12}}>{p.price}</div>
+                                  </div>
+                                </div>
+                                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                                  <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle detalles">☰</button>
+                                </div>
+                              </div>
+                              {expanded && (
+                                <div style={{marginTop:8,display:'flex',gap:8,alignItems:'center',justifyContent:'flex-end'}}>
+                                  <button className="btn btn-ghost" onClick={() => setEditingProduct(p)}>Editar</button>
+                                  <button onClick={() => {
+                                    setConfirmState({
+                                      open: true,
+                                      title: 'Eliminar producto',
+                                      message: `Eliminar \"${p.title}\"? Esta acción no se puede deshacer.`,
+                                      onConfirm: async () => {
+                                        setConfirmState(s => ({ ...s, open: false }))
+                                        try {
+                                          const res = await fetch('/api/admin/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: p.id }) })
+                                          const json = await res.json().catch(()=>null)
+                                          if (!res.ok) throw json || 'error'
+                                          toast.success('Producto eliminado')
+                                          fetchProducts()
+                                          fetchSettings()
+                                        } catch (err) { console.error(err); toast.error('Error eliminando producto') }
+                                      }
+                                    })
+                                  }} aria-label="Eliminar producto" title="Eliminar producto" style={{padding:6,width:36,height:36,display:'inline-flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:'1px solid transparent',background:'transparent'}}><FiTrash2 size={16} color="#ff4d4f" /></button>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </motion.div>
+                    </AnimatePresence>
+                  )}
                 </div>
               )}
             </div>
@@ -537,7 +586,16 @@ export default function AdminDashboard(){
                 <div className="muted">Seleccioná hasta 3 productos que se mostrarán como destacados.</div>
               </div>
               <div>
-                <motion.button className="btn btn-ghost" onClick={() => { setFeaturedPanelOpen(s => !s); }} aria-label="Toggle panel destacados" whileTap={{ scale: 0.96 }} animate={{ rotate: featuredPanelOpen ? 90 : 0 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>☰</motion.button>
+                <motion.button
+                  className="hamburger-button btn btn-ghost"
+                  aria-expanded={featuredPanelOpen}
+                  onClick={() => { setFeaturedPanelOpen(s => !s); }}
+                  aria-label="Toggle panel destacados"
+                  whileTap={{ scale: 0.96 }}
+                  whileHover={{ scale: 1.03 }}
+                  animate={{ rotate: featuredPanelOpen ? 90 : 0 }}
+                  transition={{ type: 'spring', stiffness: 160, damping: 26 }}
+                >☰</motion.button>
               </div>
             </div>
             <div style={{marginTop:12}}>
@@ -551,30 +609,37 @@ export default function AdminDashboard(){
                         {(settings.featured || []).map((fid, idx) => {
                           const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || null
                           const thumb = prod ? resolveImageForProduct(prod, fid) : ''
+                          const isSelected = (settings.featured || []).includes(fid)
                           return prod ? (
-                            <div
+                            <motion.div
                               key={fid}
                               data-fid={fid}
+                              className={isSelected ? 'selected' : ''}
+                              variants={thumbVariants}
+                              initial="hidden"
+                              animate="show"
+                              layout
+                              whileHover={{ scale: 1.03 }}
                               draggable
                               onDragStart={(e) => handleFeaturedDragStart(e, idx)}
                               onDragOver={handleFeaturedDragOver}
                               onDrop={(e) => handleFeaturedDrop(e, idx)}
                               onTouchStart={(e) => handleFeaturedTouchStart(e, idx)}
                               onTouchEnd={(e) => handleFeaturedTouchEnd(e)}
-                              style={{minWidth:120,display:'flex',flexDirection:'column',gap:6,padding:6,borderRadius:6,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
+                              style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
                             >
-                              <div style={{width:120,height:72,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                {thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+                              <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
+                                {thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
                               </div>
-                              <div style={{fontSize:13,fontWeight:700}}>{prod.title}</div>
-                            </div>
+                              <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
+                            </motion.div>
                           ) : null
                         })}
                       </div>
                     </div>
                   ) : (
                     <AnimatePresence>
-                      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                      <motion.div variants={panelVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.36 }} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
                         <div style={{flex:1,maxHeight:420,overflowY:'auto',paddingRight:8}}>
                           <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Productos (marcá hasta 3)</div>
                           {products.map(p => {

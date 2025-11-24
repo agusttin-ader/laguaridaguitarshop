@@ -146,7 +146,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <div className="card" style={{ width: 460 }}>
+      <div className="card" style={{ maxWidth: 460, width: '100%' }}>
         <h3 style={{ marginTop: 0 }}>Restablecer contraseña</h3>
         <p className="muted">{message}</p>
 
