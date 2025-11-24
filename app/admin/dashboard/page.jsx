@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../../lib/supabaseClient'
-import { FiTrash2, FiStar, FiCopy } from 'react-icons/fi'
+import { FiTrash2, FiStar, FiCopy, FiCheck } from 'react-icons/fi'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
@@ -28,13 +28,16 @@ export default function AdminDashboard(){
   const [authChecked, setAuthChecked] = useState(false)
   const [pendingApproval, setPendingApproval] = useState(false)
   const [requests, setRequests] = useState([])
+  const [requestsModalOpen, setRequestsModalOpen] = useState(false)
   const [imagePickerOpen, setImagePickerOpen] = useState(false)
   const [imagePickerProduct, setImagePickerProduct] = useState(null)
   const [imagePickerImages, setImagePickerImages] = useState([])
   const [imagePickerSelected, setImagePickerSelected] = useState(null)
   const [adminsModalOpen, setAdminsModalOpen] = useState(false)
   const [adminsList, setAdminsList] = useState([])
+  const [expandedProducts, setExpandedProducts] = useState({})
   const [loadingAdmins, setLoadingAdmins] = useState(false)
+  const [featuredPanelOpen, setFeaturedPanelOpen] = useState(false)
   const saveFeaturedTimeout = useRef(null)
   const dragIndexRef = useRef(null)
   const editDragIndexRef = useRef(null)
@@ -259,6 +262,26 @@ export default function AdminDashboard(){
     } catch (err) { console.error('Failed to fetch requests', err) }
   }
 
+  async function approveRequest(id){
+    try {
+      const res = await fetch('/api/admin/requests', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id, status: 'approved' }) })
+      const json = await res.json()
+      if (!res.ok) throw json
+      toast.success('Solicitud aprobada')
+      await fetchRequests()
+    } catch (err) { console.error(err); toast.error('Error aprobando') }
+  }
+
+  async function rejectRequest(id){
+    try {
+      const res = await fetch('/api/admin/requests', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id, status: 'rejected' }) })
+      const json = await res.json()
+      if (!res.ok) throw json
+      toast.success('Solicitud rechazada')
+      await fetchRequests()
+    } catch (err) { console.error(err); toast.error('Error rechazando') }
+  }
+
   async function fetchAdmins(){
     setLoadingAdmins(true)
     try {
@@ -459,40 +482,51 @@ export default function AdminDashboard(){
                       </div>
                     </div>
                   ) : null}
-                  {products.map(p => (
-                    <div key={p.id || p.slug || p.title} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:8,borderRadius:8,background:'rgba(255,255,255,0.01)'}}>
-                      <div style={{display:'flex',alignItems:'center',gap:12}}>
-                        <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                          { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                  {products.map(p => {
+                    const id = p.id || p.slug || p.title
+                    const expanded = !!expandedProducts[id]
+                    return (
+                      <div key={id} style={{padding:8,borderRadius:8,background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent'}}>
+                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div style={{display:'flex',alignItems:'center',gap:12}}>
+                            <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
+                              { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                            </div>
+                            <div>
+                              <div style={{fontWeight:700}}>{p.title}</div>
+                              <div className="muted" style={{fontSize:12}}>{p.price}</div>
+                            </div>
+                          </div>
+                          <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                            <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle detalles">☰</button>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{fontWeight:700}}>{p.title}</div>
-                          <div className="muted" style={{fontSize:12}}>{p.price}</div>
-                        </div>
+                        {expanded && (
+                          <div style={{marginTop:8,display:'flex',gap:8,alignItems:'center',justifyContent:'flex-end'}}>
+                            <button className="btn btn-ghost" onClick={() => setEditingProduct(p)}>Editar</button>
+                            <button onClick={() => {
+                              setConfirmState({
+                                open: true,
+                                title: 'Eliminar producto',
+                                message: `Eliminar \"${p.title}\"? Esta acción no se puede deshacer.`,
+                                onConfirm: async () => {
+                                  setConfirmState(s => ({ ...s, open: false }))
+                                  try {
+                                    const res = await fetch('/api/admin/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: p.id }) })
+                                    const json = await res.json().catch(()=>null)
+                                    if (!res.ok) throw json || 'error'
+                                    toast.success('Producto eliminado')
+                                    fetchProducts()
+                                    fetchSettings()
+                                  } catch (err) { console.error(err); toast.error('Error eliminando producto') }
+                                }
+                              })
+                            }} aria-label="Eliminar producto" title="Eliminar producto" style={{padding:6,width:36,height:36,display:'inline-flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:'1px solid transparent',background:'transparent'}}><FiTrash2 size={16} color="#ff4d4f" /></button>
+                          </div>
+                        )}
                       </div>
-                      <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                        <button className="btn btn-ghost" onClick={() => setEditingProduct(p)}>Editar</button>
-                        <button onClick={() => {
-                          setConfirmState({
-                            open: true,
-                            title: 'Eliminar producto',
-                            message: `Eliminar \"${p.title}\"? Esta acción no se puede deshacer.`,
-                            onConfirm: async () => {
-                              setConfirmState(s => ({ ...s, open: false }))
-                              try {
-                                const res = await fetch('/api/admin/products', { method: 'DELETE', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: p.id }) })
-                                const json = await res.json().catch(()=>null)
-                                if (!res.ok) throw json || 'error'
-                                toast.success('Producto eliminado')
-                                fetchProducts()
-                                fetchSettings()
-                              } catch (err) { console.error(err); toast.error('Error eliminando producto') }
-                            }
-                          })
-                        }} aria-label="Eliminar producto" title="Eliminar producto" style={{padding:6,width:36,height:36,display:'inline-flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:'1px solid transparent',background:'transparent'}}><FiTrash2 size={16} color="#ff4d4f" /></button>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -501,48 +535,133 @@ export default function AdminDashboard(){
             <div className="section-divider" />
 
           <div className="card" style={{marginTop:16}}>
-            <h2>Destacados</h2>
-            <p className="muted">Seleccioná hasta 3 productos que se mostrarán como destacados.</p>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <div>
+                <h2 style={{margin:0}}>Destacados</h2>
+                <div className="muted">Seleccioná hasta 3 productos que se mostrarán como destacados.</div>
+              </div>
+              <div>
+                <button className="btn btn-ghost" onClick={() => { setFeaturedPanelOpen(s => !s); if (!requestsModalOpen) { /* noop */ } }} aria-label="Toggle panel destacados">☰</button>
+              </div>
+            </div>
             <div style={{marginTop:12}}>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {products.map(p => {
+                  {featuredPanelOpen ? (
+                    <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                      <div style={{flex:1,maxHeight:420,overflowY:'auto',paddingRight:8}}>
+                        <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Productos (marcá hasta 3)</div>
+                        {products.map(p => {
+                          const id = p.id || p.slug || p.title
+                          const selected = (settings.featured || []).includes(id)
+                          return (
+                            <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
+                              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                                <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
+                                  { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                </div>
+                                <div>
+                                  <div style={{fontWeight:700}}>{p.title}</div>
+                                  <div className="muted" style={{fontSize:12}}>{p.price}</div>
+                                </div>
+                              </div>
+                              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                <input type="checkbox" checked={selected} onChange={(e)=>{
+                                  const next = new Set(settings.featured || [])
+                                  if (e.target.checked) {
+                                    if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
+                                    next.add(id)
+                                  } else { next.delete(id) }
+                                  setSettings({...settings, featured: Array.from(next)})
+                                }} />
+                                {p.images && p.images.length > 0 && <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto</button>}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <div style={{width:320}}>
+                        <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Destacados ordenados</div>
+                        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                          {(settings.featured || []).map((fid, idx) => {
+                            const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || { title: fid, images: [] }
+                            const thumb = normalizeSrc((settings.featuredMain && settings.featuredMain[fid]) || (prod.images && prod.images[0]) || '')
+                            return (
+                              <div key={fid} data-fid={fid} onDragOver={handleFeaturedDragOver} onDrop={(e)=>handleFeaturedDrop(e, idx)} style={{display:'flex',alignItems:'center',gap:8,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222'}}>
+                                <div draggable onDragStart={(e)=>handleFeaturedDragStart(e, idx)} onTouchStart={(e)=>handleFeaturedTouchStart(e, idx)} onTouchEnd={(e)=>handleFeaturedTouchEnd(e, idx)} style={{width:28,display:'flex',alignItems:'center',justifyContent:'center',cursor:'grab'}}>☰</div>
+                                <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
+                                  <div style={{width:72,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>{thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}</div>
+                                  <div style={{fontWeight:700}}>{prod.title}</div>
+                                </div>
+                                <div style={{display:'flex',gap:8}}>
+                                  <button className="btn btn-ghost" onClick={() => moveFeatured(fid, -1)}>▲</button>
+                                  <button className="btn btn-ghost" onClick={() => moveFeatured(fid, 1)}>▼</button>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                        <div style={{display:'flex',gap:8,marginTop:12,justifyContent:'flex-end'}}>
+                          <button className="btn btn-primary" onClick={async ()=>{ await saveFeaturedToServer(settings); setFeaturedPanelOpen(false) }}>Guardar</button>
+                          <button className="btn btn-ghost" onClick={()=>{ fetchSettings(); setFeaturedPanelOpen(false) }}>Cancelar</button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    products.map(p => {
                     const id = p.id || p.slug || p.title
                     const selected = (settings.featured || []).includes(id)
+                    const expanded = !!expandedProducts[id]
                     const currentMain = (settings.featuredMain && settings.featuredMain[id]) || (p.images && p.images[0]) || null
                     return (
-                      <div key={id} style={{display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.02)': 'transparent'}}>
-                        <label style={{display:'flex',alignItems:'center',gap:10}}>
-                          <input type="checkbox" checked={selected} onChange={(e)=>{
-                            const next = new Set(settings.featured || [])
-                            if (e.target.checked) {
-                              if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
-                              next.add(id)
-                            } else { next.delete(id) }
-                            setSettings({...settings, featured: Array.from(next)})
-                          }} />
-                          <div style={{flex:1,display:'flex',alignItems:'center',gap:10}}>
+                      <div key={id} style={{padding:8,borderRadius:8,background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent'}}>
+                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                          <div style={{display:'flex',alignItems:'center',gap:10}}>
                             <div style={{display:'flex',alignItems:'center',gap:8}}>
                               <strong style={{display:'block'}}>{p.title}</strong>
-                              {((settings.featuredMain || {})[id]) ? (
-                                <img src={normalizeSrc((settings.featuredMain || {})[id])} alt="mini" style={{width:56,height:36,objectFit:'cover',borderRadius:6,border:'1px solid #222'}} />
+                              {currentMain ? (
+                                <img src={normalizeSrc(currentMain)} alt="mini" style={{width:56,height:36,objectFit:'cover',borderRadius:6,border:'1px solid #222'}} />
                               ) : null}
                             </div>
                             <span className="muted">{p.price}</span>
                           </div>
-                        </label>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle destacados">☰</button>
+                          </div>
+                        </div>
 
-                        {selected && p.images && p.images.length > 0 && (
-                          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                              <div style={{fontSize:12,color:'#bbb'}}>Foto principal:</div>
+                        {expanded && (
+                          <div style={{marginTop:8,display:'flex',flexDirection:'column',gap:8}}>
+                            <label style={{display:'flex',alignItems:'center',gap:10}}>
+                              <input type="checkbox" checked={selected} onChange={(e)=>{
+                                const next = new Set(settings.featured || [])
+                                if (e.target.checked) {
+                                  if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
+                                  next.add(id)
+                                } else { next.delete(id) }
+                                setSettings({...settings, featured: Array.from(next)})
+                              }} />
+                              <div style={{flex:1,display:'flex',alignItems:'center',gap:10}}>
+                                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                  <div style={{fontWeight:700}}>{p.title}</div>
+                                </div>
+                                <span className="muted">{p.price}</span>
+                              </div>
+                            </label>
+
+                            {selected && p.images && p.images.length > 0 && (
+                              <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                                <div style={{fontSize:12,color:'#bbb'}}>Foto principal:</div>
                                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                                   <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto principal</button>
                                 </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
                     )
-                  })}
+                  }))}
                 </div>
               )}
               <div style={{marginTop:12,display:'flex',gap:8}}>
@@ -632,45 +751,11 @@ export default function AdminDashboard(){
                       toast.success(`Admins:\n${html}`)
                     } catch (err) { toast.error('Error: ' + JSON.stringify(err)) }
                   }}>List admins</button>
-                  <button className="btn btn-ghost" onClick={() => fetchRequests()}>Ver solicitudes</button>
+                  <button className="btn btn-ghost" onClick={() => { fetchRequests(); setRequestsModalOpen(true) }}>Ver solicitudes</button>
                   <button className="btn btn-ghost" onClick={() => openAdminsModal()}>Revoke admin</button>
                 </div>
             
-                {requests && requests.length > 0 && (
-                  <div style={{marginTop:12}}>
-                    <h5 style={{margin:0}}>Solicitudes pendientes</h5>
-                    <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:8}}>
-                      {requests.map(r=> (
-                        <div key={r.id} style={{padding:8,background:'rgba(255,255,255,0.01)',borderRadius:8,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                          <div>
-                            <div style={{fontWeight:700}}>{r.email}</div>
-                            <div className="muted" style={{fontSize:12}}>{r.message || ''}</div>
-                          </div>
-                          <div style={{display:'flex',gap:8}}>
-                            <button className="btn btn-primary" onClick={async ()=>{
-                              try {
-                                const res = await fetch('/api/admin/requests', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: r.id, status: 'approved' }) })
-                                const json = await res.json()
-                                if (!res.ok) throw json
-                                toast.success('Solicitud aprobada')
-                                await fetchRequests()
-                              } catch (err) { toast.error('Error aprobando') }
-                            }}>Aprobar</button>
-                            <button className="btn btn-ghost" onClick={async ()=>{
-                              try {
-                                const res = await fetch('/api/admin/requests', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: r.id, status: 'rejected' }) })
-                                const json = await res.json()
-                                if (!res.ok) throw json
-                                toast.success('Solicitud rechazada')
-                                await fetchRequests()
-                              } catch (err) { toast.error('Error rechazando') }
-                            }}>Rechazar</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* requests are shown in a modal — use the "Ver solicitudes" button above */}
               </div>
             )}
           </div>
@@ -939,6 +1024,41 @@ export default function AdminDashboard(){
                     <label htmlFor="editImagesInput" className="btn btn-primary">Subir imágenes</label>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {requestsModalOpen && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="modal-content card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} style={{maxWidth:720,margin:'40px auto',padding:18, maxHeight: '70vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+                <h4 style={{margin:0}}>Solicitudes pendientes</h4>
+                <div style={{display:'flex',gap:8}}>
+                  <button className="btn btn-ghost" onClick={() => { setRequestsModalOpen(false); setRequests([]) }}>Cerrar</button>
+                </div>
+              </div>
+              <div style={{marginTop:12}}>
+                <div style={{fontSize:13,color:'#888',marginBottom:8}}>Listado de solicitudes de acceso. Revisá el correo y el mensaje.</div>
+                {(!requests || requests.length === 0) ? (
+                  <div className="muted">No hay solicitudes pendientes</div>
+                ) : (
+                  <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {requests.map(r => (
+                      <div key={r.id} style={{padding:10,background:'rgba(0,0,0,0.03)',borderRadius:8,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                        <div>
+                          <div style={{fontWeight:700}}>{r.email}</div>
+                          <div className="muted" style={{fontSize:12}}>{r.message || ''}</div>
+                        </div>
+                        <div style={{display:'flex',gap:8}}>
+                          <button className="btn" title="Aprobar" onClick={() => approveRequest(r.id)}><FiCheck size={16} /></button>
+                          <button className="btn" title="Rechazar" onClick={() => rejectRequest(r.id)} style={{background:'#fff',border:'1px solid #ff4d4f',color:'#ff4d4f'}}><FiTrash2 size={16} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

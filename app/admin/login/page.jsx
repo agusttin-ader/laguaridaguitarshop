@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
@@ -12,11 +12,21 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState('')
+  const [urlError, setUrlError] = useState(null)
+  const [urlErrorCode, setUrlErrorCode] = useState(null)
   const [debugInfo, setDebugInfo] = useState(null)
   const [recoveryMode, setRecoveryMode] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
+  const [accessToken, setAccessToken] = useState(null)
+  const [isOwner, setIsOwner] = useState(false)
+  const [newAdminId, setNewAdminId] = useState('')
+  const [adminActionMsg, setAdminActionMsg] = useState('')
+  const [showUserId, setShowUserId] = useState(false)
+  const [pendingModalOpen, setPendingModalOpen] = useState(false)
+  const pendingAutoSignoutRef = useRef(null)
 
   const toggleShowPassword = () => setShowPassword((s) => !s)
 
@@ -44,7 +54,7 @@ export default function AdminLogin() {
 
     // Create admin request (best-effort)
     try {
-      const userId = data?.user?.id
+      const userId = res?.data?.user?.id
       await fetch('/api/admin/requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,6 +63,39 @@ export default function AdminLogin() {
     } catch (err) {
       // ignore
     }
+  }
+
+  async function handleResendLink() {
+    setMessage('')
+    setLoading(true)
+    try {
+      // If password is provided try signUp (resend confirmation), otherwise send magic link
+      if (password) {
+        const res = await supabase.auth.signUp({ email, password })
+        console.debug('resend signUp', res)
+        if (res.error) {
+          // if already registered, try sending magic link
+          if (/already registered|user exists/i.test(res.error.message || '')) {
+            const res2 = await supabase.auth.signInWithOtp({ email })
+            console.debug('fallback signInWithOtp', res2)
+            if (res2.error) return setMessage(res2.error.message)
+              setMessage('Se reenvió un enlace de inicio de sesión a tu email')
+          } else {
+            return setMessage(res.error.message)
+          }
+        } else {
+            setMessage('Se reenvió el correo de confirmación. Revisá tu bandeja de entrada.')
+        }
+      } else {
+        const res = await supabase.auth.signInWithOtp({ email })
+        console.debug('resend signInWithOtp', res)
+        if (res.error) return setMessage(res.error.message)
+          setMessage('Se reenvió un enlace a tu email para iniciar sesión.')
+      }
+    } catch (err) {
+      console.error('resend error', err)
+        setMessage('Error al reenviar el enlace. Intentá nuevamente.')
+    } finally { setLoading(false) }
   }
 
   async function handleForgot(e) {
@@ -95,6 +138,21 @@ export default function AdminLogin() {
         // Parse location.hash or search for access_token and type=recovery and set session manually.
         if (typeof window !== 'undefined') {
           const hash = window.location.hash || ''
+          // detect supabase error fragments like #error=access_denied&error_code=otp_expired&error_description=...
+          try {
+            const fragParams = new URLSearchParams(hash.replace(/^#/, ''))
+            const err = fragParams.get('error')
+            const errCode = fragParams.get('error_code')
+            const errDesc = fragParams.get('error_description')
+            if (err) {
+              setUrlError(errDesc || err)
+              setUrlErrorCode(errCode || err)
+              setMessage(errDesc ? decodeURIComponent(errDesc) : err)
+            }
+          } catch (e) {
+            // ignore parsing errors
+          }
+
           const search = window.location.search || ''
           console.debug('Login page fallback hash:', hash)
           console.debug('Login page fallback search:', search)
@@ -103,6 +161,7 @@ export default function AdminLogin() {
           let access_token = params.get('access_token')
           let refresh_token = params.get('refresh_token')
           let type = params.get('type')
+
 
           if (!access_token) {
             params = new URLSearchParams(search.replace(/^\?/, ''))
@@ -115,6 +174,7 @@ export default function AdminLogin() {
           const mask = (t)=> t ? (t.slice(0,6) + '...' + t.slice(-4)) : null
           setDebugInfo({ hash, search, access_token_present: !!access_token, access_token_masked: mask(access_token), type })
 
+
           if (access_token) {
             console.debug('Attempting to set session from tokens (login fallback)')
             const setRes = await supabase.auth.setSession({ access_token, refresh_token })
@@ -122,6 +182,7 @@ export default function AdminLogin() {
             if (setRes?.error) {
               setMessage('No se pudo establecer la sesión: ' + (setRes.error?.message || JSON.stringify(setRes.error)))
               setDebugInfo((d)=> ({...d, setSessionError: setRes.error?.message || JSON.stringify(setRes.error)}))
+
             }
             if (setRes?.data?.session) {
               if (!mounted) return
@@ -138,6 +199,85 @@ export default function AdminLogin() {
     })()
     return () => { mounted = false }
   }, [])
+
+  // fetch current session/user on mount
+  useEffect(() => {
+    let mounted2 = true
+    ;(async () => {
+      try {
+        const { data: sessData } = await supabase.auth.getSession()
+        const token = sessData?.session?.access_token
+        const { data: userData } = await supabase.auth.getUser()
+        if (!mounted2) return
+        setAccessToken(token || null)
+        setCurrentUser(userData?.user || null)
+        const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
+        setIsOwner((userData?.user?.email || '') === ownerEmail)
+      } catch (err) {
+        // ignore
+      }
+    })()
+    return () => { mounted2 = false }
+  }, [])
+
+  // subscribe to auth changes to keep user updated
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      try {
+        const token = session?.access_token
+        const { data: userData } = await supabase.auth.getUser()
+        setAccessToken(token || null)
+        setCurrentUser(userData?.user || null)
+        const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
+        setIsOwner((userData?.user?.email || '') === ownerEmail)
+      } catch (e) {
+        setCurrentUser(null)
+        setAccessToken(null)
+        setIsOwner(false)
+      }
+    })
+    return () => sub?.subscription?.unsubscribe?.()
+  }, [])
+
+  // After login, if user is not owner or admin, create a pending admin request and show modal then sign out
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        if (!currentUser) return
+        const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
+        if ((currentUser.email || '') === ownerEmail) return
+
+        // check admin via API using user's access token
+        try {
+          const res = await fetch('/api/admin/admins', { headers: { Authorization: `Bearer ${accessToken}` } })
+          if (res.ok) {
+            // user is admin — nothing to do
+            return
+          }
+        } catch (e) {
+          // ignore and proceed to create request
+        }
+
+        // create pending request (best-effort) so owner can see it
+        try {
+          await fetch('/api/admin/requests', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email }) })
+        } catch (e) { /* ignore */ }
+
+        // show modal informing user and auto sign out after a short delay
+        if (!mounted) return
+        setPendingModalOpen(true)
+        if (pendingAutoSignoutRef.current) clearTimeout(pendingAutoSignoutRef.current)
+        pendingAutoSignoutRef.current = setTimeout(() => {
+          pendingAutoSignoutRef.current = null
+          handleSignOut()
+        }, 6000)
+      } catch (err) {
+        console.error('post-login admin check error', err)
+      }
+    })()
+    return () => { mounted = false; if (pendingAutoSignoutRef.current) { clearTimeout(pendingAutoSignoutRef.current); pendingAutoSignoutRef.current = null } }
+  }, [currentUser, accessToken])
 
   async function handleCompleteRecovery(e) {
     e?.preventDefault()
@@ -160,6 +300,63 @@ export default function AdminLogin() {
     } catch (err) {
       setLoading(false)
       setMessage('Error durante la recuperación. Intentá solicitar un nuevo enlace desde el login.')
+    }
+  }
+
+  async function signInWithGoogle() {
+    setMessage('')
+    try {
+      const redirectTo = (process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')) + '/admin/login'
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } })
+      if (error) setMessage(error.message)
+    } catch (err) {
+      console.error('google sign in error', err)
+      setMessage('Error iniciando sesión con Google')
+    }
+  }
+
+  async function handleSignOut() {
+    setMessage('')
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('signOut error', error)
+        setMessage('Error cerrando sesión: ' + (error.message || String(error)))
+        return
+      }
+      // clear local UI state
+      setCurrentUser(null)
+      setAccessToken(null)
+      setIsOwner(false)
+      setShowUserId(false)
+      setMessage('Sesión cerrada')
+      try { router.replace('/admin/login') } catch (_) { if (typeof window !== 'undefined') window.location.href = '/admin/login' }
+    } catch (err) {
+      console.error('signOut unexpected', err)
+      setMessage('Error cerrando sesión')
+    }
+  }
+
+  async function handleAddAdmin(e) {
+    e?.preventDefault()
+    setAdminActionMsg('')
+    if (!newAdminId) return setAdminActionMsg('Ingresá el id del usuario')
+    try {
+      const res = await fetch('/api/admin/admins', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({ id: newAdminId })
+      })
+      const json = await res.json()
+      if (!res.ok) return setAdminActionMsg(json?.error?.message || json?.error || 'Error agregando admin')
+      setAdminActionMsg('Admin agregado correctamente')
+      setNewAdminId('')
+    } catch (err) {
+      console.error('add admin error', err)
+      setAdminActionMsg('Error agregando admin')
     }
   }
 
@@ -231,9 +428,66 @@ export default function AdminLogin() {
         </form>
         )}
 
+        <div style={{marginTop:12, display:'flex', flexDirection:'column', gap:8}}>
+          <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
+
+          {currentUser && (
+            <div style={{border:'1px solid #eee', padding:12, borderRadius:6}}>
+              <div style={{fontSize:13}}><strong>Conectado como:</strong> {currentUser.email}</div>
+              <div style={{fontSize:12, color:'#666', marginTop:6, display:'flex',alignItems:'center',gap:8}}>
+                <div style={{flex:'1 1 auto'}}>ID: <code style={{fontSize:12}}>{currentUser.id ? (showUserId ? currentUser.id : (String(currentUser.id).slice(0,6) + '...' + String(currentUser.id).slice(-4))) : ''}</code></div>
+                <div style={{flex:'0 0 auto'}}>
+                  <button className="btn btn-ghost" style={{padding:'4px 8px',fontSize:12}} onClick={() => setShowUserId(s => !s)}>{showUserId ? 'Ocultar' : 'Mostrar'}</button>
+                </div>
+              </div>
+              <div style={{marginTop:8, display:'flex', gap:8}}>
+                <button className="btn btn-ghost" onClick={handleSignOut}>Cerrar sesión</button>
+                {isOwner && (
+                  <button className="btn btn-primary" onClick={()=>router.push('/admin/dashboard')}>Ir a panel</button>
+                )}
+              </div>
+
+              {isOwner && (
+                <form onSubmit={handleAddAdmin} style={{marginTop:10}}>
+                  <label style={{fontSize:13}}>Agregar admin por User ID</label>
+                  <div style={{display:'flex', gap:8, marginTop:6}}>
+                    <input placeholder="user-id-aqui" value={newAdminId} onChange={(e)=>setNewAdminId(e.target.value)} />
+                    <button className="btn btn-small btn-primary" type="submit">Agregar</button>
+                  </div>
+                  {adminActionMsg && <div style={{marginTop:8,fontSize:13}} className="muted">{adminActionMsg}</div>}
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+
+        {pendingModalOpen && (
+          <div style={{position:'fixed',left:0,right:0,top:0,bottom:0,background:'rgba(0,0,0,0.4)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1200}}>
+            <div style={{width:420,background:'#fff',padding:20,borderRadius:8,boxShadow:'0 8px 24px rgba(0,0,0,0.2)'}}>
+              <h3 style={{marginTop:0}}>Acceso en revisión</h3>
+              <div style={{marginTop:8,fontSize:13,color:'#333'}}>Tu cuenta ha iniciado sesión pero necesita que el propietario <strong>agusttin.ader@gmail.com</strong> apruebe tu acceso. Se enviará una solicitud de acceso y, por seguridad, la sesión se cerrará automáticamente. Cuando el propietario te habilite, podrás iniciar sesión nuevamente y acceder al panel.</div>
+              <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:14}}>
+                <button className="btn btn-ghost" onClick={() => {
+                  // confirm, clear timer and sign out
+                  if (pendingAutoSignoutRef.current) { clearTimeout(pendingAutoSignoutRef.current); pendingAutoSignoutRef.current = null }
+                  setPendingModalOpen(false)
+                  handleSignOut()
+                }}>Entendido</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {message && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} style={{marginTop:12}} className="muted">
             {message}
+            {urlErrorCode === 'otp_expired' && (
+              <div style={{marginTop:8}}>
+                <button className="btn btn-ghost" onClick={handleResendLink} disabled={loading} style={{marginRight:8}}>
+                  Reenviar enlace
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
 
