@@ -34,9 +34,12 @@ export default function AdminLogin() {
     e?.preventDefault()
     setMessage('')
     setLoading(true)
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    const res = await supabase.auth.signUp({ email, password })
     setLoading(false)
-    if (error) return setMessage(error.message)
+    // attach full response for debugging
+    console.debug('signup response', res)
+    setDebugInfo((d)=> ({...d, signup: { data: res.data, error: res.error }}))
+    if (res.error) return setMessage(res.error.message)
     setMessage('Revisa tu email para confirmar la cuenta')
 
     // Create admin request (best-effort)
