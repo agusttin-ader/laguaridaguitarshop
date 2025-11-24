@@ -246,13 +246,17 @@ export default function AdminLogin() {
       try {
         if (!currentUser) return
         const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
-        if ((currentUser.email || '') === ownerEmail) return
+        if ((currentUser.email || '') === ownerEmail) {
+          try { router.replace('/admin/dashboard') } catch (_) {}
+          return
+        }
 
         // check admin via API using user's access token
         try {
           const res = await fetch('/api/admin/admins', { headers: { Authorization: `Bearer ${accessToken}` } })
           if (res.ok) {
-            // user is admin — nothing to do
+            // user is admin — redirect to dashboard
+            try { router.replace('/admin/dashboard') } catch (_) {}
             return
           }
         } catch (e) {
@@ -264,14 +268,11 @@ export default function AdminLogin() {
           await fetch('/api/admin/requests', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email }) })
         } catch (e) { /* ignore */ }
 
-        // show modal informing user and auto sign out after a short delay
+        // After creating the pending request, navigate to the dashboard and
+        // let the dashboard UI show the pending-approval state. Do NOT
+        // auto sign-out here (we want the user to see the dashboard page).
         if (!mounted) return
-        setPendingModalOpen(true)
-        if (pendingAutoSignoutRef.current) clearTimeout(pendingAutoSignoutRef.current)
-        pendingAutoSignoutRef.current = setTimeout(() => {
-          pendingAutoSignoutRef.current = null
-          handleSignOut()
-        }, 6000)
+        try { router.replace('/admin/dashboard') } catch (_) { /* ignore */ }
       } catch (err) {
         console.error('post-login admin check error', err)
       }
@@ -330,7 +331,16 @@ export default function AdminLogin() {
       setIsOwner(false)
       setShowUserId(false)
       setMessage('Sesión cerrada')
-      try { router.replace('/admin/login') } catch (_) { if (typeof window !== 'undefined') window.location.href = '/admin/login' }
+      // Force a full reload to ensure no user data remains in-memory
+      if (typeof window !== 'undefined') {
+        try {
+          window.location.replace('/admin/login')
+        } catch (_) {
+          window.location.href = '/admin/login'
+        }
+      } else {
+        try { router.replace('/admin/login') } catch (_) {}
+      }
     } catch (err) {
       console.error('signOut unexpected', err)
       setMessage('Error cerrando sesión')
@@ -447,16 +457,9 @@ export default function AdminLogin() {
                 )}
               </div>
 
-              {isOwner && (
-                <form onSubmit={handleAddAdmin} style={{marginTop:10}}>
-                  <label style={{fontSize:13}}>Agregar admin por User ID</label>
-                  <div style={{display:'flex', gap:8, marginTop:6}}>
-                    <input placeholder="user-id-aqui" value={newAdminId} onChange={(e)=>setNewAdminId(e.target.value)} />
-                    <button className="btn btn-small btn-primary" type="submit">Agregar</button>
-                  </div>
-                  {adminActionMsg && <div style={{marginTop:8,fontSize:13}} className="muted">{adminActionMsg}</div>}
-                </form>
-              )}
+              {/* The admin-grant control was removed from the login page on purpose.
+                  Granting admin by user ID is available only in the admin dashboard
+                  and only when the owner (NEXT_PUBLIC_OWNER_EMAIL) is signed in. */}
             </div>
           )}
         </div>
