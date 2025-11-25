@@ -200,7 +200,6 @@ export default function NewProductForm({ onCreated }){
           <div className="form-row w-300">
             <label>Imágenes (múltiples)</label>
             <div className="file-input-wrap">
-              <div className="file-drop"><small>Selecciona archivos o arrástralos aquí</small></div>
               <input ref={fileInputRef} className="file-input-hidden" type="file" multiple onChange={handleFiles} accept="image/*" />
               <button type="button" className="btn-file" onClick={openFilePicker}>Subir archivo</button>
             </div>
