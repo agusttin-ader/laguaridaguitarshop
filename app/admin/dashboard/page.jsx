@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../../lib/supabaseClient'
@@ -80,6 +80,49 @@ export default function AdminDashboard(){
     }
     try { const s = String(u).trim(); if (!s || s === '[object Object]') return null; return s } catch { return null }
   }
+
+// Small presentational components memoized to avoid re-renders when parent state changes
+const CompactProductThumb = memo(function CompactProductThumb({ p }) {
+  const id = p.id || p.slug || p.title
+  const src = p.images && p.images[0] ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].url || '') : ''
+  return (
+    <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
+      <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
+        {src ? <img src={src} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+      </div>
+      <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={p.title}>{p.title}</div>
+    </div>
+  )
+})
+
+const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, handlers }) {
+  const thumb = prod ? (prod.images && prod.images[0] ? prod.images[0] : '') : ''
+  const src = thumb ? (typeof thumb === 'string' ? thumb : thumb.url || '') : ''
+  return prod ? (
+    <motion.div
+      key={fid}
+      data-fid={fid}
+      className={isSelected ? 'selected' : ''}
+      variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }}
+      initial="hidden"
+      animate="show"
+      layout
+      whileHover={{ scale: 1.03 }}
+      draggable
+      onDragStart={(e) => handlers.handleFeaturedDragStart(e, idx)}
+      onDragOver={handlers.handleFeaturedDragOver}
+      onDrop={(e) => handlers.handleFeaturedDrop(e, idx)}
+      onTouchStart={(e) => handlers.handleFeaturedTouchStart(e, idx)}
+      onTouchEnd={(e) => handlers.handleFeaturedTouchEnd(e)}
+      style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
+    >
+      <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
+        {src ? <img src={src} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+      </div>
+      <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
+    </motion.div>
+  ) : null
+})
   const OWNER_EMAIL = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
   const isOwner = user?.email === OWNER_EMAIL
 
@@ -507,18 +550,9 @@ export default function AdminDashboard(){
                     <div style={{display:'flex',flexDirection:'column',gap:8}}>
                       <div className="muted">Pulse el botón ☰ para ver el listado completo de productos</div>
                       <div style={{display:'flex',gap:8,alignItems:'center',overflowX:'auto',paddingTop:6}}>
-                        {products.map((p) => {
-                          const id = p.id || p.slug || p.title
-                          const src = p.images && p.images[0] ? normalizeSrc(p.images[0]) : ''
-                          return (
-                            <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
-                              <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
-                                {src ? <img src={src} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
-                              </div>
-                              <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={p.title}>{p.title}</div>
-                            </div>
-                          )
-                        })}
+                        {products.map((p) => (
+                          <CompactProductThumb key={p.id || p.slug || p.title} p={p} />
+                        ))}
                       </div>
                     </div>
                   ) : (
@@ -608,32 +642,17 @@ export default function AdminDashboard(){
                       <div style={{display:'flex',gap:8,alignItems:'center',overflowX:'auto',paddingTop:6}}>
                         {(settings.featured || []).map((fid, idx) => {
                           const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || null
-                          const thumb = prod ? resolveImageForProduct(prod, fid) : ''
                           const isSelected = (settings.featured || []).includes(fid)
-                          return prod ? (
-                            <motion.div
+                          return (
+                            <FeaturedThumb
                               key={fid}
-                              data-fid={fid}
-                              className={isSelected ? 'selected' : ''}
-                              variants={thumbVariants}
-                              initial="hidden"
-                              animate="show"
-                              layout
-                              whileHover={{ scale: 1.03 }}
-                              draggable
-                              onDragStart={(e) => handleFeaturedDragStart(e, idx)}
-                              onDragOver={handleFeaturedDragOver}
-                              onDrop={(e) => handleFeaturedDrop(e, idx)}
-                              onTouchStart={(e) => handleFeaturedTouchStart(e, idx)}
-                              onTouchEnd={(e) => handleFeaturedTouchEnd(e)}
-                              style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
-                            >
-                              <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
-                                {thumb ? <img src={thumb} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
-                              </div>
-                              <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
-                            </motion.div>
-                          ) : null
+                              prod={prod}
+                              fid={fid}
+                              idx={idx}
+                              isSelected={isSelected}
+                              handlers={{ handleFeaturedDragStart, handleFeaturedDragOver, handleFeaturedDrop, handleFeaturedTouchStart, handleFeaturedTouchEnd }}
+                            />
+                          )
                         })}
                       </div>
                     </div>
