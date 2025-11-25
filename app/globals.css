@@ -693,6 +693,9 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   /* On mobile prefer showing upper part of image (less vertical crop) and use viewport-based height */
   .hero-section .hero-image {
     object-position: center 28%;
+    /* Remove the animated transition on mobile so the image appears static */
+    transition: none !important;
+    will-change: auto !important;
   }
   /* Slightly reduce the vignette opacity on small screens so image reads clearer */
   .hero-section .vintage-shimmer { opacity: 0.28 !important }
@@ -700,7 +703,74 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 
 @media (max-width: 425px) {
   /* Ensure 375px and 425px behave like 320px: show more of the upper part */
-  .hero-section .hero-image { object-position: center 22%; }
+  .hero-section .hero-image { object-position: center 22%; transition: none !important; will-change: auto !important; }
+}
+
+/* Disable hover/active "expand" effects on touch devices (mobile) */
+@media (hover: none), (pointer: coarse) {
+  /* Thumbnails: remove hover transforms */
+  .thumb, .thumb img, .thumb:hover, .thumb:active, .thumb:hover img {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+    box-shadow: none !important;
+  }
+
+  /* Featured / models: images use Tailwind group-hover scale — prevent any transform on touch */
+  .group .object-cover,
+  .featured-panel .product-list .product-row img,
+  .models-section .object-cover {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+
+  /* Hero: prevent active/tap scaling on mobile */
+  .hero-section .group:active,
+  .hero-section .group .relative,
+  .hero-section .hero-image {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* Make featured images behave consistently on all mobile sizes */
+@media (max-width: 768px) {
+  /* Ensure the image container keeps a sensible height and doesn't collapse */
+  .group > .relative, .group .relative {
+    height: 48vh !important;
+    max-height: 420px !important;
+    min-height: 220px !important;
+    overflow: hidden !important;
+  }
+
+  /* Force images to cover and show the upper-center area for better framing */
+  .group .object-cover, .group .relative img, .group img.object-cover {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center 22% !important;
+    transition: none !important;
+    will-change: auto !important;
+    display: block !important;
+  }
+
+  /* Featured panel thumbs (smaller cards) */
+  .featured-panel .product-list .product-row .product-thumb,
+  .featured-panel .product-list .product-row .product-thumb img {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 140px !important;
+    object-fit: cover !important;
+    object-position: center 22% !important;
+  }
+
+  /* Ensure thumbnail grids don't overflow and wrap properly */
+  .thumbs {
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
 }
 
 /* Protective rules to avoid any remaining horizontal overflow */
