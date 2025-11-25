@@ -531,6 +531,15 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   .admin-dashboard .product-thumb { width:72px; height:48px }
 }
 
+/* Stack inline rows on small screens for better mobile forms */
+@media (max-width: 640px) {
+  .row-inline { flex-direction: column !important; align-items: stretch !important; }
+  .row-inline > .form-row, .row-inline > .w-300, .row-inline > .w-200 { width: 100% !important; }
+  .thumbs { gap: 8px !important; }
+  .thumb { width: 100%; height: auto; min-height: 92px; border-radius: 10px; }
+  .thumb img { height: 160px; object-fit: cover; }
+}
+
 /* small visual niceties */
 .admin-dashboard .muted { color:#bdb6a3 }
 .admin-dashboard .admin-header .muted { color:#d3c89b }

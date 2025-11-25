@@ -149,7 +149,7 @@ export default function NewProductForm({ onCreated }){
   return (
     <div>
       <h2 className="create-title">Crear Producto</h2>
-      <p className="create-subtext">Rellena los datos del producto. Las imágenes se suben inmediatamente y se guardan en Storage.</p>
+      <p className="create-subtext">Rellena rápidamente desde tu teléfono: título, precio y descripción primero, luego sube las fotos.</p>
 
       <form onSubmit={handleSubmit} className="new-product-form">
         <div className="form-row">
@@ -158,32 +158,17 @@ export default function NewProductForm({ onCreated }){
         </div>
 
         <div className="row-inline">
-          <div className="form-row" style={{width:100}}>
+          <div className="form-row" style={{width:140}}>
             <label>Precio</label>
             <input className="form-input" value={price} onChange={(e)=>setPrice(e.target.value)} type="number" step="0.01" />
           </div>
-          <div className="form-row" style={{width:120}}>
-            <label>Año</label>
-            <input className="form-input" placeholder='2020' value={year} onChange={(e)=>setYear(e.target.value)} type='number' />
-          </div>
-          <div className="form-row flex-1">
+          <div className="form-row" style={{width:160}}>
             <label>Marca</label>
             <input className="form-input" value={marca} onChange={(e)=>setMarca(e.target.value)} placeholder="Fender" />
           </div>
-        </div>
-
-        <div className="row-inline" style={{marginTop:8}}>
           <div className="form-row flex-1">
             <label>Modelo</label>
             <input className="form-input" value={modelo} onChange={(e)=>setModelo(e.target.value)} placeholder="Stratocaster" />
-          </div>
-          <div className="form-row" style={{width:220}}>
-            <label>Microfonos</label>
-            <input className="form-input" value={microfonos} onChange={(e)=>setMicrofonos(e.target.value)} placeholder="SSS / HH" />
-          </div>
-          <div className="form-row" style={{width:220}}>
-            <label>Puente</label>
-            <input className="form-input" value={puente} onChange={(e)=>setPuente(e.target.value)} placeholder="Tremolo" />
           </div>
         </div>
 
@@ -192,19 +177,36 @@ export default function NewProductForm({ onCreated }){
           <textarea className="form-input" value={description} onChange={(e)=>setDescription(e.target.value)} />
         </div>
 
-        <div className="row-inline">
+        <div className="row-inline" style={{marginTop:8}}>
+          <div className="form-row" style={{width:120}}>
+            <label>Año</label>
+            <input className="form-input" placeholder='2020' value={year} onChange={(e)=>setYear(e.target.value)} type='number' />
+          </div>
           <div className="form-row flex-1">
             <label>Color</label>
             <input className="form-input" placeholder='sunburst' value={color} onChange={(e)=>setColor(e.target.value)} />
           </div>
-          <div className="form-row w-300">
-            <label>Imágenes (múltiples)</label>
-            <div className="file-input-wrap">
-              <input ref={fileInputRef} className="file-input-hidden" type="file" multiple onChange={handleFiles} accept="image/*" />
-              <button type="button" className="btn-file" onClick={openFilePicker}>Subir archivo</button>
-            </div>
-            {files.length > 0 && <div className="file-names" style={{marginTop:8}}>{files.map(f=>f.name).join(', ')}</div>}
+        </div>
+
+        <div className="row-inline" style={{marginTop:8}}>
+          <div className="form-row" style={{width:200}}>
+            <label>Microfonos</label>
+            <input className="form-input" value={microfonos} onChange={(e)=>setMicrofonos(e.target.value)} placeholder="SSS / HH" />
           </div>
+          <div className="form-row" style={{width:200}}>
+            <label>Puente</label>
+            <input className="form-input" value={puente} onChange={(e)=>setPuente(e.target.value)} placeholder="Tremolo" />
+          </div>
+        </div>
+
+        {/* Image upload block placed after primary fields for mobile-first flow */}
+        <div className="form-row" style={{marginTop:12}}>
+          <label>Imágenes (múltiples)</label>
+          <div className="file-input-wrap">
+            <input ref={fileInputRef} className="file-input-hidden" type="file" multiple onChange={handleFiles} accept="image/*" />
+            <button type="button" className="btn-file" onClick={openFilePicker}>Subir imágenes</button>
+          </div>
+          {files.length > 0 && <div className="file-names" style={{marginTop:8}}>{files.map(f=>f.name).join(', ')}</div>}
         </div>
 
         <div style={{marginTop:12}}>
