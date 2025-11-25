@@ -12,9 +12,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState('')
-  const [urlError, setUrlError] = useState(null)
   const [urlErrorCode, setUrlErrorCode] = useState(null)
-  const [debugInfo, setDebugInfo] = useState(null)
   const [loading, setLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
@@ -135,7 +133,7 @@ export default function AdminLogin() {
       }
     })()
     return () => { mounted = false; if (pendingAutoSignoutRef.current) { clearTimeout(pendingAutoSignoutRef.current); pendingAutoSignoutRef.current = null } }
-  }, [currentUser, accessToken])
+  }, [currentUser, accessToken, router])
 
   // In-app recovery handler removed.
 
