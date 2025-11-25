@@ -32,15 +32,6 @@ export default async function ModelsSection() {
     return short.replace(/\s+\S*$/, "") + "...";
   }
 
-  function getTeaser(m) {
-    if (m.teaser) return m.teaser;
-    if (!m.description) return "Guitarra única, sonido impecable.";
-    const firstSentence = m.description.split(".").find((s) => s && s.trim().length > 0);
-    if (firstSentence && firstSentence.trim().length <= 140) return firstSentence.trim() + ".";
-    const short = m.description.slice(0, 120).trim();
-    return short.replace(/\s+\S*$/, "") + "...";
-  }
-
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <h2 className="mb-8 text-3xl font-semibold text-[#EDEDED]">Destacados</h2>
