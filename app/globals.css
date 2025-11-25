@@ -5,6 +5,58 @@
   --foreground: #171717;
 }
 
+/* Very small screens (320px) — fine tuning for compact phones */
+@media (max-width: 360px) {
+  html { font-size: 14px; }
+}
+
+@media (max-width: 320px) {
+  /* tighter container padding */
+  .container { padding-left: 12px; padding-right: 12px; }
+
+  /* reduce global shadows and paddings to avoid overflow and heavy paints */
+  .card, .admin-login .card, .admin-dashboard .card { padding: 12px !important; border-radius: 12px !important; box-shadow: 0 6px 14px rgba(2,6,23,0.06) !important; }
+
+  /* headings and smaller helper text */
+  .create-title { font-size: 20px !important; padding: 10px 12px !important; }
+  .create-subtext { font-size: 13px !important; margin-top:6px !important }
+
+  /* inputs & labels */
+  .form-row label { font-size: 14px !important; }
+  .form-input, .new-product-form .form-input, .admin-login .form-row input, .admin-dashboard input { padding: 12px !important; font-size: 15px !important; border-radius: 10px !important; }
+
+  /* buttons: make primary actions clearly dominant, full width and larger touch area */
+  .btn, .btn-primary, .btn-file { padding: 12px 14px !important; font-size: 15px !important; border-radius: 10px !important; width: 100% !important; box-shadow: 0 10px 26px rgba(2,6,23,0.06) !important }
+  .btn-ghost { padding: 10px 12px !important; width: 100% !important }
+
+  /* Admin login adjustments */
+  .admin-login .brand { gap: 8px !important }
+  .admin-login .brand-mark { width:44px !important; height:44px !important }
+  .admin-login .brand-title { font-size:16px !important }
+
+  /* Hero: prefer shorter height and avoid heavy crop transitions */
+  .hero-section .hero-image { height: 48vh !important; object-position: center 24% !important; transition: none !important }
+
+  /* Thumbnails: make previews taller and full width for clarity on small screens */
+  .thumbs { gap: 8px !important }
+  .thumb { width: 100% !important; min-height: 140px !important; border-radius: 10px !important }
+  .thumb img { width: 100% !important; height: 160px !important; object-fit: cover !important }
+
+  /* Input-eye button sizing inside password fields */
+  .password-input { padding-right: 44px !important }
+  .input-wrap .eye-btn { right: 6px !important; height: 28px !important; width: 28px !important }
+
+  /* Ensure modal footers stack actions and are easy to tap */
+  .modal-content .btn, .edit-modal .btn { width: 100% !important; margin-top: 8px !important }
+
+  /* Admin dashboard compact thumbs */
+  .admin-dashboard .product-thumb { width:72px !important; height:48px !important }
+
+  /* Form row stacking — ensure wide inline fields collapse to single column */
+  .row-inline { flex-direction: column !important; align-items: stretch !important }
+  .row-inline > .form-row, .row-inline > .w-300, .row-inline > .w-200 { width: 100% !important }
+}
+
 /* Design tokens: radii, transitions, shadows for consistent, smooth UI */
 :root {
   --radius: 12px;
