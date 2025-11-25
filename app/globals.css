@@ -274,6 +274,37 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   }
 }
 
+/* Mobile: make touch targets larger and stack actions for better usability */
+@media (max-width: 640px) {
+  .btn { 
+    box-sizing: border-box;
+    padding: 14px 16px !important;
+    font-size: 16px !important;
+    line-height: 1.1;
+    border-radius: 12px !important;
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  /* Keep small icon-only buttons compact */
+  .hamburger-button, .btn-icon, .eye-btn, .thumb-delete { display: inline-flex !important; width: auto !important; padding: 8px !important; }
+
+  /* When buttons appear next to each other, stack them vertically on mobile */
+  .card > div, .admin-login .card > form > div, .admin-dashboard .card > div, .row-inline {
+    gap: 10px !important;
+  }
+  .card > div .btn, .admin-login .card > form > div .btn, .row-inline .btn {
+    margin-top: 0 !important;
+  }
+
+  /* Make file upload button very prominent on mobile */
+  .btn-file { padding: 14px 16px !important; font-size: 15px !important; border-radius: 12px; width:100% !important }
+
+  /* Ensure modal footer action buttons are stacked and full width */
+  .modal-content .btn { width: 100% !important; margin-top: 10px !important }
+}
+
 .admin-login .muted { color: #bdbdbd }
 
 /* Eye button inside password input */
