@@ -381,7 +381,7 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          <div style={{display:'flex',gap:8,alignItems:'center',marginTop:8}}>
+          <div style={{display:'flex',justifyContent:'center',gap:8,alignItems:'center',marginTop:8}}>
             <button className="btn btn-primary" type="submit" disabled={loading}>
               {loading && (
                 <svg className="spinner" width="16" height="16" viewBox="0 0 50 50" aria-hidden>
@@ -390,8 +390,6 @@ export default function AdminLogin() {
               )}
               <span style={{marginLeft: loading ? 8 : 0}}>{loading? 'Procesando...' : 'Entrar'}</span>
             </button>
-            {/* Signup removed — use Google or magic link */}
-            <button type="button" className="btn btn-ghost" onClick={handleForgot} disabled={loading}>Recuperar</button>
           </div>
         </form>
         )}
