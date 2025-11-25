@@ -40,61 +40,19 @@ export default function AdminLogin() {
     else router.push('/admin/dashboard')
   }
 
-  async function handleSignup(e) {
-    e?.preventDefault()
-    setMessage('')
-    setLoading(true)
-    const res = await supabase.auth.signUp({ email, password })
-    setLoading(false)
-    // attach full response for debugging
-    console.debug('signup response', res)
-    setDebugInfo((d)=> ({...d, signup: { data: res.data, error: res.error }}))
-    if (res.error) return setMessage(res.error.message)
-    setMessage('Revisa tu email para confirmar la cuenta')
-
-    // Create admin request (best-effort)
-    try {
-      const userId = res?.data?.user?.id
-      await fetch('/api/admin/requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, email })
-      })
-    } catch (err) {
-      // ignore
-    }
-  }
+  // Signup flow removed — authentication is via Google / magic links only.
 
   async function handleResendLink() {
     setMessage('')
     setLoading(true)
     try {
-      // If password is provided try signUp (resend confirmation), otherwise send magic link
-      if (password) {
-        const res = await supabase.auth.signUp({ email, password })
-        console.debug('resend signUp', res)
-        if (res.error) {
-          // if already registered, try sending magic link
-          if (/already registered|user exists/i.test(res.error.message || '')) {
-            const res2 = await supabase.auth.signInWithOtp({ email })
-            console.debug('fallback signInWithOtp', res2)
-            if (res2.error) return setMessage(res2.error.message)
-              setMessage('Se reenvió un enlace de inicio de sesión a tu email')
-          } else {
-            return setMessage(res.error.message)
-          }
-        } else {
-            setMessage('Se reenvió el correo de confirmación. Revisá tu bandeja de entrada.')
-        }
-      } else {
-        const res = await supabase.auth.signInWithOtp({ email })
-        console.debug('resend signInWithOtp', res)
-        if (res.error) return setMessage(res.error.message)
-          setMessage('Se reenvió un enlace a tu email para iniciar sesión.')
-      }
+      const res = await supabase.auth.signInWithOtp({ email })
+      console.debug('resend signInWithOtp', res)
+      if (res.error) return setMessage(res.error.message)
+      setMessage('Se reenvió un enlace a tu email para iniciar sesión.')
     } catch (err) {
       console.error('resend error', err)
-        setMessage('Error al reenviar el enlace. Intentá nuevamente.')
+      setMessage('Error al reenviar el enlace. Intentá nuevamente.')
     } finally { setLoading(false) }
   }
 
@@ -432,7 +390,7 @@ export default function AdminLogin() {
               )}
               <span style={{marginLeft: loading ? 8 : 0}}>{loading? 'Procesando...' : 'Entrar'}</span>
             </button>
-            <button type="button" className="btn btn-ghost" onClick={handleSignup} disabled={loading}>Crear cuenta</button>
+            {/* Signup removed — use Google or magic link */}
             <button type="button" className="btn btn-ghost" onClick={handleForgot} disabled={loading}>Recuperar</button>
           </div>
         </form>
@@ -494,9 +452,7 @@ export default function AdminLogin() {
           </motion.div>
         )}
 
-        <div style={{marginTop:14,fontSize:13}} className="muted">
-          <p>Nota: después de crear una cuenta se enviará una solicitud de acceso al propietario. El propietario deberá aprobarte para obtener permisos de administración.</p>
-        </div>
+        {/* Note about account creation removed — signup is disabled. */}
       </motion.div>
     </div>
   )
