@@ -447,7 +447,7 @@ export default function AdminDashboard(){
       return (
         <div className="admin-container admin-dashboard">
           <div style={{padding:40,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
-            <img src="/images/pending-approval.svg" alt="Pendiente de aprobación" style={{width:220,maxWidth:'80%'}} />
+            <img src="/images/pending-approval.svg" alt="Pendiente de aprobación" loading="lazy" decoding="async" style={{width:220,maxWidth:'80%'}} />
             <h2>Solicitud pendiente</h2>
             <div className="muted" style={{textAlign:'center'}}>Tu cuenta fue creada, pero necesitas que el administrador (agusttin.ader@gmail.com) te otorgue permisos para acceder al panel. Por favor, espera a que el propietario apruebe tu solicitud.</div>
           </div>
@@ -513,7 +513,7 @@ export default function AdminDashboard(){
                           return (
                             <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
                               <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
-                                {src ? <img src={src} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+                                {src ? <img src={src} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
                               </div>
                               <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={p.title}>{p.title}</div>
                             </div>
@@ -532,7 +532,7 @@ export default function AdminDashboard(){
                               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                                 <div style={{display:'flex',alignItems:'center',gap:12}}>
                                   <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
                                     <div style={{fontWeight:700}}>{p.title}</div>
@@ -629,7 +629,7 @@ export default function AdminDashboard(){
                               style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
                             >
                               <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
-                                {thumb ? <img src={thumb} alt={prod.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+                                {thumb ? <img src={thumb} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
                               </div>
                               <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
                             </motion.div>
@@ -649,7 +649,7 @@ export default function AdminDashboard(){
                               <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
                                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                                   <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
                                     <div style={{fontWeight:700}}>{p.title}</div>
@@ -967,7 +967,7 @@ export default function AdminDashboard(){
                         >
                           <div className="image-thumb">
                             {src ? (
-                              <img src={src} alt={`img-${i}`} />
+                              <img src={src} alt={`img-${i}`} loading="lazy" decoding="async" />
                             ) : (
                               <div className="muted" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No preview</div>
                             )}
@@ -1097,7 +1097,7 @@ export default function AdminDashboard(){
                   const isSelected = normalizeSrc(imagePickerSelected) === normalizeSrc(img)
                   return (
                     <button key={i} type="button" onClick={() => setImagePickerSelected(img)} style={{width:140,height:96,overflow:'hidden',borderRadius:8,padding:0,border:isSelected ? '3px solid #D4AF37' : '1px solid #ddd'}}>
-                      <img src={src} alt={`opt-${i}`} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                      <img src={src} alt={`opt-${i}`} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
                     </button>
                   )
                 })}

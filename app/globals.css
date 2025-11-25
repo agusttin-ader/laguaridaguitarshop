@@ -182,6 +182,27 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 .admin-login .btn-primary:hover { background:#D4AF37; color:#0D0D0D }
 .admin-login .btn-ghost { border-color: rgba(255,255,255,0.08); color:#e6e6e6 }
 
+/* Improve focus / active styles for primary button to be softer and accessible */
+.admin-login .btn-primary:focus {
+  outline: 3px solid rgba(212,175,55,0.14);
+  outline-offset: 3px;
+  box-shadow: 0 12px 36px rgba(212,175,55,0.10), inset 0 -4px 12px rgba(0,0,0,0.12);
+}
+.admin-login .btn-primary:active { transform: translateY(0); box-shadow: 0 8px 20px rgba(212,175,55,0.10) }
+
+/* Slightly smoother ghost button hover for login area */
+.admin-login .btn-ghost:hover {
+  background: rgba(255,255,255,0.02);
+  transform: translateY(-1px);
+  border-color: rgba(212,175,55,0.06);
+}
+
+/* Reduce costly hover transform on .card for touch devices to avoid jank */
+@media (hover: none), (pointer: coarse) {
+  .card { transform: none !important; box-shadow: 0 6px 18px rgba(20,20,20,0.03) !important; }
+  .card:hover { transform: none !important; box-shadow: 0 6px 18px rgba(20,20,20,0.03) !important; }
+}
+
 /* Polished visuals */
 .admin-login .card {
   position: relative;
