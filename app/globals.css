@@ -5,6 +5,17 @@
   --foreground: #171717;
 }
 
+/* Design tokens: radii, transitions, shadows for consistent, smooth UI */
+:root {
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition-fast: 180ms ease;
+  --transition-medium: 280ms cubic-bezier(.2,.9,.3,1);
+  --shadow-soft: 0 8px 24px rgba(2,6,23,0.08);
+  --shadow-medium: 0 18px 40px rgba(2,6,23,0.12);
+  --gold-100: #D4AF37;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -47,15 +58,15 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 }
 .card {
   background: var(--background);
-  border: 1px solid #e6e6e6;
+  border: 1px solid rgba(0,0,0,0.06);
   padding: 16px;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(20,20,20,0.03);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
   will-change: transform, box-shadow;
   transform-origin: center;
-  transition: transform 360ms cubic-bezier(.2,.9,.3,1), box-shadow 360ms ease;
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
 }
-.card:hover { transform: translateY(-6px) rotateX(0.3deg); box-shadow: 0 36px 80px rgba(2,6,23,0.36); }
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
 .card h2 { margin: 0 0 10px 0 }
 .form-row { margin-bottom: 12px; display:flex; flex-direction:column }
 .form-row label { font-weight:600; margin-bottom:6px; font-size:14px }
@@ -70,7 +81,7 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 }
 .form-row textarea { min-height:88px }
 .row-inline { display:flex; gap:8px }
-.btn { padding:8px 12px; border-radius:8px; border:0; cursor:pointer; font-weight:600 }
+.btn { padding:8px 12px; border-radius:var(--radius-sm); border:0; cursor:pointer; font-weight:600; transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast); }
 .btn-primary { background:#0f62fe; color:#fff }
 .btn-ghost { background:transparent; border:1px solid #ddd }
 .status { margin-top:10px; font-weight:600 }
@@ -826,6 +837,33 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 * { min-width: 0; }
 /* Ensure featured/product lists and product rows can wrap/shrink on small screens */
 .admin-dashboard .product-list-inner, .admin-dashboard .product-row, .admin-dashboard .product-meta { min-width: 0; }
+
+
+/* Global container utility for consistent responsive padding and max widths */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (max-width: 1200px) {
+  .container { max-width: 1000px; }
+}
+@media (max-width: 900px) {
+  .container { padding-left: 16px; padding-right: 16px; }
+}
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Slightly smoother global link and focus styles */
+a { color: inherit; text-decoration: none; transition: color var(--transition-fast); }
+a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 
 
 
