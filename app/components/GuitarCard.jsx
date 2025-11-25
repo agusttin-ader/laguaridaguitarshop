@@ -1,9 +1,10 @@
 "use client";
 
+import React from 'react'
 import Image from "next/image";
 import Link from "next/link";
 
-export default function GuitarCard({ title, description, price, image }) {
+function GuitarCard({ title, description, price, image }) {
   const phone = "541168696491"; // +54 11 68696491
   const whatsappHref = `https://wa.me/${phone}?text=${encodeURIComponent(
     `Hola me interesa esta guitarra: ${title}`
@@ -46,3 +47,5 @@ export default function GuitarCard({ title, description, price, image }) {
     </div>
   );
 }
+GuitarCard.displayName = 'GuitarCard'
+export default React.memo(GuitarCard)

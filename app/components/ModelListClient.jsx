@@ -18,6 +18,44 @@ function pickImage(m) {
   return src
 }
 
+import React, { useCallback } from 'react'
+
+function ModelCard({ m }) {
+  const src = pickImage(m)
+  return (
+    <article className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
+      <Link href={`/modelos/${encodeURIComponent(m.slug)}`} className="block">
+        <div className="relative h-48 w-full">
+          <Image
+            src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
+            alt={m.title}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div className="p-4">
+          <h2 className="text-lg font-semibold text-[#EDEDED]">{m.title}</h2>
+          <p className="mt-2 text-sm text-white/70 line-clamp-3">{m.description}</p>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm font-medium text-[#EDEDED]">{(() => {
+              const n = Number(String(m.price || m.priceRaw || '').replace(/[^0-9.]/g, ''))
+              if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+              return m.price || '$0'
+            })()}</div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition-transform duration-150 group-hover:scale-105">Ver detalles</span>
+          </div>
+        </div>
+      </Link>
+    </article>
+  )
+}
+
+const MemoModelCard = React.memo(ModelCard)
+
 export default function ModelListClient({ products = [] }) {
   const [isOpen, setIsOpen] = useState(false)
   const [filters, setFilters] = useState(null)
@@ -134,38 +172,7 @@ export default function ModelListClient({ products = [] }) {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((m) => (
-          <article key={m.slug} className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
-            <Link href={`/modelos/${encodeURIComponent(m.slug)}`} className="block">
-              <div className="relative h-48 w-full">
-                {(() => {
-                  const src = pickImage(m)
-                  // Use Next/Image for both local and remote images so Next can optimize them
-                  return (
-                    <Image
-                      src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
-                      alt={m.title}
-                      fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
-                    />
-                  )
-                })()}
-              </div>
-
-              <div className="p-4">
-                <h2 className="text-lg font-semibold text-[#EDEDED]">{m.title}</h2>
-                <p className="mt-2 text-sm text-white/70 line-clamp-3">{m.description}</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="text-sm font-medium text-[#EDEDED]">{(() => {
-                    const n = Number(String(m.price || m.priceRaw || '').replace(/[^0-9.]/g, ''))
-                    if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-                    return m.price || '$0'
-                  })()}</div>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition-transform duration-150 group-hover:scale-105">Ver detalles</span>
-                </div>
-              </div>
-            </Link>
-          </article>
+          <MemoModelCard key={m.slug} m={m} />
         ))}
       </div>
 
