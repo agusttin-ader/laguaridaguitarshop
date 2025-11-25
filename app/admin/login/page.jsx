@@ -15,9 +15,6 @@ export default function AdminLogin() {
   const [urlError, setUrlError] = useState(null)
   const [urlErrorCode, setUrlErrorCode] = useState(null)
   const [debugInfo, setDebugInfo] = useState(null)
-  const [recoveryMode, setRecoveryMode] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
@@ -56,107 +53,9 @@ export default function AdminLogin() {
     } finally { setLoading(false) }
   }
 
-  async function handleForgot(e) {
-    e?.preventDefault()
-    setMessage('')
-    setLoading(true)
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/admin/reset-password' })
-      setLoading(false)
-      if (error) setMessage(error.message)
-      else setMessage('Revisa tu email para restablecer la contraseña')
-    } catch (err) {
-      setLoading(false)
-      setMessage('Error al solicitar recuperación de contraseña')
-    }
-  }
+  // password reset via UI removed; rely on magic links via Supabase
 
-  // Handle Supabase password recovery redirect callback
-  useEffect(() => {
-    let mounted = true
-    ;(async () => {
-      try {
-        // First try: let Supabase parse the URL fragment and store session
-        const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true })
-        if (!mounted) return
-        const session = data?.session ?? null
-        if (error) {
-          console.debug('getSessionFromUrl error', error)
-          setMessage('Error procesando el enlace de recuperación: ' + (error?.message || JSON.stringify(error)))
-          setDebugInfo((d)=> ({...d, getSessionFromUrlError: error?.message || JSON.stringify(error)}))
-        }
-        if (session) {
-          // We're in a recovery callback — show UI to set a new password
-          setRecoveryMode(true)
-          setMessage('Establecé una nueva contraseña')
-          return
-        }
-
-        // Fallback: sometimes the fragment isn't parsed (or app origin mismatch).
-        // Parse location.hash or search for access_token and type=recovery and set session manually.
-        if (typeof window !== 'undefined') {
-          const hash = window.location.hash || ''
-          // detect supabase error fragments like #error=access_denied&error_code=otp_expired&error_description=...
-          try {
-            const fragParams = new URLSearchParams(hash.replace(/^#/, ''))
-            const err = fragParams.get('error')
-            const errCode = fragParams.get('error_code')
-            const errDesc = fragParams.get('error_description')
-            if (err) {
-              setUrlError(errDesc || err)
-              setUrlErrorCode(errCode || err)
-              setMessage(errDesc ? decodeURIComponent(errDesc) : err)
-            }
-          } catch (e) {
-            // ignore parsing errors
-          }
-
-          const search = window.location.search || ''
-          console.debug('Login page fallback hash:', hash)
-          console.debug('Login page fallback search:', search)
-
-          let params = new URLSearchParams(hash.replace(/^#/, ''))
-          let access_token = params.get('access_token')
-          let refresh_token = params.get('refresh_token')
-          let type = params.get('type')
-
-
-          if (!access_token) {
-            params = new URLSearchParams(search.replace(/^\?/, ''))
-            access_token = params.get('access_token')
-            refresh_token = params.get('refresh_token')
-            type = params.get('type')
-          }
-
-          // store debug info
-          const mask = (t)=> t ? (t.slice(0,6) + '...' + t.slice(-4)) : null
-          setDebugInfo({ hash, search, access_token_present: !!access_token, access_token_masked: mask(access_token), type })
-
-
-          if (access_token) {
-            console.debug('Attempting to set session from tokens (login fallback)')
-            const setRes = await supabase.auth.setSession({ access_token, refresh_token })
-            console.debug('setSession result', setRes)
-            if (setRes?.error) {
-              setMessage('No se pudo establecer la sesión: ' + (setRes.error?.message || JSON.stringify(setRes.error)))
-              setDebugInfo((d)=> ({...d, setSessionError: setRes.error?.message || JSON.stringify(setRes.error)}))
-
-            }
-            if (setRes?.data?.session) {
-              if (!mounted) return
-              setRecoveryMode(true)
-              setMessage('Establecé una nueva contraseña')
-              try { history.replaceState(null, '', window.location.pathname + window.location.search) } catch (_) {}
-              return
-            }
-          }
-        }
-      } catch (err) {
-        console.debug('login getSession fallback error', err)
-      }
-    })()
-    return () => { mounted = false }
-  }, [])
+  // Password recovery via in-app flow removed. Use magic links (supabase) for recovery.
 
   // fetch current session/user on mount
   useEffect(() => {
@@ -238,29 +137,7 @@ export default function AdminLogin() {
     return () => { mounted = false; if (pendingAutoSignoutRef.current) { clearTimeout(pendingAutoSignoutRef.current); pendingAutoSignoutRef.current = null } }
   }, [currentUser, accessToken])
 
-  async function handleCompleteRecovery(e) {
-    e?.preventDefault()
-    setMessage('')
-    if (!newPassword) return setMessage('Ingresá una contraseña')
-    if (newPassword !== confirmPassword) return setMessage('Las contraseñas no coinciden')
-    try {
-      setLoading(true)
-      const { data, error } = await supabase.auth.updateUser({ password: newPassword })
-      setLoading(false)
-      if (error) {
-        const extra = ' Si el problema persiste, solicitá un nuevo enlace desde el login.'
-        return setMessage((error.message || 'Error actualizando contraseña') + extra)
-      }
-      // After successfully updating password, sign out and redirect to login for fresh auth
-      try { await supabase.auth.signOut() } catch (_) {}
-      setMessage('Contraseña actualizada. Podés iniciar sesión con tu nueva contraseña.')
-      setRecoveryMode(false)
-      router.replace('/admin/login')
-    } catch (err) {
-      setLoading(false)
-      setMessage('Error durante la recuperación. Intentá solicitar un nuevo enlace desde el login.')
-    }
-  }
+  // In-app recovery handler removed.
 
   async function signInWithGoogle() {
     setMessage('')
@@ -343,25 +220,7 @@ export default function AdminLogin() {
           </div>
         </div>
 
-        {recoveryMode ? (
-          <form onSubmit={handleCompleteRecovery}>
-            <div className="form-row">
-              <label>Nueva contraseña</label>
-              <input placeholder="Nueva contraseña" type="password" value={newPassword} onChange={(e)=>setNewPassword(e.target.value)} required />
-            </div>
-            <div className="form-row">
-              <label>Confirmar contraseña</label>
-              <input placeholder="Confirmar contraseña" type="password" value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)} required />
-            </div>
-
-            <div style={{display:'flex',gap:8,alignItems:'center',marginTop:8}}>
-              <button className="btn btn-primary" type="submit" disabled={loading}>
-                {loading ? 'Procesando...' : 'Actualizar contraseña'}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin}>
           <div className="form-row">
             <label>Email</label>
             <input placeholder="tu@correo.com" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required />
@@ -392,7 +251,6 @@ export default function AdminLogin() {
             </button>
           </div>
         </form>
-        )}
 
         <div style={{marginTop:12, display:'flex', flexDirection:'column', gap:8}}>
           <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
