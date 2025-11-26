@@ -254,18 +254,20 @@ export default function AdminLogin() {
           <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
 
           {currentUser && (
-            <div style={{border:'1px solid #eee', padding:12, borderRadius:6}}>
-              <div style={{fontSize:13}}><strong>Conectado como:</strong> {currentUser.email}</div>
-              <div style={{fontSize:12, color:'#666', marginTop:6, display:'flex',alignItems:'center',gap:8}}>
-                <div style={{flex:'1 1 auto'}}>ID: <code style={{fontSize:12}}>{currentUser.id ? (showUserId ? currentUser.id : (String(currentUser.id).slice(0,6) + '...' + String(currentUser.id).slice(-4))) : ''}</code></div>
-                <div style={{flex:'0 0 auto'}}>
-                  <button className="btn btn-ghost" style={{padding:'4px 8px',fontSize:12}} onClick={() => setShowUserId(s => !s)}>{showUserId ? 'Ocultar' : 'Mostrar'}</button>
+            <div className="admin-user-card">
+              <div className="admin-user-email"><strong>Conectado como:</strong> {currentUser.email}</div>
+
+              <div className="admin-user-id-row">
+                <div className="admin-user-id">ID: <code className="admin-user-id-code">{currentUser.id ? (showUserId ? currentUser.id : (String(currentUser.id).slice(0,6) + '...' + String(currentUser.id).slice(-4))) : ''}</code></div>
+                <div className="admin-user-id-toggle">
+                  <button className="btn btn-ghost admin-user-toggle-btn" onClick={() => setShowUserId(s => !s)}>{showUserId ? 'Ocultar' : 'Mostrar'}</button>
                 </div>
               </div>
-              <div style={{marginTop:8, display:'flex', gap:8}}>
-                <button className="btn btn-ghost" onClick={handleSignOut}>Cerrar sesión</button>
+
+              <div className="admin-user-actions">
+                <button className="btn btn-ghost admin-user-logout" onClick={handleSignOut}>Cerrar sesión</button>
                 {isOwner && (
-                  <button className="btn btn-primary" onClick={()=>router.push('/admin/dashboard')}>Ir a panel</button>
+                  <button className="btn btn-primary admin-user-panel" onClick={()=>router.push('/admin/dashboard')}>Ir a panel</button>
                 )}
               </div>
 

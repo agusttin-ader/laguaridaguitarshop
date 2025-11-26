@@ -507,12 +507,12 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
           </div>
           <div>
             {user ? (
-              <div className="admin-user">
+              <div className="admin-user header-user">
                 <div className="muted">{user.email}</div>
                 <button className="btn btn-ghost" onClick={handleSignOut}>Cerrar sesión</button>
               </div>
             ) : (
-              <p>No estás logueado. Ve a <a href="/admin/login">Login</a></p>
+              <p className="header-user">No estás logueado. Ve a <a href="/admin/login">Login</a></p>
             )}
           </div>
         </div>
@@ -538,22 +538,19 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                     animate={{ rotate: productsPanelOpen ? 90 : 0 }}
                     transition={{ type: 'spring', stiffness: 160, damping: 26 }}
                   >☰</motion.button>
-                  <button className="btn btn-primary" onClick={() => router.push('/admin/products/new')}>Cargar producto</button>
                 </div>
               </div>
             </div>
             <div style={{marginTop:12}}>
+              <div style={{marginBottom:12}}>
+                <button className="btn btn-primary btn-wide btn-full-mobile" onClick={() => router.push('/admin/products/new')}>Cargar producto</button>
+              </div>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
                   {/* Compact view when products panel closed */}
                   {!productsPanelOpen ? (
-                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                      <div className="muted">Pulse el botón ☰ para ver el listado completo de productos</div>
-                      <div style={{display:'flex',gap:8,alignItems:'center',overflowX:'auto',paddingTop:6}}>
-                        {products.map((p) => (
-                          <CompactProductThumb key={p.id || p.slug || p.title} p={p} />
-                        ))}
-                      </div>
+                    <div style={{display:'flex',flexDirection:'column',gap:8}} aria-hidden="true">
+                      <div className="muted" style={{fontSize:13}}>Productos: {products.length}</div>
                     </div>
                   ) : (
                     <AnimatePresence>

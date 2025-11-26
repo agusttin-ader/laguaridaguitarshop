@@ -37,7 +37,7 @@ function GuitarCard({ title, description, price, image }) {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-xs font-medium text-[#EDEDED] backdrop-blur-sm transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-lg hover:shadow-[#D4AF37]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
+            className="inline-flex items-center justify-center w-full md:w-auto rounded-lg md:rounded-full border border-white/20 px-4 py-2 text-sm md:text-xs font-medium text-[#EDEDED] backdrop-blur-sm transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-lg hover:shadow-[#D4AF37]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
             aria-label={`Consultar sobre ${title}`}
           >
             Consultar

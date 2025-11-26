@@ -25,7 +25,7 @@ function ModelCard({ m }) {
   return (
     <article className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
       <Link href={`/modelos/${encodeURIComponent(m.slug)}`} className="block">
-        <div className="relative h-48 w-full">
+        <div className="relative aspect-[4/3] w-full">
           <Image
             src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
             alt={m.title}
@@ -149,7 +149,7 @@ export default function ModelListClient({ products = [] }) {
   return (
     <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-semibold text-[#EDEDED]">Modelos</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#EDEDED]">Modelos</h1>
 
         <div className="flex items-center gap-3">
           {filters ? (

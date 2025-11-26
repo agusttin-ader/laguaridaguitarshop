@@ -326,6 +326,54 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   }
 }
 
+/* Ensure admin header email is visually distinct from product list muted text on mobile */
+@media (max-width: 640px) {
+  .admin-dashboard .admin-header .muted {
+    color: var(--foreground) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    opacity: 0.95 !important;
+  }
+  /* Keep product-list muted styles intact by restricting to header only */
+}
+
+/* Make the product upload button full-width on small screens and slightly narrower on larger */
+.btn-full-mobile {
+  width: auto;
+}
+@media (max-width: 768px) {
+  .btn-full-mobile {
+    width: 100% !important;
+    display: block !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* Wide button variant for desktop: centered and more prominent */
+.btn-wide {
+  display: inline-block;
+  max-width: 680px;
+  width: auto;
+}
+@media (min-width: 640px) {
+  .btn-wide { width: 360px; }
+}
+@media (min-width: 900px) {
+  .btn-wide { width: 420px; }
+}
+@media (max-width: 768px) {
+  .btn-wide { width: 100% !important; }
+}
+
+/* Header user and header upload visibility control */
+.header-user { display: none !important; }
+.header-upload { display: none !important; }
+@media (min-width: 640px) {
+  .header-user { display: flex !important; gap: 8px; align-items: center; }
+  .header-upload { display: inline-flex !important; }
+}
+
 /* Mobile: make touch targets larger and stack actions for better usability */
 @media (max-width: 640px) {
   .btn { 
@@ -355,6 +403,36 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 
   /* Ensure modal footer action buttons are stacked and full width */
   .modal-content .btn { width: 100% !important; margin-top: 10px !important }
+}
+
+/* Specific mobile tweaks for new product upload button and admin login user actions */
+@media (max-width: 480px) {
+  /* Make the upload button text smaller to fit within the button on very narrow screens */
+  .new-product-form .btn-file, .file-input-wrap .btn-file {
+    font-size: 13px !important;
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Admin login: stack ID toggle and action buttons vertically to avoid overlapping the email */
+  .admin-user-card {
+    border: 1px solid #eee;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-user-email { font-size: 13px; }
+  .admin-user-id-row { display: flex; gap: 8px; align-items: center; }
+  .admin-user-id { font-size: 12px; color: #666; flex: 1 1 auto; }
+  .admin-user-id-toggle { flex: 0 0 auto; }
+  .admin-user-toggle-btn { padding: 6px 8px; font-size: 12px }
+
+  .admin-user-actions { display:flex; gap:8px; }
+  /* On very small screens, stack the actions so they don't overlap the email */
+  .admin-user-actions { flex-direction: column; }
+  .admin-user-actions .btn { width: 100%; }
 }
 
 .admin-login .muted { color: #bdbdbd }
