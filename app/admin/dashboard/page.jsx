@@ -97,7 +97,10 @@ const CompactProductThumb = memo(function CompactProductThumb({ p }) {
   return (
     <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
       <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
-        {src ? <img src={src} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+        {src ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={src} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+        ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
       </div>
       <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={p.title}>{p.title}</div>
     </div>
@@ -126,7 +129,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
     >
       <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
-        {src ? <img src={src} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} /> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
+        {src ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={src} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+        ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
       </div>
       <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
     </motion.div>
@@ -212,7 +218,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       }
     })()
     return ()=>{ mounted = false }
-  }, [])
+  }, [OWNER_EMAIL, router])
 
   const normalizeSrc = (u) => {
     const s = safeSrc(u)
@@ -304,6 +310,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     setSettings({...settings, featured: list})
   }
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(()=>{
     if (!token) return
     // token available — proceed to fetch data
@@ -311,8 +318,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     fetchSettings()
     if (isOwner) fetchRequests()
   },[token])
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Listen to product creation broadcasts from other tabs (or the new product page)
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(()=>{
     if (typeof window === 'undefined' || !('BroadcastChannel' in window)) return
     const bc = new BroadcastChannel('la-guarida-products')
@@ -332,6 +341,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       try { bc.removeEventListener('message', handler); bc.close() } catch(_){}
     }
   }, [token])
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   async function fetchRequests(){
     try {
@@ -499,6 +509,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       return (
         <div className="admin-container admin-dashboard">
           <div style={{padding:40,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/pending-approval.svg" alt="Pendiente de aprobación" loading="lazy" decoding="async" style={{width:220,maxWidth:'80%'}} />
             <h2>Solicitud pendiente</h2>
             <div className="muted" style={{textAlign:'center'}}>Tu cuenta fue creada, pero necesitas que el administrador (agusttin.ader@gmail.com) te otorgue permisos para acceder al panel. Por favor, espera a que el propietario apruebe tu solicitud.</div>
@@ -572,7 +583,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                                 <div style={{display:'flex',alignItems:'center',gap:12}}>
                                   <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                    { (p.images && p.images[0]) ? (
+                                      /* eslint-disable-next-line @next/next/no-img-element */
+                                      <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                                    ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
                                     <div style={{fontWeight:700}}>{p.title}</div>
@@ -674,7 +688,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                               <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
                                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                                   <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                    { (p.images && p.images[0]) ? (
+                                      /* eslint-disable-next-line @next/next/no-img-element */
+                                      <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                                    ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
                                     <div style={{fontWeight:700}}>{p.title}</div>
@@ -992,6 +1009,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                         >
                           <div className="image-thumb">
                             {src ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
                               <img src={src} alt={`img-${i}`} loading="lazy" decoding="async" />
                             ) : (
                               <div className="muted" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No preview</div>
@@ -1116,12 +1134,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
             <motion.div className="modal-content card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} style={{maxWidth:800,margin:'40px auto',padding:18, maxHeight: '80vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
               <h4 style={{marginTop:0}}>Elegir foto principal</h4>
               <div style={{display:'flex',flexWrap:'wrap',gap:10,marginTop:8}}>
-                {(imagePickerImages || []).map((img, i) => {
+                    {(imagePickerImages || []).map((img, i) => {
                   const src = normalizeSrc(img)
                   if (!src) return null
                   const isSelected = normalizeSrc(imagePickerSelected) === normalizeSrc(img)
                   return (
                     <button key={i} type="button" onClick={() => setImagePickerSelected(img)} style={{width:140,height:96,overflow:'hidden',borderRadius:8,padding:0,border:isSelected ? '3px solid #D4AF37' : '1px solid #ddd'}}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={src} alt={`opt-${i}`} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
                     </button>
                   )

@@ -98,13 +98,17 @@ export default function ProductPage({ model }) {
                   const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
 
                   if (isExternal) {
+                    // external images rendered as plain <img> — allow intentionally
                     return (
-                      <img
-                        src={src}
-                        alt={`${model.title} imagen principal`}
-                        className="absolute inset-0 h-full w-full object-contain bg-black"
-                        loading="eager"
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={src}
+                          alt={`${model.title} imagen principal`}
+                          className="absolute inset-0 h-full w-full object-contain bg-black"
+                          loading="eager"
+                        />
+                      </>
                     )
                   }
 

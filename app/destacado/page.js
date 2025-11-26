@@ -3,6 +3,8 @@ export const metadata = {
   description: "Descubrí el producto destacado de la semana.",
 };
 
+import Link from 'next/link'
+
 export default function DestacadoPage() {
   return (
     <main className="min-h-[80vh] bg-[#0D0D0D] text-[#EDEDED]">
@@ -23,18 +25,18 @@ export default function DestacadoPage() {
             modelos.
           </div>
           <div className="mt-6 flex gap-3">
-            <a
+            <Link
               href="/"
               className="inline-flex items-center justify-center rounded-full bg-[#EDEDED] px-5 py-2.5 text-sm font-medium text-[#0D0D0D] hover:opacity-90"
             >
               Volver al inicio
-            </a>
-            <a
+            </Link>
+            <Link
               href="/modelos"
               className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-[#EDEDED] hover:bg-white/10"
             >
               Ver modelos
-            </a>
+            </Link>
           </div>
         </div>
       </section>

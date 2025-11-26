@@ -232,6 +232,7 @@ export default function NewProductForm({ onCreated }){
           <div className="thumbs" style={{display:'flex',gap:8}}>
             {files.map((f, i)=> (
               <div key={i} className="thumb" style={{position:'relative',border: i===selectedMainIndex ? '2px solid #D4AF37' : '1px solid #333', borderRadius:8, overflow:'hidden'}}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={URL.createObjectURL(f)} alt={f.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} />
                 <button aria-pressed={i===selectedMainIndex} title={i===selectedMainIndex ? 'Principal' : 'Marcar como principal'} className="thumb-principal" type="button" onClick={() => setSelectedMainIndex(i)}>
                   <FiStar size={14} />
@@ -271,6 +272,7 @@ export default function NewProductForm({ onCreated }){
                 const src = normalizeUploaded(img)
                 return (
                 <div key={i} className="thumb" style={{position:'relative',border: i===0 ? '2px solid #D4AF37' : '1px solid #333', borderRadius:8, overflow:'hidden'}}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {src ? <img src={src} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : <div className="muted">No preview</div>}
                   {i === 0 ? (
                     <div className="thumb-principal" title="Imagen principal" style={{pointerEvents:'none'}}>

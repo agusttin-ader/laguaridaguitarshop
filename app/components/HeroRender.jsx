@@ -30,6 +30,9 @@ export default function HeroRender({ heroImage }) {
         {/* Use a plain <img> for the blurred background so it always matches the
             displayed hero image (local or external). We load eagerly and hint
             high fetch priority so the blur is visible ASAP after deploy/admin change. */}
+        {/* Intentionally using a plain <img> for the blurred background to
+            match local/external images and keep the blur behavior predictable. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={encodeURI(heroImage || '/images/homepage.jpeg')}
           alt=""

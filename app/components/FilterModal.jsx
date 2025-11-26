@@ -17,11 +17,14 @@ export default function FilterModal({ isOpen, onClose, onApply, initial = {} }) 
 
   useEffect(() => {
     if (isOpen) {
-      setFilters(f => ({ ...f, ...initial }))
-      requestAnimationFrame(() => setEntered(true))
+      // avoid synchronous setState in effect body — defer to next frame
+      requestAnimationFrame(() => {
+        setFilters(f => ({ ...f, ...initial }))
+        setEntered(true)
+      })
     } else {
       // leave entered true briefly to allow AnimatePresence exit animation
-      setEntered(false)
+      requestAnimationFrame(() => setEntered(false))
     }
   }, [isOpen, initial])
 

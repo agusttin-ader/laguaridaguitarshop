@@ -5,6 +5,20 @@ import Image from "next/image";
 import Link from "next/link";
 
 function GuitarCard({ title, description, price, image }) {
+  function normalizeImageEntry(img) {
+    if (!img) return '/images/homepage.jpeg'
+    try {
+      if (typeof img === 'string') return img
+      if (img.variants && typeof img.variants === 'object') {
+        if (img.variants.w320) return String(img.variants.w320)
+        if (img.variants.w640) return String(img.variants.w640)
+        if (img.variants.w1024) return String(img.variants.w1024)
+      }
+      if (img.url) return String(img.url)
+      if (img.path) return String(img.path)
+    } catch (_) {}
+    return '/images/homepage.jpeg'
+  }
   const phone = "541168696491"; // +54 11 68696491
   const whatsappHref = `https://wa.me/${phone}?text=${encodeURIComponent(
     `Hola me interesa esta guitarra: ${title}`
@@ -14,7 +28,7 @@ function GuitarCard({ title, description, price, image }) {
       <div className="relative aspect-[4/3] w-full bg-black/30">
         {image ? (
           <Image
-            src={image}
+            src={encodeURI(normalizeImageEntry(image))}
             alt={title || "Guitarra"}
             fill
             sizes="(min-width:768px) 33vw, 100vw"

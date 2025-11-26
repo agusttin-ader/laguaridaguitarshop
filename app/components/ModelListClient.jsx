@@ -85,8 +85,11 @@ export default function ModelListClient({ products = [] }) {
     if (q.pickups) parsed.pickups = q.pickups
     if (q.priceFrom) parsed.priceFrom = Number(q.priceFrom)
     if (q.priceTo) parsed.priceTo = Number(q.priceTo)
-    // Only set if we have any keys
-    if (Object.keys(parsed).length > 0) setFilters(prev => ({ ...(prev || {}), ...parsed }))
+    // Only set if we have any keys — defer to next animation frame to avoid
+    // calling setState synchronously inside the effect body (react lint rule).
+    if (Object.keys(parsed).length > 0) {
+      requestAnimationFrame(() => setFilters(prev => ({ ...(prev || {}), ...parsed })))
+    }
   }, [searchParams])
 
   const cleaned = useMemo(() => products || [], [products])
