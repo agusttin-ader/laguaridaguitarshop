@@ -76,15 +76,25 @@ export default function ProductPage({ model }) {
               >
                 {(() => {
                   const imgEntry = images[selected]
-                  let src = '/images/homepage.jpeg'
-                  if (imgEntry) {
-                    if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
-                    else if (typeof imgEntry === 'object' && imgEntry !== null) {
-                      if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
-                      else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
-                    }
+                  // prefer variants for the main gallery image (large)
+                  function pickBest(entry) {
+                    if (!entry) return null
+                    try {
+                      if (typeof entry === 'string') return entry
+                      if (typeof entry === 'object') {
+                        if (entry.variants && typeof entry.variants === 'object') {
+                          if (entry.variants.w1024) return String(entry.variants.w1024)
+                          if (entry.variants.w640) return String(entry.variants.w640)
+                          if (entry.variants.w320) return String(entry.variants.w320)
+                        }
+                        if (entry.url && typeof entry.url === 'string') return entry.url
+                        if (entry.path && typeof entry.path === 'string') return entry.path
+                      }
+                    } catch (err) {}
+                    return null
                   }
 
+                  const src = pickBest(imgEntry) || '/images/homepage.jpeg'
                   const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
 
                   if (isExternal) {
