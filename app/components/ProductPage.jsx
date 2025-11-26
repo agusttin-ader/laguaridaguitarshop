@@ -64,7 +64,7 @@ export default function ProductPage({ model }) {
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Left: gallery */}
         <div className="flex flex-col h-full">
-          <div className="relative w-full flex-1 min-h-[420px] md:min-h-[560px] lg:min-h-[720px] overflow-hidden rounded-lg shadow-lg bg-black/5">
+          <div className="relative w-full flex-1 product-main-image min-h-[420px] md:min-h-[560px] lg:min-h-[720px] overflow-hidden rounded-lg shadow-lg bg-black/5">
             <AnimatePresence mode="wait">
               <motion.div
                 key={selected}
@@ -98,14 +98,15 @@ export default function ProductPage({ model }) {
                   const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
 
                   if (isExternal) {
-                    // external images rendered as plain <img> — allow intentionally
+                    // external images rendered as plain <img>
+                    // Use object-cover so the main gallery image fills the area consistently
                     return (
                       <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={src}
                           alt={`${model.title} imagen principal`}
-                          className="absolute inset-0 h-full w-full object-contain bg-black"
+                          className="absolute inset-0 h-full w-full object-cover bg-black"
                           loading="eager"
                         />
                       </>
@@ -118,7 +119,7 @@ export default function ProductPage({ model }) {
                       alt={`${model.title} imagen principal`}
                       fill
                       sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
-                      className="object-contain object-center bg-black"
+                      className="object-cover object-center bg-black"
                     />
                   )
                 })()}
@@ -163,9 +164,10 @@ export default function ProductPage({ model }) {
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex w-max items-center justify-center gap-3 rounded-full bg-[#EDEDED] px-6 py-3 text-sm font-medium text-[#0D0D0D] shadow-md transition-transform duration-200 ease-out hover:-translate-y-1 hover:bg-[#D4AF37] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
+            aria-label={`Contactar por WhatsApp: Me interesa ${model.title}`}
+            className="mt-6 inline-flex w-max items-center justify-center gap-3 rounded-full px-6 py-3 text-sm font-medium btn btn-gold focus-visible:outline-none focus-visible:ring-2"
           >
-            <FaWhatsapp className="h-4 w-4 text-[#0D0D0D]" aria-hidden />
+            <FaWhatsapp className="h-4 w-4 text-white" aria-hidden />
             Me interesa
           </a>
         </div>

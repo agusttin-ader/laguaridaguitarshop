@@ -716,6 +716,38 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 
 .file-name { display:block; margin:6px 0 0; color:#d9d1b0; font-size:13px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center }
 
+/* Permanent gold button variant used for 'Me interesa' and similar CTAs
+   Ensures the button is gold with white text at all times and only
+   adds a soft golden shadow on hover/focus (prevents disappearing white-on-white). */
+.btn-gold {
+  background: linear-gradient(180deg,#D4AF37,#B8872B) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 30px rgba(212,175,55,0.12) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.btn-gold:hover, .btn-gold:focus {
+  background: linear-gradient(180deg,#D4AF37,#B8872B) !important;
+  color: #ffffff !important;
+  /* main elevated shadow + subtle outer glow for a polished golden halo */
+  box-shadow: 0 18px 40px rgba(212,175,55,0.14), 0 6px 18px rgba(212,175,55,0.06), 0 0 24px rgba(212,175,55,0.08) !important;
+  transform: translateY(-2px) !important;
+  transition: box-shadow 220ms ease, transform 180ms ease !important;
+}
+.btn-gold:focus-visible {
+  outline: 3px solid rgba(212,175,55,0.12) !important;
+  outline-offset: 4px !important;
+}
+.btn-gold:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 8px 20px rgba(212,175,55,0.10) !important;
+}
+
 .file-names { color:#d9d1b0; font-size:13px }
 
 /* Ensure number inputs and other inputs inside the new-product-form adopt the dark style */
@@ -915,6 +947,22 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   object-fit: cover;
   object-position: center center;
   transition: object-position .28s ease, transform .28s ease;
+}
+
+/* Product main image: prefer portrait/vertical aspect and cover crop */
+.product-main-image {
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  height: auto; /* allow aspect-ratio to control height */
+  max-height: 90vh;
+  overflow: hidden;
+}
+.product-main-image img,
+.product-main-image .object-cover {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 22% !important;
 }
 
 /* Hero CTA: explicit colors to avoid utility-class mismatches on mobile */
