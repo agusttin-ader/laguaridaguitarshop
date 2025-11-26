@@ -267,9 +267,11 @@ export default function NewProductForm({ onCreated }){
           </div>
           {createdProduct.images && createdProduct.images.length > 0 ? (
             <div className="thumbs" style={{display:'flex',gap:8}}>
-              {createdProduct.images.map((img, i)=> (
+              {createdProduct.images.map((img, i)=> {
+                const src = normalizeUploaded(img)
+                return (
                 <div key={i} className="thumb" style={{position:'relative',border: i===0 ? '2px solid #D4AF37' : '1px solid #333', borderRadius:8, overflow:'hidden'}}>
-                  {normalizeUploaded(img) ? <img src={normalizeUploaded(img)} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : (img.url ? <img src={img.url} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : <div className="muted">No preview</div>)}
+                  {src ? <img src={src} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : <div className="muted">No preview</div>}
                   {i === 0 ? (
                     <div className="thumb-principal" title="Imagen principal" style={{pointerEvents:'none'}}>
                       <FiStar size={14} />
@@ -298,7 +300,7 @@ export default function NewProductForm({ onCreated }){
                     <FiTrash2 size={14} />
                   </button>
                 </div>
-              ))}
+              )})}
             </div>
           ) : (
             <p className="muted">No hay imágenes asociadas.</p>
