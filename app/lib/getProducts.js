@@ -13,7 +13,7 @@ export async function getProducts() {
       title: r.title,
       description: r.description,
       price: typeof r.price === 'number' ? `U$S ${r.price}` : r.price,
-      images: Array.isArray(r.images) ? r.images : [],
+      images: Array.isArray(r.images) ? normalizeImages(r.images) : [],
     }))
   } catch (err) {
     console.error('getProducts: DB fetch failed', err)
@@ -41,12 +41,27 @@ export async function getProducts() {
         title: jp.title,
         description: jp.description,
         price: jp.price,
-        images: Array.isArray(jp.images) ? jp.images : [],
+        images: Array.isArray(jp.images) ? normalizeImages(jp.images) : [],
       })
     }
   }
 
   return merged
+}
+
+function normalizeImages(images) {
+  // Ensure each image entry is an object with at least a `url` property
+  return (images || []).map((img) => {
+    if (!img) return null
+    if (typeof img === 'string') return { url: String(img) }
+    if (typeof img === 'object') {
+      // If it's already shaped like { url, variants }, keep it but ensure url exists
+      const url = img.url || img.publicUrl || img.path || img.name || null
+      const variants = img.variants || {}
+      return { ...img, url, variants }
+    }
+    return null
+  }).filter(Boolean)
 }
 
 function makeSlug(s) {
