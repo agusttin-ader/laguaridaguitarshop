@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { getProducts } from "../lib/getProducts";
 import { Suspense } from 'react'
 import ModelListClient from '../components/ModelListClient'
