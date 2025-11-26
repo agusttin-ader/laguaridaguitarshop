@@ -8,6 +8,11 @@ async function unauthorized() {
 
 
 export async function POST(request) {
+  // Fail fast with a clear error if Supabase admin credentials are not configured
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(JSON.stringify({ error: 'Supabase admin not configured. Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in your environment.' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+  }
+
   if (!validateOrigin(request)) return unauthorized()
   const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || request.ip || ''
   if (!rateCheck(ip)) return new Response(JSON.stringify({ error: 'Rate limit' }), { status: 429, headers: { 'Content-Type': 'application/json' } })
