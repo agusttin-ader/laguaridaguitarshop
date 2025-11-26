@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin'
-import { getUserFromRequest, isAdmin, isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
+import { getUserFromRequest, isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
 
 async function unauthorized() {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
@@ -13,9 +13,9 @@ export async function GET(request) {
 
   const { user, error: userErr } = await getUserFromRequest(request)
   if (userErr || !user) return unauthorized()
+  // Only the owner may list admins
   const owner = isOwner(user)
-  const adminFlag = await isAdmin(user.id)
-  if (!owner && !adminFlag) return unauthorized()
+  if (!owner) return unauthorized()
 
   const { data, error } = await supabaseAdmin.from('admins').select('*')
   if (error) return new Response(JSON.stringify({ error }), { status: 500, headers: { 'Content-Type': 'application/json' } })
@@ -30,9 +30,9 @@ export async function POST(request) {
 
   const { user, error: userErr } = await getUserFromRequest(request)
   if (userErr || !user) return unauthorized()
+  // Only the owner may add admins
   const owner = isOwner(user)
-  const adminFlag = await isAdmin(user.id)
-  if (!owner && !adminFlag) return unauthorized()
+  if (!owner) return unauthorized()
 
   const body = await request.json().catch(()=>({}))
   const id = sanitizeString(body.id)
@@ -51,9 +51,9 @@ export async function DELETE(request) {
 
   const { user, error: userErr } = await getUserFromRequest(request)
   if (userErr || !user) return unauthorized()
+  // Only the owner may remove admins
   const owner = isOwner(user)
-  const adminFlag = await isAdmin(user.id)
-  if (!owner && !adminFlag) return unauthorized()
+  if (!owner) return unauthorized()
 
   const { id } = await request.json().catch(()=>({}))
   if (!id) return new Response(JSON.stringify({ error: 'id is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } })

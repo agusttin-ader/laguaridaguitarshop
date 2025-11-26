@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../../../../lib/supabaseAdmin'
-import { getUserFromRequest, isAdmin, rateCheck, validateJsonContentType, validateOrigin } from '../../../../../lib/adminAuth'
+import { getUserFromRequest, isOwner, rateCheck, validateJsonContentType, validateOrigin } from '../../../../../lib/adminAuth'
 
 export async function POST(request) {
   if (!validateOrigin(request)) return new Response(JSON.stringify({ error: 'Unauthorized origin' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
@@ -10,8 +10,9 @@ export async function POST(request) {
   const { user, error: userErr } = await getUserFromRequest(request)
   if (userErr || !user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
 
-  const admin = await isAdmin(user.id)
-  if (!admin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
+  // Signed URL generation is a privileged action — owner only
+  const owner = isOwner(user)
+  if (!owner) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
 
   const body = await request.json().catch(()=>({}))
   const { path, expires = 3600, bucket = 'product-images' } = body

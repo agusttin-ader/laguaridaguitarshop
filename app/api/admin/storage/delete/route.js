@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../../../../lib/supabaseAdmin'
-import { getUserFromRequest, isAdmin, rateCheck, validateJsonContentType, validateOrigin } from '../../../../../lib/adminAuth'
+import { getUserFromRequest, isOwner, rateCheck, validateJsonContentType, validateOrigin } from '../../../../../lib/adminAuth'
 
 async function unauthorized() {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
@@ -40,8 +40,9 @@ export async function POST(request) {
   const { user, error: userErr } = await getUserFromRequest(request)
   if (userErr || !user) return unauthorized()
 
-  const admin = await isAdmin(user.id)
-  if (!admin) return unauthorized()
+  // Only owner may perform storage deletes via this endpoint
+  const owner = isOwner(user)
+  if (!owner) return unauthorized()
 
   const body = await request.json().catch(() => ({}))
   const { publicUrl, bucket = 'product-images' } = body
