@@ -13,13 +13,20 @@ export async function GET(request) {
 
   const { user, error: userErr } = await getUserFromRequest(request)
   if (userErr || !user) return unauthorized()
-  // Only the owner may list admins
+  // Allow owner to list all admins. Allow regular admins to verify their own admin status.
   const owner = isOwner(user)
-  if (!owner) return unauthorized()
+  if (owner) {
+    const { data, error } = await supabaseAdmin.from('admins').select('*')
+    if (error) return new Response(JSON.stringify({ error }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  }
 
-  const { data, error } = await supabaseAdmin.from('admins').select('*')
-  if (error) return new Response(JSON.stringify({ error }), { status: 500, headers: { 'Content-Type': 'application/json' } })
-  return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  // Not owner: check whether the requesting user is in the admins table
+  const { data: row, error: rowErr } = await supabaseAdmin.from('admins').select('*').eq('id', user.id).maybeSingle()
+  if (rowErr) return new Response(JSON.stringify({ error: rowErr }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+  if (!row) return unauthorized()
+  // return the matched admin record so client can detect ok
+  return new Response(JSON.stringify([row]), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
 
 export async function POST(request) {

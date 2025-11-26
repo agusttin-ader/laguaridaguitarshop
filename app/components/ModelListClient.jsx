@@ -11,8 +11,18 @@ function pickImage(m) {
   if (imgEntry) {
     if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
     else if (typeof imgEntry === 'object' && imgEntry !== null) {
-      if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
-      else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
+      // prefer optimized variants for list thumbnails (smaller sizes)
+      try {
+        if (imgEntry.variants && typeof imgEntry.variants === 'object') {
+          if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
+          else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
+          else if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
+        }
+      } catch (_) {}
+      if (!src || src === '/images/homepage.jpeg') {
+        if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
+        else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
+      }
     }
   }
   return src

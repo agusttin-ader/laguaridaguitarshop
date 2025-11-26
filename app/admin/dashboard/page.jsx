@@ -70,6 +70,15 @@ export default function AdminDashboard(){
     if (!u) return null
     if (typeof u === 'object') {
       if (!u) return null
+      // Prefer optimized variants when available (for mobile use smaller width)
+      const tryVariantKeys = ['w320', 'w640', 'w1024']
+      if (u.variants && typeof u.variants === 'object') {
+        for (const vk of tryVariantKeys) {
+          if (u.variants[vk]) {
+            try { const s = String(u.variants[vk]).trim(); if (s && s !== '[object Object]') return s } catch {}
+          }
+        }
+      }
       const tryKeys = ['publicUrl', 'url', 'src', 'path']
       for (const k of tryKeys) {
         if (u[k]) {
@@ -84,7 +93,7 @@ export default function AdminDashboard(){
 // Small presentational components memoized to avoid re-renders when parent state changes
 const CompactProductThumb = memo(function CompactProductThumb({ p }) {
   const id = p.id || p.slug || p.title
-  const src = p.images && p.images[0] ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0].url || '') : ''
+  const src = normalizeSrc(p.images && p.images[0] ? p.images[0] : null)
   return (
     <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
       <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
@@ -96,8 +105,8 @@ const CompactProductThumb = memo(function CompactProductThumb({ p }) {
 })
 
 const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, handlers }) {
-  const thumb = prod ? (prod.images && prod.images[0] ? prod.images[0] : '') : ''
-  const src = thumb ? (typeof thumb === 'string' ? thumb : thumb.url || '') : ''
+  const thumb = prod ? (prod.images && prod.images[0] ? prod.images[0] : null) : null
+  const src = normalizeSrc(thumb)
   return prod ? (
     <motion.div
       key={fid}
@@ -175,7 +184,11 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
               if (chk.ok) {
                 const body = await chk.json()
                 if (body.pending) {
+                  // mark pending approval and sign the user out automatically
                   setPendingApproval(true)
+                  try { await supabase.auth.signOut() } catch (_) {}
+                  setUser(null)
+                  setToken('')
                   setAuthChecked(true)
                   return
                 }

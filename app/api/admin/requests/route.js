@@ -54,7 +54,7 @@ export async function GET(request) {
   const allowed = await isOwnerOrAdmin(user)
   if (!allowed) return unauthorized()
 
-  const { data, error: e } = await supabaseAdmin.from('admin_requests').select('*').order('created_at', { ascending: false })
+  const { data, error: e } = await supabaseAdmin.from('admin_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false })
   if (e) return new Response(JSON.stringify({ error: e }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }

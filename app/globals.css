@@ -917,6 +917,20 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   transition: object-position .28s ease, transform .28s ease;
 }
 
+/* Hero CTA: explicit colors to avoid utility-class mismatches on mobile */
+.hero-section .hero-cta {
+  background: #EDEDED;
+  color: #0D0D0D !important;
+  border-radius: 9999px;
+  padding-left: 18px;
+  padding-right: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.hero-section .hero-cta:hover { background: #D4AF37; color: #081017 !important }
+
 @media (max-width: 768px) {
   /* On mobile prefer showing upper part of image (less vertical crop) and use viewport-based height */
   .hero-section .hero-image {

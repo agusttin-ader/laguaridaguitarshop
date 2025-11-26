@@ -7,6 +7,18 @@ import { FiTrash2, FiStar } from 'react-icons/fi'
 import ConfirmDialog from './ConfirmDialog'
 
 export default function NewProductForm({ onCreated }){
+  function normalizeUploaded(img) {
+    if (!img) return null
+    // prefer optimized variants if available
+    try {
+      if (img.variants && typeof img.variants === 'object') {
+        if (img.variants.w320) return img.variants.w320
+        if (img.variants.w640) return img.variants.w640
+        if (img.variants.w1024) return img.variants.w1024
+      }
+    } catch (_) {}
+    return img.url || img.publicUrl || img.path || img.name || null
+  }
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
@@ -257,7 +269,7 @@ export default function NewProductForm({ onCreated }){
             <div className="thumbs" style={{display:'flex',gap:8}}>
               {createdProduct.images.map((img, i)=> (
                 <div key={i} className="thumb" style={{position:'relative',border: i===0 ? '2px solid #D4AF37' : '1px solid #333', borderRadius:8, overflow:'hidden'}}>
-                  {img.url ? <img src={img.url} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : <div className="muted">No preview</div>}
+                  {normalizeUploaded(img) ? <img src={normalizeUploaded(img)} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : (img.url ? <img src={img.url} alt={img.originalName || img.name} style={{width:140,height:92,objectFit:'cover',display:'block'}} /> : <div className="muted">No preview</div>)}
                   {i === 0 ? (
                     <div className="thumb-principal" title="Imagen principal" style={{pointerEvents:'none'}}>
                       <FiStar size={14} />
