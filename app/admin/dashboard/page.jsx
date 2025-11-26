@@ -234,9 +234,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     setLoadingProducts(true)
     try {
       const res = await fetch('/api/admin/products', { headers: { Authorization: `Bearer ${token}` } })
-      console.log('fetchProducts: response status', res.status)
       const json = await res.json()
-      console.log('fetchProducts: body', json)
       if (!res.ok) throw json
       // Keep API order (avoid bundling large JSON into client by dynamic import)
       setProducts(json)
@@ -248,9 +246,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
   async function fetchSettings(){
     try {
       const res = await fetch('/api/admin/settings', { headers: { Authorization: `Bearer ${token}` } })
-      console.log('fetchSettings: response status', res.status)
       const json = await res.json()
-      console.log('fetchSettings: body', json)
       if (!res.ok) throw json
       setSettings(json)
       setHeroPreview(json?.heroImage || '')
@@ -297,7 +293,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
 
   useEffect(()=>{
     if (!token) return
-    console.log('Admin dashboard: token available', token ? 'yes' : 'no')
+    // token available — proceed to fetch data
     fetchProducts()
     fetchSettings()
     if (isOwner) fetchRequests()
@@ -713,46 +709,46 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         
         
 
-        <div>
-          <div className="card">
-            <h3>Herramientas</h3>
-            <p className="muted">Utilidades de depuración y acceso a Storage.</p>
-            <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:10}}>
-              <button className="btn btn-ghost" onClick={async ()=>{
-                setDebugErr(null)
-                setBuckets(null)
-                try {
-                  const res = await fetch('/api/admin/storage/buckets', { headers: { Authorization: `Bearer ${token}` } })
-                  const json = await res.json()
-                  if (!res.ok) throw json
-                  setBuckets(json)
-                } catch (err) { setDebugErr(String(err)); console.error(err) }
-              }}>Listar buckets</button>
+          <div>
+          {isOwner && (
+            <div className="card">
+              <h3>Herramientas</h3>
+              <p className="muted">Utilidades de depuración y acceso a Storage.</p>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:10}}>
+                <button className="btn btn-ghost" onClick={async ()=>{
+                  setDebugErr(null)
+                  setBuckets(null)
+                  try {
+                    const res = await fetch('/api/admin/storage/buckets', { headers: { Authorization: `Bearer ${token}` } })
+                    const json = await res.json()
+                    if (!res.ok) throw json
+                    setBuckets(json)
+                  } catch (err) { setDebugErr(String(err)); console.error(err) }
+                }}>Listar buckets</button>
 
-              <button className="btn btn-ghost" onClick={async ()=>{
-                setDebugErr(null)
-                setSignedUrl(null)
-                const examplePath = prompt('Path del objeto (ej: 1763829090_file.jpg)')
-                if (!examplePath) return
-                try {
-                  const res = await fetch('/api/admin/storage/signed-url', { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` }, body: JSON.stringify({ path: examplePath }) })
-                  const json = await res.json()
-                  if (!res.ok) throw json
-                  setSignedUrl(json)
-                } catch (err) { setDebugErr(String(err)); console.error(err) }
-              }}>Generar signed URL</button>
-            </div>
-            {debugErr && <p style={{color:'red',marginTop:8}}>Error: {debugErr}</p>}
-            {buckets && (
-              <pre style={{marginTop:8,fontSize:12,whiteSpace:'pre-wrap'}}>{JSON.stringify(buckets,null,2)}</pre>
-            )}
-            {signedUrl && (
-              <div style={{marginTop:8}}>
-                <pre style={{fontSize:12}}>{JSON.stringify(signedUrl,null,2)}</pre>
-                {signedUrl.signedUrl && <div style={{marginTop:8}}><a className="btn btn-primary" href={signedUrl.signedUrl} target="_blank" rel="noreferrer">Abrir signed URL</a></div>}
+                <button className="btn btn-ghost" onClick={async ()=>{
+                  setDebugErr(null)
+                  setSignedUrl(null)
+                  const examplePath = prompt('Path del objeto (ej: 1763829090_file.jpg)')
+                  if (!examplePath) return
+                  try {
+                    const res = await fetch('/api/admin/storage/signed-url', { method:'POST', headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${token}` }, body: JSON.stringify({ path: examplePath }) })
+                    const json = await res.json()
+                    if (!res.ok) throw json
+                    setSignedUrl(json)
+                  } catch (err) { setDebugErr(String(err)); console.error(err) }
+                }}>Generar signed URL</button>
               </div>
-            )}
-            {isOwner && (
+              {debugErr && <p style={{color:'red',marginTop:8}}>Error: {debugErr}</p>}
+              {buckets && (
+                <pre style={{marginTop:8,fontSize:12,whiteSpace:'pre-wrap'}}>{JSON.stringify(buckets,null,2)}</pre>
+              )}
+              {signedUrl && (
+                <div style={{marginTop:8}}>
+                  <pre style={{fontSize:12}}>{JSON.stringify(signedUrl,null,2)}</pre>
+                  {signedUrl.signedUrl && <div style={{marginTop:8}}><a className="btn btn-primary" href={signedUrl.signedUrl} target="_blank" rel="noreferrer">Abrir signed URL</a></div>}
+                </div>
+              )}
               <div style={{marginTop:14,borderTop:'1px dashed #eee',paddingTop:12}}>
                 <h4 style={{margin:0}}>Administradores (solo propietario)</h4>
                 <div style={{display:'flex',gap:8,marginTop:8}}>
@@ -785,8 +781,8 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
             
                 {/* requests are shown in a modal — use the "Ver solicitudes" button above */}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="section-divider" />
 
@@ -1144,7 +1140,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {adminsModalOpen && (
+        {isOwner && adminsModalOpen && (
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="modal-content card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} style={{maxWidth:720,margin:'40px auto',padding:18, maxHeight: '70vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>

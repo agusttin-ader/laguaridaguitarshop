@@ -132,9 +132,8 @@ export default function NewProductForm({ onCreated }){
         body: JSON.stringify(body)
       })
       if (res.ok) {
-        const created = await res.json().catch(()=>null)
-        console.log('Created product:', created)
-        setCreatedProduct(created)
+      const created = await res.json().catch(()=>null)
+      setCreatedProduct(created)
         setStatus('Product created successfully')
         setTitle(''); setDescription(''); setPrice(''); setColor(''); setYear(''); setMarca(''); setModelo(''); setMicrofonos(''); setPuente(''); setFiles([])
         try { if (typeof window !== 'undefined' && 'BroadcastChannel' in window) { const bc = new BroadcastChannel('la-guarida-products'); bc.postMessage({ type: 'product-created', product: created }); bc.close() } } catch(_){}

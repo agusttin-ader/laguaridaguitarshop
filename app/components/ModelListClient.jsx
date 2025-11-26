@@ -20,7 +20,7 @@ function pickImage(m) {
 
 import React, { useCallback } from 'react'
 
-function ModelCard({ m }) {
+function ModelCard({ m, isFirst }) {
   const src = pickImage(m)
   return (
     <article className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
@@ -32,7 +32,7 @@ function ModelCard({ m }) {
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover"
-            loading="lazy"
+            loading={isFirst ? 'eager' : 'lazy'}
             decoding="async"
           />
         </div>
@@ -171,10 +171,10 @@ export default function ModelListClient({ products = [] }) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((m) => (
-          <MemoModelCard key={m.slug} m={m} />
-        ))}
-      </div>
+            {filtered.map((m, idx) => (
+              <MemoModelCard key={m.slug} m={m} isFirst={idx === 0} />
+            ))}
+          </div>
 
       <FilterModal isOpen={isOpen} onClose={() => setIsOpen(false)} onApply={handleApply} initial={filters || {}} />
     </main>
