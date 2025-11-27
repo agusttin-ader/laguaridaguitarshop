@@ -1062,6 +1062,50 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
     flex-wrap: wrap !important;
   }
 }
+/* Compact product CTA on mobile: make "Me interesa" smaller and visually placed inside cards */
+@media (max-width: 640px) {
+  /* Keep these selectors broad enough to catch product cards across components
+     but scoped to mobile so we don't affect desktop layouts. We set the
+     container to position:relative so the absolute CTA can be nicely placed. */
+  .group, .featured-panel .product-row, .product-row, .product-list { position: relative !important; }
+
+  .group .btn-gold,
+  .featured-panel .btn-gold,
+  .product-row .btn-gold,
+  .product-list .btn-gold,
+  .product-card .btn-gold {
+    position: absolute !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    width: auto !important;
+    min-width: 88px !important;
+    max-width: 220px !important;
+    white-space: nowrap !important;
+    box-shadow: 0 10px 24px rgba(212,175,55,0.12) !important;
+    transform: translateY(0) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  /* Keep the icon and text aligned and sized properly inside the small CTA */
+  .group .btn-gold svg, .group .btn-gold .whatsapp-icon {
+    width: 18px !important;
+    height: 18px !important;
+    flex: 0 0 18px !important;
+    display: inline-block !important;
+  }
+  .group .btn-gold span, .group .btn-gold .cta-text { display: inline-block; text-align: center; }
+
+  /* Prevent the generic mobile .btn rule from forcing full-width on these CTAs */
+  .group .btn, .group .btn-gold { width: auto !important; }
+}
 
 /* Protective rules to avoid any remaining horizontal overflow */
 /* Force any top-level app child to not exceed viewport width and allow shrinking flex items */
