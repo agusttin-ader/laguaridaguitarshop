@@ -1062,11 +1062,21 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
     flex-wrap: wrap !important;
   }
 }
-/* Compact product CTA on mobile: make "Me interesa" smaller and visually placed inside cards */
+/* Compact product CTA on mobile: make "Me interesa" shorter and aligned like desktop */
 @media (max-width: 640px) {
+  /* Ensure any element with the gold CTA class is never forced to full-width
+     by the generic `.btn` mobile rule. Use higher specificity selectors so
+     product page instances (not inside `.group`) are also targeted. */
+  .btn.btn-gold, a.btn-gold, .btn-gold {
+    width: auto !important;
+    display: inline-flex !important;
+    max-width: 160px !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+  }
+
   /* Keep these selectors broad enough to catch product cards across components
-     but scoped to mobile so we don't affect desktop layouts. We set the
-     container to position:relative so the absolute CTA can be nicely placed. */
+     but scoped to mobile so we don't affect desktop layouts. */
   .group, .featured-panel .product-row, .product-row, .product-list { position: relative !important; }
 
   .group .btn-gold,
@@ -1074,37 +1084,57 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   .product-row .btn-gold,
   .product-list .btn-gold,
   .product-card .btn-gold {
-    position: absolute !important;
-    right: 12px !important;
-    bottom: 12px !important;
-    padding: 6px 10px !important;
-    font-size: 13px !important;
-    border-radius: 8px !important;
-    width: auto !important;
-    min-width: 88px !important;
-    max-width: 220px !important;
-    white-space: nowrap !important;
-    box-shadow: 0 10px 24px rgba(212,175,55,0.12) !important;
-    transform: translateY(0) !important;
+    /* Make the CTA compact (not full width), right-aligned and visually
+       identical to the tablet/desktop variant while keeping good touch size. */
+    position: static !important;
     display: inline-flex !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 160px !important;
+    margin-left: auto !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    border-radius: 9999px !important; /* pill */
+    white-space: nowrap !important;
+    box-shadow: 0 8px 22px rgba(2,6,23,0.10), 0 6px 18px rgba(212,175,55,0.08) !important;
+    transform: none !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
   }
 
-  /* Keep the icon and text aligned and sized properly inside the small CTA */
+  /* Keep the icon and text aligned and clipped if necessary */
   .group .btn-gold svg, .group .btn-gold .whatsapp-icon {
     width: 18px !important;
     height: 18px !important;
     flex: 0 0 18px !important;
     display: inline-block !important;
   }
-  .group .btn-gold span, .group .btn-gold .cta-text { display: inline-block; text-align: center; }
 
-  /* Prevent the generic mobile .btn rule from forcing full-width on these CTAs */
-  .group .btn, .group .btn-gold { width: auto !important; }
+  .group .btn-gold .cta-text,
+  .group .btn-gold span {
+    display: inline-block !important;
+    max-width: calc(100% - 28px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+  }
+
+  /* Slight hover/active polish on touch-capable devices: subtle lift */
+  .btn-gold:hover, .btn-gold:focus {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 14px 36px rgba(2,6,23,0.12), 0 8px 28px rgba(212,175,55,0.10) !important;
+  }
+
+  /* Make the WA icon slightly larger and crisp on small screens */
+  .btn-gold svg, .btn-gold .whatsapp-icon { width: 20px !important; height: 20px !important; }
+
+  /* Strongly prevent generic mobile .btn rules from forcing full-width */
+  .group .btn, .group .btn-gold { width: auto !important; display: inline-flex !important; }
+
+  /* If button sits inside other layout contexts, ensure right alignment */
+  .product-row .btn-gold, .product-card .btn-gold { margin-left: auto !important; }
 }
 
 /* Protective rules to avoid any remaining horizontal overflow */

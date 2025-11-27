@@ -29,10 +29,22 @@ export default function AdminLogin() {
     e?.preventDefault()
     setMessage('')
     setLoading(true)
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
-    if (error) setMessage(error.message)
-    else router.push('/admin/dashboard')
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      setLoading(false)
+      if (error) return setMessage(error.message)
+      // If sign in returns a session, set local state immediately and navigate.
+      const token = data?.session?.access_token || null
+      const user = data?.user || null
+      if (token) setAccessToken(token)
+      if (user) setCurrentUser(user)
+      // Use replace to avoid leaving a back entry to the login page
+      try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
+    } catch (err) {
+      setLoading(false)
+      console.error('login error', err)
+      setMessage(err?.message || 'Error iniciando sesión')
+    }
   }
 
   // Signup flow removed — authentication is via Google / magic links only.
