@@ -165,12 +165,12 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         setUser(sessionUser)
         setToken(accessToken)
 
-        // if no user, show 404
-        if (!sessionUser) {
-          setAuthChecked(true)
-          router.replace('/404')
-          return
-        }
+          // if no user, redirect to login
+          if (!sessionUser) {
+            setAuthChecked(true)
+            router.replace('/admin/login')
+            return
+          }
 
         // if owner by email, authorized
         if (sessionUser.email === OWNER_EMAIL) {
