@@ -965,6 +965,23 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   object-position: center 22% !important;
 }
 
+/* Force a portrait (vertical) presentation for product images across the site.
+   This makes landscape uploads crop to the same vertical card layout as other items. */
+.product-thumb, .thumb, .image-thumb, .edit-image-card .image-thumb, .featured-panel .product-list .product-row .product-thumb {
+  aspect-ratio: 3 / 4; /* portrait */
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  display: block;
+}
+.product-thumb img, .thumb img, .image-thumb img, .edit-image-card .image-thumb img, .featured-panel .product-list .product-row .product-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 22% !important; /* prefer upper-center framing */
+  display: block !important;
+}
+
 /* Hero CTA: explicit colors to avoid utility-class mismatches on mobile */
 .hero-section .hero-cta {
   background: #EDEDED;
