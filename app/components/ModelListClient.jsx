@@ -1,5 +1,5 @@
 "use client"
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, memo } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -65,7 +65,7 @@ function ModelCard({ m, isFirst }) {
   )
 }
 
-const MemoModelCard = React.memo(ModelCard)
+const MemoModelCard = memo(ModelCard)
 
 export default function ModelListClient({ products = [] }) {
   const [isOpen, setIsOpen] = useState(false)
