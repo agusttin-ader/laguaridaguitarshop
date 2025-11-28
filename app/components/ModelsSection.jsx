@@ -68,7 +68,7 @@ export default async function ModelsSection() {
                           else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
                           else if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
                         }
-                      } catch (_) {}
+                      } catch {}
                       if (!src || src === '/images/homepage.jpeg') {
                         if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
                         else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path

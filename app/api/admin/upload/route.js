@@ -50,7 +50,7 @@ export async function POST(request) {
     }
 
     // Upload normalized original
-    const { data: uploadData, error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, normalizedBuffer, { contentType: file.type })
+    const { error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, normalizedBuffer, { contentType: file.type })
     if (uploadErr) return new Response(JSON.stringify({ error: String(uploadErr) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
 
     // Generate optimized variants (webp) at multiple widths

@@ -26,7 +26,7 @@ function extractPathFromPublicUrl(publicUrl, bucket) {
     // fallback: try to take last segment
     const seg = u.pathname.split('/').pop()
     return seg || null
-  } catch (err) {
+  } catch {
     return null
   }
 }

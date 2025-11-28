@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin'
-import { parseBearer, getUserFromRequest, isAdmin, isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
+import { getUserFromRequest, isAdmin, isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
 import fs from 'fs'
 import path from 'path'
 
@@ -65,7 +65,7 @@ export async function POST(request) {
     try {
       const raw = await fs.promises.readFile(productsJsonPath, 'utf8')
       current = JSON.parse(raw || '[]')
-    } catch (e) {
+    } catch {
       current = []
     }
 
@@ -137,7 +137,7 @@ export async function DELETE(request) {
     try {
       const raw = await fs.promises.readFile(productsJsonPath, 'utf8')
       current = JSON.parse(raw || '[]')
-    } catch (e) { current = [] }
+    } catch { current = [] }
 
     const filtered = current.filter((p) => {
       if (!p) return false
@@ -202,7 +202,7 @@ export async function PATCH(request) {
     try {
       const raw = await fs.promises.readFile(productsJsonPath, 'utf8')
       current = JSON.parse(raw || '[]')
-    } catch (e) { current = [] }
+    } catch { current = [] }
 
     const updated = current.map((p) => {
       if (!p) return p

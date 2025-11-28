@@ -16,7 +16,9 @@ export default function NewProductForm({ onCreated }){
         if (img.variants.w640) return img.variants.w640
         if (img.variants.w1024) return img.variants.w1024
       }
-    } catch (_) {}
+    } catch {
+      return null
+    }
     return img.url || img.publicUrl || img.path || img.name || null
   }
   const [title, setTitle] = useState('')
@@ -56,7 +58,7 @@ export default function NewProductForm({ onCreated }){
           resolve(new File([blob], file.name, { type: blob.type }))
         }, 'image/webp', quality)
       })
-    } catch (err) {
+    } catch {
       return file
     }
   }

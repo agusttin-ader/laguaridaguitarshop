@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { supabaseAdmin } from '../../../../lib/supabaseAdmin'
-import { parseBearer, getUserFromRequest, isAdmin, isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
+import { isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
 
 const SETTINGS_PATH = path.resolve(process.cwd(), 'data', 'settings.json')
 
@@ -9,7 +9,7 @@ function readSettings(){
   try {
     const raw = fs.readFileSync(SETTINGS_PATH, 'utf-8')
     return JSON.parse(raw)
-  } catch (err) {
+  } catch {
     return { featured: [], heroImage: '/images/homepage.jpeg' }
   }
 }

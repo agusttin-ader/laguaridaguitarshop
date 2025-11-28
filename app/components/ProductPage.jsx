@@ -26,33 +26,8 @@ export default function ProductPage({ model }) {
 
   if (!model) return null;
 
-  function prettyKey(k) {
-    if (!k) return ''
-    return k.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-  }
+  
 
-  function getVisibleSpecs(specs) {
-    const map = {}
-    // prefer model.specs object
-    if (specs && typeof specs === 'object') {
-      Object.entries(specs).forEach(([k, v]) => (map[k.toLowerCase()] = v))
-    }
-    // also allow top-level keys on model (marca, modelo, anio, año)
-    if (model && typeof model === 'object') {
-      for (const k of ['marca', 'modelo', 'anio', 'año']) {
-        if (k in model && model[k] != null && String(model[k]).trim() !== '') map[k] = model[k]
-      }
-    }
-    const order = ["marca", "modelo", "anio", "año"]
-    const labels = { marca: 'Marca', modelo: 'Modelo', anio: 'Año', 'año': 'Año' }
-    const out = []
-    for (const k of order) {
-      if (k in map && map[k] != null && String(map[k]).trim() !== '') {
-        out.push({ key: k, label: labels[k] || prettyKey(k), value: map[k] })
-      }
-    }
-    return out
-  }
 
   const phone = "541168696491"; // +54 11 68696491 formatted for wa.me
   const whatsappHref = `https://wa.me/${phone}?text=${encodeURIComponent(
