@@ -19,6 +19,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    // Configure image quality values used by next/image `quality` prop.
+    // We use 75 as the baseline and 80 for some thumbnails where we explicitly set quality=80.
+    qualities: [75, 80],
     // Disable Next image optimization in development to avoid proxying remote
     // image requests through the dev server (which can cause 504 Gateway Timeout
     // when the remote host is slow). Keep optimizer enabled in production.

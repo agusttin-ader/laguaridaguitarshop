@@ -1,8 +1,21 @@
 @import "tailwindcss";
 
+/* Default color tokens: use a dark default to avoid white flash on
+   platforms that don't advertise a color-scheme (some older browsers
+   or mismatched OS settings). Users who prefer light will be honored
+   by the media query below. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+/* Force hero image to be completely static: cover any Next/Image wrappers
+   and descendant elements so no hover transform/transition can apply. */
+.hero-section, .hero-section .hero-image, .hero-section .hero-image *,
+.hero-section .hero-image > span, .hero-section .hero-image span[class*="next-img"] {
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
 }
 
 /* Very small screens (320px) — fine tuning for compact phones */
@@ -75,10 +88,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* If the user (or system) explicitly prefers light, switch tokens */
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 
@@ -1270,6 +1284,17 @@ a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 .featured-panel .product-list .product-row:hover img {
   transform: scale(1.005) !important;
   transition: transform 240ms cubic-bezier(.25,.85,.25,1), object-position 240ms cubic-bezier(.25,.85,.25,1);
+}
+
+/* Make the hero image fully static on hover/focus (no transform or transition) */
+.hero-section .hero-image,
+.hero-section .hero-image img,
+.hero-section:hover .hero-image,
+.hero-section:hover .hero-image img,
+.hero-section:focus-within .hero-image,
+.hero-section:focus-within .hero-image img {
+  transform: none !important;
+  transition: none !important;
 }
 
 
