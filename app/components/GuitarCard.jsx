@@ -32,6 +32,7 @@ function GuitarCard({ title, description, price, image }) {
             alt={title || "Guitarra"}
             fill
             sizes="(min-width:768px) 33vw, 100vw"
+            quality={80}
             className="object-cover"
             priority={false}
           />

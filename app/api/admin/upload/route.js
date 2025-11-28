@@ -34,8 +34,23 @@ export async function POST(request) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Upload original
-    const { data: uploadData, error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, buffer, { contentType: file.type })
+    // Normalize orientation using EXIF and output in same-ish format (prefer jpeg/png)
+    let normalizedBuffer = buffer
+    try {
+      const img = sharp(buffer)
+      // rotate() uses EXIF Orientation to rotate the image to upright
+      if ((file.type || '').includes('png')) {
+        normalizedBuffer = await img.rotate().png({ quality: 90 }).toBuffer()
+      } else {
+        normalizedBuffer = await img.rotate().jpeg({ quality: 90 }).toBuffer()
+      }
+    } catch (err) {
+      console.warn('image normalization failed, proceeding with original buffer', err)
+      normalizedBuffer = buffer
+    }
+
+    // Upload normalized original
+    const { data: uploadData, error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, normalizedBuffer, { contentType: file.type })
     if (uploadErr) return new Response(JSON.stringify({ error: String(uploadErr) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
 
     // Generate optimized variants (webp) at multiple widths
@@ -43,7 +58,9 @@ export async function POST(request) {
     const variants = {}
     for (const w of SIZES) {
       try {
-        const outBuffer = await sharp(buffer).resize({ width: w }).webp({ quality: 80 }).toBuffer()
+        // create portrait-cropped variants (3:4) so thumbnails are vertical
+        const h = Math.round(w * 4 / 3)
+        const outBuffer = await sharp(normalizedBuffer).resize({ width: w, height: h, fit: 'cover' }).webp({ quality: 80 }).toBuffer()
         const outName = `${Date.now()}_${safeName}-w${w}.webp`
         const { error: upErr } = await supabaseAdmin.storage.from(bucket).upload(outName, outBuffer, { contentType: 'image/webp' })
         if (!upErr) {

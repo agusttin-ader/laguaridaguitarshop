@@ -11,12 +11,12 @@ function pickImage(m) {
   if (imgEntry) {
     if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
     else if (typeof imgEntry === 'object' && imgEntry !== null) {
-      // prefer optimized variants for list thumbnails (smaller sizes)
+      // Prefer higher-resolution variants first to avoid pixelated previews.
       try {
         if (imgEntry.variants && typeof imgEntry.variants === 'object') {
-          if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
+          if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
           else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
-          else if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
+          else if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
         }
       } catch (_) {}
       if (!src || src === '/images/homepage.jpeg') {
@@ -41,6 +41,7 @@ function ModelCard({ m, isFirst }) {
             alt={m.title}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            quality={75}
             className="object-cover"
             loading={isFirst ? 'eager' : 'lazy'}
             decoding="async"

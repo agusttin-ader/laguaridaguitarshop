@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ToasterProvider from './components/ToasterProvider'
 import WhatsAppFloating from './components/WhatsAppFloating'
+import ImageOrientationNormalizer from './components/ImageOrientationNormalizer'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
       >
         <Header />
         <ToasterProvider />
+        <ImageOrientationNormalizer />
         {children}
         <Footer />
         <WhatsAppFloating />

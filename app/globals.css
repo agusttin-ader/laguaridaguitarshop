@@ -967,19 +967,58 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 
 /* Force a portrait (vertical) presentation for product images across the site.
    This makes landscape uploads crop to the same vertical card layout as other items. */
-.product-thumb, .thumb, .image-thumb, .edit-image-card .image-thumb, .featured-panel .product-list .product-row .product-thumb {
-  aspect-ratio: 3 / 4; /* portrait */
+.product-main-image, .product-thumb, .thumb, .image-thumb, .edit-image-card .image-thumb, .featured-panel .product-list .product-row .product-thumb {
+  aspect-ratio: 3 / 4; /* portrait forced */
   width: 100%;
   height: auto;
   overflow: hidden;
   display: block;
 }
-.product-thumb img, .thumb img, .image-thumb img, .edit-image-card .image-thumb img, .featured-panel .product-list .product-row .product-thumb img {
+.product-main-image img, .product-thumb img, .thumb img, .image-thumb img, .edit-image-card .image-thumb img, .featured-panel .product-list .product-row .product-thumb img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
   object-position: center 22% !important; /* prefer upper-center framing */
   display: block !important;
+}
+
+/* Strong overrides to ensure product main area is a portrait box even if Tailwind classes set min-height */
+.product-main-image {
+  position: relative !important;
+  aspect-ratio: 3 / 4 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: 90vh !important;
+}
+
+/* Target Next/Image wrapper (fill) which renders a span with position:absolute */
+.product-main-image > span,
+.product-main-image span[class*="next-img"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+.product-main-image > span img,
+.product-main-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 22% !important;
+}
+
+/* Thumbnails: explicit portrait sizing and ensure images cover the area */
+.thumb, .product-thumb, .image-thumb {
+  aspect-ratio: 3 / 4 !important;
+  overflow: hidden !important;
+}
+.thumb img, .product-thumb img, .image-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 22% !important;
 }
 
 /* Hero CTA: explicit colors to avoid utility-class mismatches on mobile */
@@ -1187,6 +1226,50 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 /* Slightly smoother global link and focus styles */
 a { color: inherit; text-decoration: none; transition: color var(--transition-fast); }
 a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
+
+
+
+
+
+/* Smooth, softer hover transitions for hero and featured images */
+/* Keeps a subtle lift but avoids jarring scale jumps. */
+.group .object-cover,
+.models-section .object-cover,
+.product-main-image img,
+.thumb img,
+.featured-panel .product-list .product-row img,
+.group .relative img,
+.hero-section .hero-image,
+.hero-section .hero-image img {
+  /* ultra-gentle transition for transform/object-position */
+  transition: transform 260ms cubic-bezier(.25,.85,.25,1), object-position 260ms cubic-bezier(.25,.85,.25,1);
+  will-change: transform, object-position;
+}
+
+/* Nearly imperceptible hover: scale 0.2% (1.002) for an extremely soft lift */
+.group:hover .object-cover,
+.group:focus-within .object-cover,
+.group:hover .relative img,
+.hero-section:hover .hero-image img,
+.hero-section:focus-within .hero-image img {
+  transform: scale(1.002) !important;
+}
+
+/* Thumbnails use the same ultra-subtle scale */
+.thumb:hover img, .thumb:focus-within img {
+  transform: scale(1.002) !important;
+}
+
+/* Remove any hover expansion entirely: force no transform on hover/focus */
+.group:hover .object-cover,
+.group:focus-within .object-cover,
+.group:hover .relative img,
+.hero-section:hover .hero-image img,
+.hero-section:focus-within .hero-image img,
+.thumb:hover img, .thumb:focus-within img,
+.featured-panel .product-list .product-row:hover img {
+  transform: none !important;
+}
 
 
 
