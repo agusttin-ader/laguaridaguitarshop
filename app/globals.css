@@ -963,49 +963,19 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   transition: object-position .28s ease, transform .28s ease;
 }
 
-/* Product main image: prefer portrait/vertical aspect and cover crop */
+/* Product main image: allow full-image presentation (no forced crop)
+   - Use `object-fit: contain` for the main gallery so landscape photos
+     are shown entirely (letterboxed) instead of being cropped.
+   - Keep thumbnails and small preview areas as cover (they keep the portrait card look).
+*/
 .product-main-image {
-  aspect-ratio: 3 / 4;
+  /* let the component's Tailwind min-heights control the visible area */
+  position: relative;
   width: 100%;
-  height: auto; /* allow aspect-ratio to control height */
+  height: auto;
   max-height: 90vh;
   overflow: hidden;
 }
-.product-main-image img,
-.product-main-image .object-cover {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  object-position: center 22% !important;
-}
-
-/* Force a portrait (vertical) presentation for product images across the site.
-   This makes landscape uploads crop to the same vertical card layout as other items. */
-.product-main-image, .product-thumb, .thumb, .image-thumb, .edit-image-card .image-thumb, .featured-panel .product-list .product-row .product-thumb {
-  aspect-ratio: 3 / 4; /* portrait forced */
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-  display: block;
-}
-.product-main-image img, .product-thumb img, .thumb img, .image-thumb img, .edit-image-card .image-thumb img, .featured-panel .product-list .product-row .product-thumb img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  object-position: center 22% !important; /* prefer upper-center framing */
-  display: block !important;
-}
-
-/* Strong overrides to ensure product main area is a portrait box even if Tailwind classes set min-height */
-.product-main-image {
-  position: relative !important;
-  aspect-ratio: 3 / 4 !important;
-  min-height: 0 !important;
-  height: auto !important;
-  max-height: 90vh !important;
-}
-
-/* Target Next/Image wrapper (fill) which renders a span with position:absolute */
 .product-main-image > span,
 .product-main-image span[class*="next-img"] {
   position: absolute !important;
@@ -1014,9 +984,23 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   height: 100% !important;
   display: block !important;
 }
-
 .product-main-image > span img,
 .product-main-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  display: block !important;
+  background: #000; /* letterbox background for contained images */
+}
+
+/* Keep forcing portrait aspect-ratio for small thumbnail variants only */
+.product-thumb, .thumb, .image-thumb, .edit-image-card .image-thumb, .featured-panel .product-list .product-row .product-thumb {
+  aspect-ratio: 3 / 4 !important;
+  overflow: hidden !important;
+  display: block;
+}
+.product-thumb img, .thumb img, .image-thumb img, .edit-image-card .image-thumb img, .featured-panel .product-list .product-row .product-thumb img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
@@ -1048,6 +1032,41 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   text-decoration: none;
 }
 .hero-section .hero-cta:hover { background: #D4AF37; color: #081017 !important }
+
+/* Navigation buttons over product gallery (prev/next) */
+.btn-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* default: transparent so the button feels subtle until hover */
+  background: transparent;
+  color: #ffffff; /* icon stroke will be white on transparent */
+  transition: background .28s cubic-bezier(.2,.9,.3,1), color .22s ease, transform .22s cubic-bezier(.2,.9,.3,1), box-shadow .26s cubic-bezier(.2,.9,.3,1);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+}
+.btn-nav:hover {
+  /* hover: smooth full-gold background */
+  background: linear-gradient(180deg,#FFE08A,#D4AF37);
+  color: #081017;
+  box-shadow: 0 20px 52px rgba(212,175,55,0.20), 0 6px 18px rgba(0,0,0,0.22);
+  transform: scale(1.03);
+}
+.btn-nav:focus { outline: none; box-shadow: 0 0 0 6px rgba(212,175,55,0.10) }
+
+/* SVG path: stroked by default (white), filled on hover for a solid icon effect */
+.btn-nav svg { display: block }
+.btn-nav .nav-path {
+  fill: none;
+  stroke: currentColor; /* matches button color (white when transparent) */
+  stroke-width: 2.2;
+  transition: fill .22s ease, stroke .22s ease, transform .22s ease;
+}
+.btn-nav:hover .nav-path {
+  fill: #081017; /* solid dark icon on gold hover */
+  stroke: none;
+  transform: scale(1.02);
+}
 
 @media (max-width: 768px) {
   /* On mobile prefer showing upper part of image (less vertical crop) and use viewport-based height */

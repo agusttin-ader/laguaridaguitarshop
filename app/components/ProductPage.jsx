@@ -103,12 +103,12 @@ export default function ProductPage({ model }) {
                     return (
                       <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={src}
-                          alt={`${model.title} imagen principal`}
-                          className="absolute inset-0 h-full w-full object-cover bg-black"
-                          loading="eager"
-                        />
+                            <img
+                              src={src}
+                              alt={`${model.title} imagen principal`}
+                              className="absolute inset-0 h-full w-full object-contain object-center bg-black"
+                              loading="eager"
+                            />
                       </>
                     )
                   }
@@ -119,7 +119,7 @@ export default function ProductPage({ model }) {
                       alt={`${model.title} imagen principal`}
                       fill
                       sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
-                      className="object-cover object-center bg-black"
+                          className="object-contain object-center bg-black"
                     />
                   )
                 })()}
@@ -130,19 +130,19 @@ export default function ProductPage({ model }) {
             <button
               onClick={prevThumb}
               aria-label="Anterior imagen"
-              className="absolute left-4 top-1/2 z-20 h-12 w-12 md:h-14 md:w-14 -translate-y-1/2 flex items-center justify-center rounded-full bg-[#D4AF37] text-[#0D0D0D] transition-transform duration-200 opacity-95 hover:opacity-100 shadow-md hover:shadow-lg ring-2 ring-transparent hover:ring-[#D4AF37]/40"
+              className="btn-nav absolute left-3 top-1/2 z-40 h-14 w-14 md:h-16 md:w-16 -translate-y-1/2 flex items-center justify-center rounded-full transition-transform duration-150 hover:scale-105 shadow-lg"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 md:h-7 md:w-7">
-                <path d="M15 18l-6-6 6-6" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-7 w-7 md:h-8 md:w-8" aria-hidden>
+                <path className="nav-path" d="M15 18l-6-6 6-6" />
               </svg>
             </button>
             <button
               onClick={nextThumb}
               aria-label="Siguiente imagen"
-              className="absolute right-4 top-1/2 z-20 h-12 w-12 md:h-14 md:w-14 -translate-y-1/2 flex items-center justify-center rounded-full bg-[#D4AF37] text-[#0D0D0D] transition-transform duration-200 opacity-95 hover:opacity-100 shadow-md hover:shadow-lg ring-2 ring-transparent hover:ring-[#D4AF37]/40"
+              className="btn-nav absolute right-3 top-1/2 z-40 h-14 w-14 md:h-16 md:w-16 -translate-y-1/2 flex items-center justify-center rounded-full transition-transform duration-150 hover:scale-105 shadow-lg"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 md:h-7 md:w-7">
-                <path d="M9 18l6-6-6-6" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-7 w-7 md:h-8 md:w-8" aria-hidden>
+                <path className="nav-path" d="M9 18l6-6-6-6" />
               </svg>
             </button>
           </div>
