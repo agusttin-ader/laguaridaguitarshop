@@ -52,7 +52,7 @@ function ModelCard({ m, isFirst }) {
           <h2 className="text-lg font-semibold text-[#EDEDED]">{m.title}</h2>
           <p className="mt-2 text-sm text-white/70 line-clamp-3">{m.description}</p>
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm font-medium text-[#EDEDED]">{(() => {
+            <div className="text-base font-semibold text-[#EDEDED]">{(() => {
               const n = Number(String(m.price || m.priceRaw || '').replace(/[^0-9.]/g, ''))
               if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
               return m.price || '$0'
