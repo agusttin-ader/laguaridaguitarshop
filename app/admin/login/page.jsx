@@ -161,6 +161,13 @@ export default function AdminLogin() {
         setCurrentUser(userData?.user || null)
         const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
         setIsOwner((userData?.user?.email || '') === ownerEmail)
+
+        // If auth state shows a SIGNED_IN (or related) event, navigate
+        // immediately to the dashboard to avoid leaving the login page
+        // after a successful sign-in in deployed environments.
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
+        }
       } catch (e) {
         setCurrentUser(null)
         setAccessToken(null)
@@ -168,7 +175,7 @@ export default function AdminLogin() {
       }
     })
     return () => sub?.subscription?.unsubscribe?.()
-  }, [])
+  }, [router])
 
   // After login, if user is not owner or admin, create a pending admin request and show modal then sign out
   useEffect(() => {
@@ -223,20 +230,6 @@ export default function AdminLogin() {
     } catch (err) {
       console.error('google sign in error', err)
       setMessage('Error iniciando sesión con Google')
-    }
-  }
-
-  // Navigate to dashboard if user is logged in; otherwise show a message
-  async function goToDashboard() {
-    setMessage('')
-    if (currentUser) {
-      try {
-        router.replace('/admin/dashboard')
-      } catch (_) {
-        router.push('/admin/dashboard')
-      }
-    } else {
-      setMessage('Debes iniciar sesión para acceder al panel.')
     }
   }
 
@@ -343,11 +336,6 @@ export default function AdminLogin() {
 
         <div style={{marginTop:12, display:'flex', flexDirection:'column', gap:8}}>
           <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
-
-          <div style={{display:'flex', gap:8, alignItems:'center'}}>
-            <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
-            <button type="button" className="btn btn-ghost" onClick={goToDashboard}>Dashboard</button>
-          </div>
 
           {currentUser && (
             <div className="admin-user-card">
