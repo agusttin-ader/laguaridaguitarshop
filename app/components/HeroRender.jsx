@@ -26,7 +26,7 @@ export default function HeroRender({ heroImage }) {
       aria-label="Hero guitarras"
     >
       {/* Background: single blurred image so the page stays performant and the hero is faded */}
-      <div className="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true" style={{backgroundColor: 'var(--background)'}}>
+      <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true" style={{backgroundColor: 'var(--background)'}}>
         {/* Use a background-image div for the blurred backdrop. Some clients
             render the plain <img> blur differently (white-ish artifacts) so
             using background-image + a dark bgcolor ensures a consistent dark
@@ -47,7 +47,7 @@ export default function HeroRender({ heroImage }) {
         <div className="absolute left-0 right-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
       </div>
 
-      <div className="mx-auto grid max-w-7xl min-h-screen grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:px-8">
+      <div className="relative z-10 mx-auto grid max-w-7xl min-h-screen grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:px-8">
         {/* Left: copy */}
         <motion.div
           variants={container}
