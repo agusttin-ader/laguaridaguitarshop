@@ -44,23 +44,7 @@ export default function AdminLogin() {
     try {
       // Diagnostic: quick reachability checks to help debug remote timeouts
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-        if (supabaseUrl) {
-          const ctl = new AbortController()
-          const t = setTimeout(() => ctl.abort(), 3000)
-          try {
-            const r = await fetch(`${supabaseUrl.replace(/\/$/, '')}/auth/v1`, { method: 'GET', signal: ctl.signal })
-            console.debug('supabase auth endpoint status', r.status)
-          } catch (err) {
-            console.warn('supabase auth endpoint unreachable', err)
-            // Inform the user early if Supabase base URL can't be reached
-            setMessage('No se puede conectar con el servidor de autenticación desde este equipo (timeout). Probá otra red o verificá variables en el deploy.')
-            setLoading(false)
-            return
-          } finally { clearTimeout(t) }
-        }
-
-        // Also check our own server-side health endpoint to see if envs are present
+        // Check our own server-side health endpoint to see if envs are present
         try {
           const hctl = new AbortController()
           const ht = setTimeout(() => hctl.abort(), 3000)
