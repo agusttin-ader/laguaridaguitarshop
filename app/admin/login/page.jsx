@@ -117,6 +117,19 @@ export default function AdminLogin() {
       // object may not be populated immediately on slower clients.
       if (user || token) {
         try { router.replace('/admin/dashboard') } catch { router.push('/admin/dashboard') }
+        // Short navigation fallback: if client navigation doesn't take effect
+        // (some deploys delay storage persistence) perform a hard redirect
+        // after a short timeout. This is conservative and only triggers
+        // when the page remains on /admin/login.
+        try {
+          setTimeout(() => {
+            try {
+              if (typeof window !== 'undefined' && window.location.pathname && window.location.pathname.startsWith('/admin/login')) {
+                window.location.href = '/admin/dashboard'
+              }
+            } catch (_) {}
+          }, 900)
+        } catch (_) {}
         return
       }
 

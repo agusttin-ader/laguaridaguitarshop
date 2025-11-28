@@ -99,7 +99,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     <motion.div
       key={fid}
       data-fid={fid}
-      className={isSelected ? 'selected' : ''}
+      className={`featured-thumb ${isSelected ? 'selected' : ''}`}
       variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }}
       initial="hidden"
       animate="show"
