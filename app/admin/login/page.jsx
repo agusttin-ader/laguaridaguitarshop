@@ -38,6 +38,25 @@ export default function AdminLogin() {
       const user = data?.user || null
       if (token) setAccessToken(token)
       if (user) setCurrentUser(user)
+      // Wait briefly for Supabase client to persist the session (race-condition
+      // where navigating immediately causes the dashboard to read no session)
+      async function waitForSession(timeout = 1500) {
+        const start = Date.now()
+        while (Date.now() - start < timeout) {
+          try {
+            const { data: sessData } = await supabase.auth.getSession()
+            if (sessData && sessData.session && sessData.session.access_token) return sessData.session
+          } catch (_) {}
+          // small delay
+          await new Promise(r => setTimeout(r, 120))
+        }
+        return null
+      }
+
+      try {
+        await waitForSession(1500)
+      } catch (_) {}
+
       // Use replace to avoid leaving a back entry to the login page
       try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
     } catch (err) {
