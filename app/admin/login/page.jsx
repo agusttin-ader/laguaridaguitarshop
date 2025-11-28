@@ -31,6 +31,43 @@ export default function AdminLogin() {
     setMessage('')
     setLoading(true)
     try {
+      // Diagnostic: quick reachability checks to help debug remote timeouts
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+        if (supabaseUrl) {
+          const ctl = new AbortController()
+          const t = setTimeout(() => ctl.abort(), 3000)
+          try {
+            const r = await fetch(`${supabaseUrl.replace(/\/$/, '')}/auth/v1`, { method: 'GET', signal: ctl.signal })
+            console.debug('supabase auth endpoint status', r.status)
+          } catch (err) {
+            console.warn('supabase auth endpoint unreachable', err)
+            // Inform the user early if Supabase base URL can't be reached
+            setMessage('No se puede conectar con el servidor de autenticación desde este equipo (timeout). Probá otra red o verificá variables en el deploy.')
+            setLoading(false)
+            return
+          } finally { clearTimeout(t) }
+        }
+
+        // Also check our own server-side health endpoint to see if envs are present
+        try {
+          const hctl = new AbortController()
+          const ht = setTimeout(() => hctl.abort(), 3000)
+          const hres = await fetch('/api/admin/health', { method: 'GET', signal: hctl.signal })
+          if (hres.ok) {
+            const json = await hres.json()
+            console.debug('admin/health', json)
+          } else {
+            console.warn('admin/health returned', hres.status)
+          }
+          clearTimeout(ht)
+        } catch (err) {
+          console.warn('could not reach /api/admin/health', err)
+        }
+      } catch (diagErr) {
+        console.warn('login diagnostics failed', diagErr)
+      }
+
       // Attempt signInWithPassword with a timeout and one retry to handle
       // transient network or deploy/storage readiness issues on some clients.
       const timeoutMs = 10000 // 10s per attempt
