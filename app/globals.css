@@ -137,7 +137,7 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 .form-row { margin-bottom: 12px; display:flex; flex-direction:column }
 .form-row label { font-weight:600; margin-bottom:6px; font-size:14px }
 .form-row input[type="text"], .form-row input[type="number"], .form-row input[type="email"], .form-row input[type="password"], .form-row textarea, .form-row input[type="file"] {
-  padding:10px; border-radius:8px; border:1px solid #d9d9d9; font-size:14px; background:#fff; width:100%; box-sizing:border-box; color:var(--foreground);
+  padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-size:14px; background: rgba(255,255,255,0.03); width:100%; box-sizing:border-box; color:var(--foreground);
 }
 
 .form-row input:focus, .form-row textarea:focus {
@@ -231,7 +231,7 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 @keyframes thumbIn { from { opacity: 0; transform: translateY(6px) scale(.995) } to { opacity: 1; transform: translateY(0) scale(1) } }
 .thumb { animation: thumbIn 360ms cubic-bezier(.2,.9,.3,1) both; }
 
-.created-card { margin-top:16px; padding:12px; border-radius:8px; background:linear-gradient(180deg,#fff,#fbfbff); border:1px solid #ececff }
+.created-card { margin-top:16px; padding:12px; border-radius:8px; background: linear-gradient(180deg,#0b0b0b,#0d0d0d); border:1px solid rgba(255,255,255,0.04); color:#eaeaea }
 .muted { color:#666; font-size:13px }
 
 @media (max-width: 900px) {
@@ -1295,6 +1295,27 @@ a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 .hero-section:focus-within .hero-image img {
   transform: none !important;
   transition: none !important;
+}
+
+/* FORCE DARK THEME: override any system preference and ensure dark colors
+   are used site-wide. This makes the site always render with the dark
+   background and foreground colors to avoid flashes or system-based
+   light themes. Keep this block at the end so it wins over earlier rules. */
+:root, html, body {
+  --background: #0a0a0a !important;
+  --foreground: #ededed !important;
+  color-scheme: dark !important;
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* Ensure any inputs or elements that were explicitly set to white are
+   forced to dark backgrounds. These use high-specificity selectors so
+   they take precedence. */
+input, textarea, select, button {
+  background-color: rgba(255,255,255,0.03) !important;
+  color: var(--foreground) !important;
+  border-color: rgba(255,255,255,0.06) !important;
 }
 
 
