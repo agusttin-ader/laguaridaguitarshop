@@ -5,18 +5,6 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { supabase } from '../../../lib/supabaseClient'
-
-// Debug: do not print secrets. This logs only whether the anon key was
-// present at build/runtime in the client bundle. Remove after debugging.
-if (typeof window !== 'undefined') {
-  try {
-    // Boolean cast ensures we never log the value itself
-    // (NEXT_PUBLIC_* vars are replaced at build time by Next.js)
-    // This will show up in the browser console on page load.
-    // eslint-disable-next-line no-console
-    console.log('SUPABASE_ANON_KEY_PRESENT', Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY))
-  } catch (e) {}
-}
 export default function AdminLogin() {
   const router = useRouter()
   const [email, setEmail] = useState('')

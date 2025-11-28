@@ -13,15 +13,9 @@ export async function GET(request) {
 
     const originValid = validateOrigin(request)
 
-    // Allow an explicit diagnostic token to bypass origin checks temporarily.
-    // This helps debugging from other machines without changing deploy config.
-    const url = new URL(request.url)
-    const diagToken = url.searchParams.get('diag_token') || null
-    const adminToken = process.env.ADMIN_PANEL_TOKEN || null
-
     // In production do not leak env diagnostics to arbitrary origins —
-    // but allow a temporary diagnostic token match to bypass this.
-    if (process.env.NODE_ENV === 'production' && !originValid && diagToken !== adminToken) {
+    // require the request to originate from an allowed host.
+    if (process.env.NODE_ENV === 'production' && !originValid) {
       return new Response(JSON.stringify({ ok: false, error: 'origin not allowed' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
     }
 
