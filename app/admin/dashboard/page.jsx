@@ -45,6 +45,8 @@ export default function AdminDashboard(){
   const editDragIndexRef = useRef(null)
   const router = useRouter()
 
+  
+
   // Motion variants for featured panel and thumbnails (smoother, premium feel)
   const panelVariants = {
     hidden: { opacity: 0, y: -10, scale: 0.997 },
@@ -192,12 +194,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                 const body = await chk.json()
                 if (body.pending) {
                   // mark pending approval and sign the user out automatically
-                  setPendingApproval(true)
-                  try { await supabase.auth.signOut() } catch (_) {}
-                  setUser(null)
-                  setToken('')
-                  setAuthChecked(true)
-                  return
+                                  setPendingApproval(true)
+                                  try { if (typeof window !== 'undefined') sessionStorage.setItem('la_pending_approval','1') } catch(_) {}
+                                  try { await supabase.auth.signOut() } catch (_) {}
+                                  setUser(null)
+                                  setToken('')
+                                  setAuthChecked(true)
+                                  return
                 }
               }
             } catch (e) { /* ignore */ }
@@ -514,10 +517,16 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
             <img src="/images/pending-approval.svg" alt="Pendiente de aprobación" loading="lazy" decoding="async" style={{width:220,maxWidth:'80%'}} />
             <h2>Solicitud pendiente</h2>
             <div className="muted" style={{textAlign:'center'}}>Tu cuenta fue creada, pero necesitas que el administrador (agusttin.ader@gmail.com) te otorgue permisos para acceder al panel. Por favor, espera a que el propietario apruebe tu solicitud.</div>
+            <div style={{display:'flex',gap:12,marginTop:12}}>
+              <button className="btn btn-primary" onClick={() => { try { router.replace('/admin/login') } catch (_) { window.location.href = '/admin/login' } }}>Volver a Login</button>
+              <button className="btn btn-ghost" onClick={() => { try { sessionStorage.removeItem('la_pending_approval') } catch(_){}; setPendingApproval(false); try { router.replace('/') } catch(_) { window.location.href='/' } }}>Cerrar</button>
+            </div>
           </div>
         </div>
       )
     }
+
+  
 
     if (authChecked && accessDenied) {
       return (
