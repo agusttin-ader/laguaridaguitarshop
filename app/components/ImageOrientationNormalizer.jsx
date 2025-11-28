@@ -16,7 +16,7 @@ function normalizeImg(img) {
     container.classList.remove('is-portrait', 'is-landscape')
     if (h >= w) container.classList.add('is-portrait')
     else container.classList.add('is-landscape')
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 }
 
 export default function ImageOrientationNormalizer() {

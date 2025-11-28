@@ -117,7 +117,7 @@ export default function AdminLogin() {
       // covers cases where the SDK returns a session token but the user
       // object may not be populated immediately on slower clients.
       if (user || token) {
-        try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
+        try { router.replace('/admin/dashboard') } catch { router.push('/admin/dashboard') }
         return
       }
 
@@ -248,7 +248,7 @@ export default function AdminLogin() {
         if (!currentUser) return
         const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
         if ((currentUser.email || '') === ownerEmail) {
-          try { router.replace('/admin/dashboard') } catch (_) {}
+          try { router.replace('/admin/dashboard') } catch {}
           return
         }
 
@@ -257,7 +257,7 @@ export default function AdminLogin() {
           const res = await fetch('/api/admin/admins', { headers: { Authorization: `Bearer ${accessToken}` } })
           if (res.ok) {
             // user is admin — redirect to dashboard
-            try { router.replace('/admin/dashboard') } catch (_) {}
+            try { router.replace('/admin/dashboard') } catch {}
             return
           }
         } catch (e) {
@@ -273,7 +273,7 @@ export default function AdminLogin() {
         // let the dashboard UI show the pending-approval state. Do NOT
         // auto sign-out here (we want the user to see the dashboard page).
         if (!mounted) return
-        try { router.replace('/admin/dashboard') } catch (_) { /* ignore */ }
+        try { router.replace('/admin/dashboard') } catch { /* ignore */ }
       } catch (err) {
         console.error('post-login admin check error', err)
       }
@@ -319,7 +319,7 @@ export default function AdminLogin() {
           window.location.href = '/admin/login'
         }
       } else {
-        try { router.replace('/admin/login') } catch (_) {}
+        try { router.replace('/admin/login') } catch {}
       }
     } catch (err) {
       console.error('signOut unexpected', err)

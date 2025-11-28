@@ -25,7 +25,7 @@ export async function getProducts() {
     const productsJsonPath = path.join(process.cwd(), 'app', 'data', 'products.json')
     const raw = await fs.promises.readFile(productsJsonPath, 'utf8')
     jsonProducts = JSON.parse(raw || '[]')
-  } catch (err) {
+  } catch {
     // ignore
   }
 

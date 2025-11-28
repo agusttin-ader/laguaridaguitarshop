@@ -90,7 +90,7 @@ export default function ProductPage({ model }) {
                         if (entry.url && typeof entry.url === 'string') return entry.url
                         if (entry.path && typeof entry.path === 'string') return entry.path
                       }
-                    } catch (err) {}
+                    } catch {}
                     return null
                   }
 

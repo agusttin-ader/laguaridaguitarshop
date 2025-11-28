@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 // Small animated modal entrance to feel more premium
 
 export default function FilterModal({ isOpen, onClose, onApply, initial = {} }) {
-  const [entered, setEntered] = useState(false)
+  // `entered` state removed; AnimatePresence handles enter/exit
   const [filters, setFilters] = useState({
     marca: '',
     modelo: '',
@@ -20,11 +20,7 @@ export default function FilterModal({ isOpen, onClose, onApply, initial = {} }) 
       // avoid synchronous setState in effect body — defer to next frame
       requestAnimationFrame(() => {
         setFilters(f => ({ ...f, ...initial }))
-        setEntered(true)
       })
-    } else {
-      // leave entered true briefly to allow AnimatePresence exit animation
-      requestAnimationFrame(() => setEntered(false))
     }
   }, [isOpen, initial])
 

@@ -12,7 +12,7 @@ export default async function ModelsSection() {
     const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
     const raw = fs.readFileSync(settingsPath, 'utf8')
     settings = JSON.parse(raw || '{}')
-  } catch (e) {
+  } catch {
     // ignore and use defaults
   }
 

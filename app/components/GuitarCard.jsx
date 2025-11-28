@@ -16,7 +16,7 @@ function GuitarCard({ title, description, price, image }) {
       }
       if (img.url) return String(img.url)
       if (img.path) return String(img.path)
-    } catch (_) {}
+    } catch { }
     return '/images/homepage.jpeg'
   }
   const phone = "541168696491"; // +54 11 68696491

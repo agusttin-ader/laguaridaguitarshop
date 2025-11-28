@@ -11,12 +11,12 @@ export function openAndAutoClose(url, timeout = 3000) {
     const win = window.open(url, '_blank', features)
     if (!win) return null
 
-    try { win.focus() } catch (e) { /* ignore */ }
+      try { win.focus() } catch { /* ignore */ }
 
     // Close automatically after timeout. If the user interacts, closing may be
     // annoying; keep timeout conservative (default 3s). Caller can choose longer/shorter.
     const timer = setTimeout(() => {
-      try { win.close() } catch (e) { /* ignore */ }
+        try { win.close() } catch { /* ignore */ }
     }, timeout)
 
     // Return handle in case caller wants to cancel the auto-close

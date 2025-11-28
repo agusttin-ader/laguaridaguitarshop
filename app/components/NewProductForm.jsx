@@ -148,7 +148,7 @@ export default function NewProductForm({ onCreated }){
       setCreatedProduct(created)
         setStatus('Product created successfully')
         setTitle(''); setDescription(''); setPrice(''); setColor(''); setYear(''); setMarca(''); setModelo(''); setMicrofonos(''); setPuente(''); setFiles([])
-        try { if (typeof window !== 'undefined' && 'BroadcastChannel' in window) { const bc = new BroadcastChannel('la-guarida-products'); bc.postMessage({ type: 'product-created', product: created }); bc.close() } } catch(_){}
+        try { if (typeof window !== 'undefined' && 'BroadcastChannel' in window) { const bc = new BroadcastChannel('la-guarida-products'); bc.postMessage({ type: 'product-created', product: created }); bc.close() } } catch { }
         if (onCreated) onCreated(created)
       } else {
         const err = await res.text()

@@ -21,7 +21,7 @@ function pickBestVariant(entry, prefer = ['w1024', 'w640', 'w320']) {
       if (entry.publicUrl && typeof entry.publicUrl === 'string') return entry.publicUrl
       if (entry.path && typeof entry.path === 'string') return entry.path
     }
-  } catch (err) { /* ignore */ }
+  } catch { /* ignore */ }
   return null
 }
 
@@ -38,7 +38,7 @@ export default function HeroClient(){
         if (data.type === 'hero-updated' && data.url) setEntry(data.url)
       }
       return ()=> { mounted = false; bc.close() }
-    } catch (err) {
+    } catch {
       // BroadcastChannel not supported or error - silently fail
       return () => {}
     }

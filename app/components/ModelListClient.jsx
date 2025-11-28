@@ -18,7 +18,7 @@ function pickImage(m) {
           else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
           else if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
         }
-      } catch (_) {}
+      } catch { }
       if (!src || src === '/images/homepage.jpeg') {
         if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
         else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
@@ -28,7 +28,7 @@ function pickImage(m) {
   return src
 }
 
-import React, { useCallback } from 'react'
+// React import not required for JSX in modern Next.js setups
 
 function ModelCard({ m, isFirst }) {
   const src = pickImage(m)
