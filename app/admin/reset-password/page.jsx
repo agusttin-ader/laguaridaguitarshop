@@ -48,7 +48,7 @@ export default function ResetPasswordPage() {
         setMessage('Sesión establecida. Podés ingresar tu nueva contraseña abajo.')
         try {
           history.replaceState(null, '', window.location.pathname + window.location.search)
-        } catch (_e) {}
+        } catch {}
         return true
       }
     } catch (err) {
@@ -76,8 +76,7 @@ export default function ResetPasswordPage() {
         if (typeof window !== 'undefined') {
           await trySetSessionFromParams(window.location.hash || '', window.location.search || '')
         }
-      } catch (err) {
-      }
+      } catch {}
     })()
     return () => {
       mounted = false
@@ -91,7 +90,7 @@ export default function ResetPasswordPage() {
       let u
       try {
         u = new URL(pasteUrl)
-      } catch (e) {
+      } catch {
         if (pasteUrl.startsWith('#') || pasteUrl.startsWith('?')) {
           u = new URL(window.location.origin + '/admin/reset-password' + pasteUrl)
         } else {
@@ -105,15 +104,13 @@ export default function ResetPasswordPage() {
         setMessage('Abriendo enlace de verificación en nueva pestaña... Completá el flujo ahí.')
         try {
           window.open(u.href, '_blank')
-        } catch (err) {
-          window.location.href = u.href
-        }
+        } catch { window.location.href = u.href }
         return
       }
 
       const ok = await trySetSessionFromParams(u.hash || '', u.search || '')
       if (!ok) setMessage((m) => m || 'No se pudo establecer sesión desde el enlace pegado')
-    } catch (err) {
+    } catch {
       setMessage('No se pudo parsear el enlace pegado. Pegá la URL completa.')
     }
   }
@@ -123,20 +120,18 @@ export default function ResetPasswordPage() {
     setMessage('')
     if (!password) return setMessage('Ingresá una contraseña')
     if (password !== confirm) return setMessage('Las contraseñas no coinciden')
-    try {
-      setLoading(true)
-      const { data, error } = await supabase.auth.updateUser({ password })
-      setLoading(false)
-      if (error) return setMessage(error.message || 'Error actualizando contraseña')
       try {
-        await supabase.auth.signOut()
-      } catch (_e) {}
-      setMessage('Contraseña actualizada. Volviendo al login...')
-      router.replace('/admin/login')
-    } catch (err) {
-      setLoading(false)
-      setMessage('Error durante la actualización')
-    }
+        setLoading(true)
+        const { error } = await supabase.auth.updateUser({ password })
+        setLoading(false)
+        if (error) return setMessage(error.message || 'Error actualizando contraseña')
+        try { await supabase.auth.signOut() } catch {}
+        setMessage('Contraseña actualizada. Volviendo al login...')
+        router.replace('/admin/login')
+      } catch {
+        setLoading(false)
+        setMessage('Error durante la actualización')
+      }
   }
 
   return (
@@ -157,7 +152,7 @@ export default function ResetPasswordPage() {
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
               <button className="btn btn-primary" type="submit" disabled={loading}>{loading ? 'Procesando...' : 'Actualizar contraseña'}</button>
-              <button className="btn btn-ghost" type="button" onClick={() => { try { supabase.auth.signOut() } catch (_) { } ; router.replace('/admin/login') }}>Volver al login</button>
+              <button className="btn btn-ghost" type="button" onClick={() => { try { supabase.auth.signOut() } catch {} ; router.replace('/admin/login') }}>Volver al login</button>
             </div>
           </form>
         ) : (

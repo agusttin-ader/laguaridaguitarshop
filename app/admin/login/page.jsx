@@ -11,14 +11,13 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState('')
-  const [urlErrorCode, setUrlErrorCode] = useState(null)
+  const [urlErrorCode] = useState(null)
   const [loading, setLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
   const [checkedAuth, setCheckedAuth] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
-  const [newAdminId, setNewAdminId] = useState('')
-  const [adminActionMsg, setAdminActionMsg] = useState('')
+  
   const [showUserId, setShowUserId] = useState(false)
   const [pendingModalOpen, setPendingModalOpen] = useState(false)
   const pendingAutoSignoutRef = useRef(null)
@@ -42,10 +41,10 @@ export default function AdminLogin() {
             await hres.json()
           }
           clearTimeout(ht)
-          } catch (err) {
+          } catch {
             // ignore health check network errors in production
         }
-      } catch (diagErr) {
+      } catch {
         // diagnostics failed; ignore silently
       }
 
@@ -97,7 +96,7 @@ export default function AdminLogin() {
           try {
             const { data: sessData } = await supabase.auth.getSession()
             if (sessData && sessData.session && sessData.session.access_token) return sessData.session
-          } catch (_) {}
+          } catch {}
           // small delay
           await new Promise(r => setTimeout(r, 120))
         }
@@ -107,9 +106,9 @@ export default function AdminLogin() {
       try {
         // Increase wait slightly to handle slower clients/networks
         await waitForSession(3000)
-      } catch (err) {
-        // ignore waitForSession failures
-      }
+          } catch {
+            // ignore waitForSession failures
+          }
 
       // If we got here and a user object exists, navigate to dashboard.
       // Some deploy environments delay session persistence; as a safety
@@ -174,7 +173,7 @@ export default function AdminLogin() {
               found = true
               break
             }
-          } catch (e) {
+          } catch {
             // ignore transient errors
           }
           // small backoff
@@ -189,11 +188,11 @@ export default function AdminLogin() {
               const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
               setIsOwner((userData?.user?.email || '') === ownerEmail)
             }
-          } catch (e) {
+          } catch {
             // ignore
           }
         }
-      } catch (err) {
+          } catch {
         // ignore
       } finally {
         if (mounted2) setCheckedAuth(true)
@@ -209,7 +208,7 @@ export default function AdminLogin() {
     if (!currentUser) return
     try {
       router.replace('/admin/dashboard')
-    } catch (_) {
+    } catch {
       router.push('/admin/dashboard')
     }
   }, [checkedAuth, currentUser, router])
@@ -229,9 +228,9 @@ export default function AdminLogin() {
         // immediately to the dashboard to avoid leaving the login page
         // after a successful sign-in in deployed environments.
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
+          try { router.replace('/admin/dashboard') } catch { router.push('/admin/dashboard') }
         }
-      } catch (e) {
+      } catch {
         setCurrentUser(null)
         setAccessToken(null)
         setIsOwner(false)
@@ -260,14 +259,14 @@ export default function AdminLogin() {
             try { router.replace('/admin/dashboard') } catch {}
             return
           }
-        } catch (e) {
+        } catch {
           // ignore and proceed to create request
         }
 
         // create pending request (best-effort) so owner can see it
         try {
           await fetch('/api/admin/requests', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ user_id: currentUser.id, email: currentUser.email }) })
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
 
         // After creating the pending request, navigate to the dashboard and
         // let the dashboard UI show the pending-approval state. Do NOT
@@ -315,7 +314,7 @@ export default function AdminLogin() {
       if (typeof window !== 'undefined') {
         try {
           window.location.replace('/admin/login')
-        } catch (_) {
+        } catch {
           window.location.href = '/admin/login'
         }
       } else {
@@ -327,28 +326,7 @@ export default function AdminLogin() {
     }
   }
 
-  async function handleAddAdmin(e) {
-    e?.preventDefault()
-    setAdminActionMsg('')
-    if (!newAdminId) return setAdminActionMsg('Ingresá el id del usuario')
-    try {
-      const res = await fetch('/api/admin/admins', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ id: newAdminId })
-      })
-      const json = await res.json()
-      if (!res.ok) return setAdminActionMsg(json?.error?.message || json?.error || 'Error agregando admin')
-      setAdminActionMsg('Admin agregado correctamente')
-      setNewAdminId('')
-    } catch (err) {
-      console.error('add admin error', err)
-      setAdminActionMsg('Error agregando admin')
-    }
-  }
+  // Admin grant via ID removed from login page; use dashboard UI instead.
 
   return (
     <div className="admin-container admin-login" style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}>

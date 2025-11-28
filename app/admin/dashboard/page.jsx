@@ -13,17 +13,17 @@ export default function AdminDashboard(){
   const [user, setUser] = useState(null)
   const [token, setToken] = useState('')
   const [products, setProducts] = useState([])
-  const [loadingProducts, setLoadingProducts] = useState(false)
+  const [, setLoadingProducts] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [confirmState, setConfirmState] = useState({ open: false, title: '', message: '', onConfirm: null })
   const [buckets, setBuckets] = useState(null)
   const [signedUrl, setSignedUrl] = useState(null)
   const [settings, setSettings] = useState({ featured: [], featuredMain: {}, heroImage: '' })
   const [savingSettings, setSavingSettings] = useState(false)
-  const [uploadingHero, setUploadingHero] = useState(false)
+  const uploadingHero = false
   const [heroPreview, setHeroPreview] = useState('')
   const [heroFileName, setHeroFileName] = useState('')
-  const [pendingHeroFile, setPendingHeroFile] = useState(null)
+  const [, setPendingHeroFile] = useState(null)
   const [debugErr, setDebugErr] = useState(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [pendingApproval, setPendingApproval] = useState(false)
@@ -54,10 +54,7 @@ export default function AdminDashboard(){
     exit: { opacity: 0, y: -8, transition: { duration: 0.22 } }
   }
 
-  const thumbVariants = {
-    hidden: { opacity: 0, y: 6 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.36, ease: 'easeOut' } }
-  }
+  
 
   function openImagePicker(product){
     const id = product.id || product.slug || product.title
@@ -94,21 +91,6 @@ export default function AdminDashboard(){
   }
 
 // Small presentational components memoized to avoid re-renders when parent state changes
-const CompactProductThumb = memo(function CompactProductThumb({ p }) {
-  const id = p.id || p.slug || p.title
-  const src = normalizeSrc(p.images && p.images[0] ? p.images[0] : null)
-  return (
-    <div key={id} style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:6,background:'#0b0b0b',border:'1px solid #222'}}>
-      <div style={{width:140,height:84,overflow:'hidden',borderRadius:6,background:'#111',flex:'0 0 auto'}}>
-        {src ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={src} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
-        ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
-      </div>
-      <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={p.title}>{p.title}</div>
-    </div>
-  )
-})
 
 const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, handlers }) {
   const thumb = prod ? (prod.images && prod.images[0] ? prod.images[0] : null) : null
@@ -240,19 +222,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
   }
 
   // Resolve a valid image URL for a product, preferring settings.featuredMain[fid]
-  function resolveImageForProduct(prod, fid) {
-    try {
-      const main = settings && settings.featuredMain && settings.featuredMain[fid]
-      const m = normalizeSrc(main)
-      if (m) return m
-      const imgs = prod?.images || []
-      for (const im of imgs) {
-        const s = normalizeSrc(im)
-        if (s) return s
-      }
-      return null
-    } catch (e) { return null }
-  }
+  
   async function fetchProducts(){
     setLoadingProducts(true)
     try {
@@ -303,16 +273,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     }, 800)
   }
 
-  function moveFeatured(id, delta){
-    const list = Array.isArray(settings.featured) ? settings.featured.slice() : []
-    const idx = list.indexOf(id)
-    if (idx === -1) return
-    const newIdx = idx + delta
-    if (newIdx < 0 || newIdx >= list.length) return
-    const item = list.splice(idx,1)[0]
-    list.splice(newIdx,0,item)
-    setSettings({...settings, featured: list})
-  }
+  
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(()=>{
