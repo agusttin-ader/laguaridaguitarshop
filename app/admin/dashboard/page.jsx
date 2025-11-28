@@ -27,6 +27,7 @@ export default function AdminDashboard(){
   const [debugErr, setDebugErr] = useState(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [pendingApproval, setPendingApproval] = useState(false)
+  const [accessDenied, setAccessDenied] = useState(false)
   const [requests, setRequests] = useState([])
   const [requestsModalOpen, setRequestsModalOpen] = useState(false)
   const [imagePickerOpen, setImagePickerOpen] = useState(false)
@@ -165,10 +166,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         setUser(sessionUser)
         setToken(accessToken)
 
-          // if no user, redirect to login
+          // if no user, mark access denied (show friendly notice)
           if (!sessionUser) {
             setAuthChecked(true)
-            router.replace('/admin/login')
+            setAccessDenied(true)
             return
           }
 
@@ -201,20 +202,20 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
               }
             } catch (e) { /* ignore */ }
 
-            // not admin and no pending request -> 404
+            // not admin and no pending request -> show access denied
             setAuthChecked(true)
-            router.replace('/404')
+            setAccessDenied(true)
             return
           }
           // authorized (is admin)
           setAuthChecked(true)
         } catch (err) {
           setAuthChecked(true)
-          router.replace('/404')
+          setAccessDenied(true)
         }
       } catch (err) {
         setAuthChecked(true)
-        router.replace('/404')
+        setAccessDenied(true)
       }
     })()
     return ()=>{ mounted = false }
@@ -513,6 +514,25 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
             <img src="/images/pending-approval.svg" alt="Pendiente de aprobación" loading="lazy" decoding="async" style={{width:220,maxWidth:'80%'}} />
             <h2>Solicitud pendiente</h2>
             <div className="muted" style={{textAlign:'center'}}>Tu cuenta fue creada, pero necesitas que el administrador (agusttin.ader@gmail.com) te otorgue permisos para acceder al panel. Por favor, espera a que el propietario apruebe tu solicitud.</div>
+          </div>
+        </div>
+      )
+    }
+
+    if (authChecked && accessDenied) {
+      return (
+        <div className="admin-container admin-dashboard">
+          <div style={{padding:40,display:'flex',flexDirection:'column',alignItems:'center',gap:18}}>
+            <div style={{width:120,height:120,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:999,background:'#1f1f1f',border:'1px solid #2b2b2b'}}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/lock-closed.svg" alt="Acceso denegado" style={{width:64,height:64}} />
+            </div>
+            <h2>Acceso restringido</h2>
+            <div className="muted" style={{textAlign:'center',maxWidth:560}}>No tienes permisos para ver esta sección. Por favor, inicia sesión con una cuenta de administrador para acceder al panel de administración.</div>
+            <div style={{display:'flex',gap:12,marginTop:12}}>
+              <button className="btn btn-primary" onClick={() => { try { router.replace('/admin/login') } catch (_) { window.location.href = '/admin/login' } }}>Iniciar sesión</button>
+              <button className="btn btn-ghost" onClick={() => { try { router.replace('/') } catch (_) { window.location.href = '/' } }}>Volver al sitio</button>
+            </div>
           </div>
         </div>
       )
