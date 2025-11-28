@@ -9,7 +9,7 @@ export default function WhatsAppFloating({ messageUrl = 'https://wa.me/541168696
         type="button"
         onClick={() => openAndAutoClose(messageUrl, timeout)}
         aria-label="Abrir WhatsApp"
-        className="bg-[#25D366] hover:brightness-95 text-white rounded-full p-4 shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#25D366]/50"
+        className="whatsapp-floating-btn bg-black/50 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-colors duration-200 ease-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50"
       >
         <FaWhatsapp className="h-6 w-6" aria-hidden />
       </button>

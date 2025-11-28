@@ -1068,6 +1068,21 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   transform: scale(1.02);
 }
 
+/* Ensure floating WhatsApp button reliably transitions to green on hover */
+.whatsapp-floating-btn {
+  background: rgba(0,0,0,0.5);
+  transition: background .22s cubic-bezier(.2,.9,.3,1), transform .18s ease, box-shadow .18s ease;
+}
+.whatsapp-floating-btn:hover {
+  background: #25D366 !important; /* whatsapp green */
+  box-shadow: 0 14px 36px rgba(37,211,102,0.16);
+  transform: translateY(-2px) scale(1.04);
+}
+.whatsapp-floating-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px rgba(37,211,102,0.12);
+}
+
 @media (max-width: 768px) {
   /* On mobile prefer showing upper part of image (less vertical crop) and use viewport-based height */
   .hero-section .hero-image {
