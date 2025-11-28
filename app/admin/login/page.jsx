@@ -31,11 +31,23 @@ export default function AdminLogin() {
     setMessage('')
     setLoading(true)
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      // Wrap signInWithPassword in a timeout so the UI doesn't hang indefinitely
+      const signInPromise = supabase.auth.signInWithPassword({ email, password })
+      const timeoutMs = 10000 // 10s
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs))
+      let data, error
+      try {
+        const res = await Promise.race([signInPromise, timeoutPromise])
+        data = res?.data || res
+        error = res?.error || res?.error || null
+      } catch (err) {
+        console.error('signInWithPassword network/timeout error', err)
+        setLoading(false)
+        return setMessage('Error de red o el servidor no respondió. Intentá nuevamente más tarde.')
+      }
       console.debug('signInWithPassword result', { data, error })
-      setLoading(false)
       if (error) {
-        // show user-friendly error and log
+        setLoading(false)
         console.warn('signIn error', error)
         return setMessage(error.message || 'Error iniciando sesión')
       }
@@ -79,9 +91,10 @@ export default function AdminLogin() {
       // Fallback: if no user and no error, inform the user
       setMessage('No se pudo iniciar sesión automáticamente. Intentá recargar la página o contactá al soporte.')
     } catch (err) {
-      setLoading(false)
-      console.error('login error', err)
+      console.error('login unexpected error', err)
       setMessage(err?.message || 'Error iniciando sesión')
+    } finally {
+      setLoading(false)
     }
   }
 
