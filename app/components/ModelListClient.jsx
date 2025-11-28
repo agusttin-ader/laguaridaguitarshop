@@ -51,13 +51,13 @@ function ModelCard({ m, isFirst }) {
         <div className="p-4">
           <h2 className="text-lg font-semibold text-[#EDEDED]">{m.title}</h2>
           <p className="mt-2 text-sm text-white/70 line-clamp-3">{m.description}</p>
-          <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between">
             <div className="text-base font-semibold text-[#EDEDED]">{(() => {
               const n = Number(String(m.price || m.priceRaw || '').replace(/[^0-9.]/g, ''))
               if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
               return m.price || '$0'
             })()}</div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition-transform duration-150 group-hover:scale-105">Ver detalles</span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40">Ver detalles</span>
           </div>
         </div>
       </Link>
