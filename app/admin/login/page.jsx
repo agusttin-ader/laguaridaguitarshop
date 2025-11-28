@@ -106,6 +106,18 @@ export default function AdminLogin() {
     return () => { mounted2 = false }
   }, [])
 
+  // If the user already has a session and visits the login page, redirect
+  // immediately to the dashboard. The dashboard will perform the proper
+  // authorization checks (owner/admin/pending) and show the correct UI.
+  useEffect(() => {
+    if (!currentUser) return
+    try {
+      router.replace('/admin/dashboard')
+    } catch (_) {
+      router.push('/admin/dashboard')
+    }
+  }, [currentUser, router])
+
   // subscribe to auth changes to keep user updated
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
