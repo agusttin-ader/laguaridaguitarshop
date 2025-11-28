@@ -1252,12 +1252,12 @@ a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 .group:hover .relative img,
 .hero-section:hover .hero-image img,
 .hero-section:focus-within .hero-image img {
-  transform: scale(1.01) !important;
+  transform: scale(1.005) !important;
 }
 
 /* Thumbnails use the same ultra-subtle scale */
 .thumb:hover img, .thumb:focus-within img {
-  transform: scale(1.002) !important;
+  transform: scale(1.003) !important;
 }
 
 /* Soft, subtle hover lift: allow a very small, smooth scale on hover/focus */
@@ -1268,8 +1268,8 @@ a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 .hero-section:focus-within .hero-image img,
 .thumb:hover img, .thumb:focus-within img,
 .featured-panel .product-list .product-row:hover img {
-  transform: scale(1.01) !important;
-  transition: transform 220ms cubic-bezier(.25,.85,.25,1), object-position 220ms cubic-bezier(.25,.85,.25,1);
+  transform: scale(1.005) !important;
+  transition: transform 240ms cubic-bezier(.25,.85,.25,1), object-position 240ms cubic-bezier(.25,.85,.25,1);
 }
 
 
