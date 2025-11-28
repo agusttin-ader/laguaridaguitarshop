@@ -31,20 +31,37 @@ export default function AdminLogin() {
     setMessage('')
     setLoading(true)
     try {
-      // Wrap signInWithPassword in a timeout so the UI doesn't hang indefinitely
-      const signInPromise = supabase.auth.signInWithPassword({ email, password })
-      const timeoutMs = 10000 // 10s
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs))
-      let data, error
-      try {
-        const res = await Promise.race([signInPromise, timeoutPromise])
-        data = res?.data || res
-        error = res?.error || res?.error || null
-      } catch (err) {
-        console.error('signInWithPassword network/timeout error', err)
-        setLoading(false)
-        return setMessage('Error de red o el servidor no respondió. Intentá nuevamente más tarde.')
+      // Attempt signInWithPassword with a timeout and one retry to handle
+      // transient network or deploy/storage readiness issues on some clients.
+      const timeoutMs = 10000 // 10s per attempt
+      async function attemptSignInWithRetry(attempts = 2) {
+        let lastErr = null
+        for (let i = 0; i < attempts; i++) {
+          const signInPromise = supabase.auth.signInWithPassword({ email, password })
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeoutMs))
+          try {
+            const res = await Promise.race([signInPromise, timeoutPromise])
+            return res
+          } catch (err) {
+            lastErr = err
+            console.warn(`signIn attempt ${i + 1} failed`, err)
+            // small backoff before retrying once
+            if (i === 0) await new Promise(r => setTimeout(r, 1500))
+          }
+        }
+        throw lastErr
       }
+
+      let res
+      try {
+        res = await attemptSignInWithRetry(2)
+      } catch (err) {
+        console.error('signInWithPassword network/timeout error after retries', err)
+        setLoading(false)
+        return setMessage('Error de red o el servidor no respondió. Verificá conexión y variables de entorno en el deploy.')
+      }
+      const data = res?.data || res
+      const error = res?.error || null
       console.debug('signInWithPassword result', { data, error })
       if (error) {
         setLoading(false)
