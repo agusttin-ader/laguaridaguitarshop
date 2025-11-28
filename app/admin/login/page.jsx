@@ -16,6 +16,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [accessToken, setAccessToken] = useState(null)
+  const [checkedAuth, setCheckedAuth] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
   const [newAdminId, setNewAdminId] = useState('')
   const [adminActionMsg, setAdminActionMsg] = useState('')
@@ -86,37 +87,69 @@ export default function AdminLogin() {
 
   // Password recovery via in-app flow removed. Use magic links (supabase) for recovery.
 
-  // fetch current session/user on mount
+  // fetch current session/user on mount — perform a short, aggressive
+  // check (retries) so on initial visit we can decide whether to render
+  // the login UI or redirect immediately. This reduces race conditions
+  // observed in some deploy environments (client storage readiness).
   useEffect(() => {
     let mounted2 = true
     ;(async () => {
       try {
-        const { data: sessData } = await supabase.auth.getSession()
-        const token = sessData?.session?.access_token
-        const { data: userData } = await supabase.auth.getUser()
-        if (!mounted2) return
-        setAccessToken(token || null)
-        setCurrentUser(userData?.user || null)
-        const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
-        setIsOwner((userData?.user?.email || '') === ownerEmail)
+        const deadline = Date.now() + 2000 // 2s max
+        let found = false
+        while (Date.now() < deadline && mounted2) {
+          try {
+            const { data: sessData } = await supabase.auth.getSession()
+            const token = sessData?.session?.access_token
+            if (token) {
+              const { data: userData } = await supabase.auth.getUser()
+              if (!mounted2) break
+              setAccessToken(token || null)
+              setCurrentUser(userData?.user || null)
+              const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
+              setIsOwner((userData?.user?.email || '') === ownerEmail)
+              found = true
+              break
+            }
+          } catch (e) {
+            // ignore transient errors
+          }
+          // small backoff
+          await new Promise(r => setTimeout(r, 120))
+        }
+
+        if (!found && mounted2) {
+          try {
+            const { data: userData } = await supabase.auth.getUser()
+            if (mounted2) {
+              setCurrentUser(userData?.user || null)
+              const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
+              setIsOwner((userData?.user?.email || '') === ownerEmail)
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
       } catch (err) {
         // ignore
+      } finally {
+        if (mounted2) setCheckedAuth(true)
       }
     })()
     return () => { mounted2 = false }
   }, [])
 
-  // If the user already has a session and visits the login page, redirect
-  // immediately to the dashboard. The dashboard will perform the proper
-  // authorization checks (owner/admin/pending) and show the correct UI.
+  // Only redirect once we've completed the initial auth check. This avoids
+  // redirecting prematurely before we know whether a session exists.
   useEffect(() => {
+    if (!checkedAuth) return
     if (!currentUser) return
     try {
       router.replace('/admin/dashboard')
     } catch (_) {
       router.push('/admin/dashboard')
     }
-  }, [currentUser, router])
+  }, [checkedAuth, currentUser, router])
 
   // subscribe to auth changes to keep user updated
   useEffect(() => {
