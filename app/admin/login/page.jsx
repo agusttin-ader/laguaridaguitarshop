@@ -6,6 +6,17 @@ import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { supabase } from '../../../lib/supabaseClient'
 
+// Debug: do not print secrets. This logs only whether the anon key was
+// present at build/runtime in the client bundle. Remove after debugging.
+if (typeof window !== 'undefined') {
+  try {
+    // Boolean cast ensures we never log the value itself
+    // (NEXT_PUBLIC_* vars are replaced at build time by Next.js)
+    // This will show up in the browser console on page load.
+    // eslint-disable-next-line no-console
+    console.log('SUPABASE_ANON_KEY_PRESENT', Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY))
+  } catch (e) {}
+}
 export default function AdminLogin() {
   const router = useRouter()
   const [email, setEmail] = useState('')
@@ -127,7 +138,8 @@ export default function AdminLogin() {
       }
 
       try {
-        const sess = await waitForSession(1500)
+        // Increase wait slightly to handle slower clients/networks
+        const sess = await waitForSession(3000)
         console.debug('waitForSession result', sess)
       } catch (err) {
         console.warn('waitForSession failed', err)
@@ -135,9 +147,10 @@ export default function AdminLogin() {
 
       // If we got here and a user object exists, navigate to dashboard.
       // Some deploy environments delay session persistence; as a safety
-      // net we redirect even if waitForSession returned null when the
-      // sign-in call returned a user.
-      if (user) {
+      // net we redirect if either a user OR an access token exists. This
+      // covers cases where the SDK returns a session token but the user
+      // object may not be populated immediately on slower clients.
+      if (user || token) {
         try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
         return
       }
