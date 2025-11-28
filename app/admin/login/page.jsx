@@ -226,6 +226,20 @@ export default function AdminLogin() {
     }
   }
 
+  // Navigate to dashboard if user is logged in; otherwise show a message
+  async function goToDashboard() {
+    setMessage('')
+    if (currentUser) {
+      try {
+        router.replace('/admin/dashboard')
+      } catch (_) {
+        router.push('/admin/dashboard')
+      }
+    } else {
+      setMessage('Debes iniciar sesión para acceder al panel.')
+    }
+  }
+
   async function handleSignOut() {
     setMessage('')
     try {
@@ -329,6 +343,11 @@ export default function AdminLogin() {
 
         <div style={{marginTop:12, display:'flex', flexDirection:'column', gap:8}}>
           <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
+
+          <div style={{display:'flex', gap:8, alignItems:'center'}}>
+            <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
+            <button type="button" className="btn btn-ghost" onClick={goToDashboard}>Dashboard</button>
+          </div>
 
           {currentUser && (
             <div className="admin-user-card">
