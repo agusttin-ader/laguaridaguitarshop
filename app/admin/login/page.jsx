@@ -32,9 +32,15 @@ export default function AdminLogin() {
     setLoading(true)
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      console.debug('signInWithPassword result', { data, error })
       setLoading(false)
-      if (error) return setMessage(error.message)
-      // If sign in returns a session, set local state immediately and navigate.
+      if (error) {
+        // show user-friendly error and log
+        console.warn('signIn error', error)
+        return setMessage(error.message || 'Error iniciando sesión')
+      }
+
+      // If sign in returns a session/user, set local state immediately.
       const token = data?.session?.access_token || null
       const user = data?.user || null
       if (token) setAccessToken(token)
@@ -55,11 +61,23 @@ export default function AdminLogin() {
       }
 
       try {
-        await waitForSession(1500)
-      } catch (_) {}
+        const sess = await waitForSession(1500)
+        console.debug('waitForSession result', sess)
+      } catch (err) {
+        console.warn('waitForSession failed', err)
+      }
 
-      // Use replace to avoid leaving a back entry to the login page
-      try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
+      // If we got here and a user object exists, navigate to dashboard.
+      // Some deploy environments delay session persistence; as a safety
+      // net we redirect even if waitForSession returned null when the
+      // sign-in call returned a user.
+      if (user) {
+        try { router.replace('/admin/dashboard') } catch (_) { router.push('/admin/dashboard') }
+        return
+      }
+
+      // Fallback: if no user and no error, inform the user
+      setMessage('No se pudo iniciar sesión automáticamente. Intentá recargar la página o contactá al soporte.')
     } catch (err) {
       setLoading(false)
       console.error('login error', err)
