@@ -26,23 +26,25 @@ export default function HeroRender({ heroImage }) {
       aria-label="Hero guitarras"
     >
       {/* Background: single blurred image so the page stays performant and the hero is faded */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        {/* Use a plain <img> for the blurred background so it always matches the
-            displayed hero image (local or external). We load eagerly and hint
-            high fetch priority so the blur is visible ASAP after deploy/admin change. */}
-        {/* Intentionally using a plain <img> for the blurred background to
-            match local/external images and keep the blur behavior predictable. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={encodeURI(heroImage || '/images/homepage.jpeg')}
-          alt=""
-          loading="eager"
-          fetchPriority="high"
-          className="absolute inset-0 h-full w-full object-cover filter blur-[40px] opacity-60 scale-105"
+      <div className="absolute inset-0 -z-10 pointer-events-none" aria-hidden="true" style={{backgroundColor: 'var(--background)'}}>
+        {/* Use a background-image div for the blurred backdrop. Some clients
+            render the plain <img> blur differently (white-ish artifacts) so
+            using background-image + a dark bgcolor ensures a consistent dark
+            blurred backdrop even when the image takes a moment to load. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url(${encodeURI(heroImage || '/images/homepage.jpeg')})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(40px)',
+            opacity: 0.6,
+            transform: 'scale(1.05)'
+          }}
         />
 
-        {/* Lightening at bottom so lower area appears clearer */}
-        <div className="absolute left-0 right-0 bottom-0 h-1/3 bg-gradient-to-t from-white/8 to-transparent pointer-events-none" />
+        {/* Darken the lower area so copy and CTAs remain readable */}
+        <div className="absolute left-0 right-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
       </div>
 
       <div className="mx-auto grid max-w-7xl min-h-screen grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:px-8">
