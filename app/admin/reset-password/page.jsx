@@ -38,7 +38,6 @@ export default function ResetPasswordPage() {
     try {
       setMessage('Intentando establecer sesión con token...')
       const res = await supabase.auth.setSession({ access_token, refresh_token })
-      console.debug('setSession result', res)
       if (res?.error) {
         setSessionError(res.error?.message || JSON.stringify(res.error))
         setMessage('No se pudo establecer la sesión: ' + (res.error?.message || 'error desconocido'))
@@ -53,7 +52,6 @@ export default function ResetPasswordPage() {
         return true
       }
     } catch (err) {
-      console.debug('setSession threw', err)
       setSessionError(String(err))
       setMessage('Error estableciendo sesión con token')
     }
@@ -67,7 +65,6 @@ export default function ResetPasswordPage() {
         const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true })
         if (!mounted) return
         if (error) {
-          console.debug('getSessionFromUrl error', error)
           setMessage('Error procesando enlace: ' + (error?.message || JSON.stringify(error)))
         }
         if (data?.session) {
@@ -80,7 +77,6 @@ export default function ResetPasswordPage() {
           await trySetSessionFromParams(window.location.hash || '', window.location.search || '')
         }
       } catch (err) {
-        console.debug('reset page init error', err)
       }
     })()
     return () => {
@@ -118,7 +114,6 @@ export default function ResetPasswordPage() {
       const ok = await trySetSessionFromParams(u.hash || '', u.search || '')
       if (!ok) setMessage((m) => m || 'No se pudo establecer sesión desde el enlace pegado')
     } catch (err) {
-      console.debug('Error parseando enlace pegado', err)
       setMessage('No se pudo parsear el enlace pegado. Pegá la URL completa.')
     }
   }
@@ -193,7 +188,6 @@ export default function ResetPasswordPage() {
                         setMessage('Intentando establecer sesión con token manual...')
                         try {
                           const res = await supabase.auth.setSession({ access_token: manualAccess, refresh_token: manualRefresh || undefined })
-                          console.debug('manual setSession', res)
                           if (res?.error) {
                             setSessionError(res.error?.message || JSON.stringify(res.error))
                             setMessage('No se pudo establecer la sesión: ' + (res.error?.message || 'error desconocido'))
@@ -203,7 +197,6 @@ export default function ResetPasswordPage() {
                             setMessage('Sesión establecida manualmente. Podés ingresar una nueva contraseña.')
                           }
                         } catch (err) {
-                          console.debug('manual setSession threw', err)
                           setSessionError(String(err))
                           setMessage('Error tratando de fijar sesión manualmente')
                         }

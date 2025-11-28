@@ -28,7 +28,6 @@ export default function RegisterPage(){
       // Note: Supabase will send a confirmation email if email confirmations are enabled
       // We include `options.data` to store `username` as user metadata.
       const res = await supabase.auth.signUp({ email, password }, { options: { data: { username } } })
-      console.debug('register response', res)
       if (res.error) {
         setError(res.error.message)
       } else {

@@ -38,17 +38,15 @@ export default function AdminLogin() {
           const ht = setTimeout(() => hctl.abort(), 3000)
           const hres = await fetch('/api/admin/health', { method: 'GET', signal: hctl.signal })
           if (hres.ok) {
-            const json = await hres.json()
-            console.debug('admin/health', json)
-          } else {
-            console.warn('admin/health returned', hres.status)
+            // health OK — nothing to log in production
+            await hres.json()
           }
           clearTimeout(ht)
-        } catch (err) {
-          console.warn('could not reach /api/admin/health', err)
+          } catch (err) {
+            // ignore health check network errors in production
         }
       } catch (diagErr) {
-        console.warn('login diagnostics failed', diagErr)
+        // diagnostics failed; ignore silently
       }
 
       // Attempt signInWithPassword with a timeout and one retry to handle
@@ -62,10 +60,9 @@ export default function AdminLogin() {
           try {
             const res = await Promise.race([signInPromise, timeoutPromise])
             return res
-          } catch (err) {
+            } catch (err) {
             lastErr = err
-            console.warn(`signIn attempt ${i + 1} failed`, err)
-            // small backoff before retrying once
+            // retry once with small backoff
             if (i === 0) await new Promise(r => setTimeout(r, 1500))
           }
         }
@@ -82,10 +79,8 @@ export default function AdminLogin() {
       }
       const data = res?.data || res
       const error = res?.error || null
-      console.debug('signInWithPassword result', { data, error })
       if (error) {
         setLoading(false)
-        console.warn('signIn error', error)
         return setMessage(error.message || 'Error iniciando sesión')
       }
 
@@ -111,10 +106,9 @@ export default function AdminLogin() {
 
       try {
         // Increase wait slightly to handle slower clients/networks
-        const sess = await waitForSession(3000)
-        console.debug('waitForSession result', sess)
+        await waitForSession(3000)
       } catch (err) {
-        console.warn('waitForSession failed', err)
+        // ignore waitForSession failures
       }
 
       // If we got here and a user object exists, navigate to dashboard.
@@ -144,7 +138,6 @@ export default function AdminLogin() {
     setLoading(true)
     try {
       const res = await supabase.auth.signInWithOtp({ email })
-      console.debug('resend signInWithOtp', res)
       if (res.error) return setMessage(res.error.message)
       setMessage('Se reenvió un enlace a tu email para iniciar sesión.')
     } catch (err) {
