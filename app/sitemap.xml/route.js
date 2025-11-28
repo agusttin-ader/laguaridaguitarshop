@@ -1,7 +1,7 @@
 import products from '../data/products.json'
 
 export async function GET() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://laguaridaguitarshop.com'
+  const base = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://laguaridaguitarshop.com'
   const pages = ['','modelos','destacado','admin']
   const today = new Date().toISOString().split('T')[0]
 

@@ -1,7 +1,7 @@
 import Hero from "./components/Hero";
 import ModelsSection from "./components/ModelsSection";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://laguaridaguitarshop.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://laguaridaguitarshop.com'
 
 export const metadata = {
   title: 'La Guarida Guitarshop - Guitarras, usados y clásicos',

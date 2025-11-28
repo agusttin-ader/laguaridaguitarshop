@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_NAME = 'laguaridaguitarshop'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://laguaridaguitarshop.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://laguaridaguitarshop.com'
 const DEFAULT_DESCRIPTION = 'La Guarida Guitarshop — Guitarras, usados y clásicos. Compra y vende guitarras en Argentina.'
 
 export const metadata = {

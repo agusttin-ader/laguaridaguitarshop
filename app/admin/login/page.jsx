@@ -171,7 +171,8 @@ export default function AdminLogin() {
   async function signInWithGoogle() {
     setMessage('')
     try {
-      const redirectTo = (process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')) + '/admin/login'
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+      const redirectTo = baseUrl + '/admin/login'
       const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } })
       if (error) setMessage(error.message)
     } catch (err) {
