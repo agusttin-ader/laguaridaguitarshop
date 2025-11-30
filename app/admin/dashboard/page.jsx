@@ -693,12 +693,14 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                                 </div>
                                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                                   <input type="checkbox" checked={selected} onChange={(e)=>{
-                                    const next = new Set(settings.featured || [])
+                                    const nextSet = new Set(settings.featured || [])
                                     if (e.target.checked) {
                                       if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
-                                      next.add(id)
-                                    } else { next.delete(id) }
-                                    setSettings({...settings, featured: Array.from(next)})
+                                      nextSet.add(id)
+                                    } else { nextSet.delete(id) }
+                                    const nextSettings = { ...settings, featured: Array.from(nextSet) }
+                                    setSettings(nextSettings)
+                                    try { scheduleSaveFeatured(nextSettings) } catch (_) {}
                                   }} />
                                   {p.images && p.images.length > 0 && <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto</button>}
                                 </div>
