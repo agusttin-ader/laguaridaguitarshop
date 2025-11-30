@@ -20,6 +20,16 @@ function readSettings(){
 // - FEATURED_ORDER: comma-separated list of product ids/slugs for featured order
 // - FEATURED_MAIN_JSON: JSON string mapping productId->imageUrl for featured main images
 function applyEnvOverrides(settings){
+  // Only apply environment overrides when explicitly enabled. This lets the
+  // admin panel remain authoritative by default and avoids surprising
+  // behavior where env vars silently hide admin edits. To enable, set
+  // `ENABLE_ENV_OVERRIDES=true` in the deployment environment.
+  try {
+    const enabled = String(process.env.ENABLE_ENV_OVERRIDES || 'false').toLowerCase() === 'true'
+    if (!enabled) return settings
+  } catch (e) {
+    return settings
+  }
   try {
     if (process.env.HERO_IMAGE && String(process.env.HERO_IMAGE).trim() !== '') {
       settings.heroImage = String(process.env.HERO_IMAGE)

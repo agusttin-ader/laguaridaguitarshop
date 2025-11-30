@@ -19,21 +19,26 @@ export default async function ModelsSection() {
     // ignore and use defaults
   }
 
-  // Apply runtime environment overrides (mirrors server /api/admin/settings behavior)
+  // Apply runtime environment overrides only when explicitly enabled via
+  // ENABLE_ENV_OVERRIDES=true. This ensures admin panel edits (persisted to
+  // `data/settings.json`) remain authoritative by default.
   try {
-    if (process.env.FEATURED_ORDER && String(process.env.FEATURED_ORDER).trim() !== '') {
-      const list = String(process.env.FEATURED_ORDER).split(',').map(s => s.trim()).filter(Boolean)
-      if (list.length) settings.featured = list
-    }
-    if (process.env.FEATURED_MAIN_JSON && String(process.env.FEATURED_MAIN_JSON).trim() !== '') {
-      try {
-        const obj = JSON.parse(process.env.FEATURED_MAIN_JSON)
-        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-          settings.featuredMain = settings.featuredMain || {}
-          Object.entries(obj).forEach(([k, v]) => { settings.featuredMain[String(k)] = String(v) })
+    const enabled = String(process.env.ENABLE_ENV_OVERRIDES || 'false').toLowerCase() === 'true'
+    if (enabled) {
+      if (process.env.FEATURED_ORDER && String(process.env.FEATURED_ORDER).trim() !== '') {
+        const list = String(process.env.FEATURED_ORDER).split(',').map(s => s.trim()).filter(Boolean)
+        if (list.length) settings.featured = list
+      }
+      if (process.env.FEATURED_MAIN_JSON && String(process.env.FEATURED_MAIN_JSON).trim() !== '') {
+        try {
+          const obj = JSON.parse(process.env.FEATURED_MAIN_JSON)
+          if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+            settings.featuredMain = settings.featuredMain || {}
+            Object.entries(obj).forEach(([k, v]) => { settings.featuredMain[String(k)] = String(v) })
+          }
+        } catch (e) {
+          // ignore malformed JSON
         }
-      } catch (e) {
-        // ignore malformed JSON
       }
     }
   } catch (e) {
