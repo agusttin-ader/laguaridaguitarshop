@@ -73,6 +73,44 @@ export default function AdminLogin() {
         res = await attemptSignInWithRetry(2)
       } catch (err) {
         console.error('signInWithPassword network/timeout error after retries', err)
+        // The signIn call timed out or failed transiently. It's possible the
+        // session was still created on the server but the promise didn't
+        // resolve in time (some deploys/storage combos show this behavior).
+        // Attempt a short, aggressive session check before bailing out so
+        // users who actually signed in aren't left with an error message.
+        try {
+          const start = Date.now()
+          const timeout = 4000
+          let foundSession = null
+          while (Date.now() - start < timeout) {
+            try {
+              const { data: sessData } = await supabase.auth.getSession()
+              if (sessData && sessData.session && sessData.session.access_token) {
+                foundSession = sessData.session
+                break
+              }
+            } catch (_) {
+              // ignore transient errors
+            }
+            await new Promise(r => setTimeout(r, 200))
+          }
+          if (foundSession) {
+            try {
+              const { data: userData } = await supabase.auth.getUser()
+              const token = foundSession.access_token
+              if (token) setAccessToken(token)
+              if (userData?.user) setCurrentUser(userData.user)
+            } catch (_) {
+              // ignore getUser failures
+            }
+            try { router.replace('/admin/dashboard') } catch { router.push('/admin/dashboard') }
+            setLoading(false)
+            return
+          }
+        } catch (_) {
+          // ignore
+        }
+
         setLoading(false)
         return setMessage('Error de red o el servidor no respondió. Verificá conexión y variables de entorno en el deploy.')
       }

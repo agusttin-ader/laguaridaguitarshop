@@ -14,6 +14,35 @@ function readSettings(){
   }
 }
 
+// Merge environment overrides so deployments can control some settings
+// without editing `data/settings.json`. Supported env vars:
+// - HERO_IMAGE: URL string to override hero image
+// - FEATURED_ORDER: comma-separated list of product ids/slugs for featured order
+// - FEATURED_MAIN_JSON: JSON string mapping productId->imageUrl for featured main images
+function applyEnvOverrides(settings){
+  try {
+    if (process.env.HERO_IMAGE && String(process.env.HERO_IMAGE).trim() !== '') {
+      settings.heroImage = String(process.env.HERO_IMAGE)
+    }
+    if (process.env.FEATURED_ORDER && String(process.env.FEATURED_ORDER).trim() !== '') {
+      const list = String(process.env.FEATURED_ORDER).split(',').map(s=>s.trim()).filter(Boolean)
+      if (list.length) settings.featured = list
+    }
+    if (process.env.FEATURED_MAIN_JSON && String(process.env.FEATURED_MAIN_JSON).trim() !== '') {
+      try {
+        const obj = JSON.parse(process.env.FEATURED_MAIN_JSON)
+        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+          settings.featuredMain = settings.featuredMain || {}
+          Object.entries(obj).forEach(([k,v])=>{ settings.featuredMain[String(k)] = String(v) })
+        }
+      } catch (e) {
+        // ignore malformed JSON
+      }
+    }
+  } catch (e) {}
+  return settings
+}
+
 function writeSettings(obj){
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
 }
@@ -23,7 +52,8 @@ function unauthorized(){
 }
 
 export async function GET(){
-  const settings = readSettings()
+  let settings = readSettings()
+  settings = applyEnvOverrides(settings)
   return new Response(JSON.stringify(settings), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
 
@@ -74,7 +104,7 @@ export async function PATCH(req){
   try {
     if (!validateJsonContentType(req)) return new Response(JSON.stringify({ error: 'Invalid content-type' }), { status: 415, headers: { 'Content-Type': 'application/json' } })
     const body = await req.json().catch(()=>({}))
-    const settings = readSettings()
+    let settings = readSettings()
     // allow updating featured (array) and/or heroImage (string)
     if (body.featured) {
       if (!Array.isArray(body.featured)) return new Response(JSON.stringify({ error: 'featured must be array' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
@@ -91,7 +121,9 @@ export async function PATCH(req){
     if (body.heroImage) {
       settings.heroImage = sanitizeString(body.heroImage)
     }
+    // Always persist to file. Env overrides still take precedence at GET-time.
     writeSettings(settings)
+    settings = applyEnvOverrides(settings)
     return new Response(JSON.stringify(settings), { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
