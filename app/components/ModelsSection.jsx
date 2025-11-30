@@ -4,6 +4,9 @@ import { getProducts } from "../lib/getProducts";
 import fs from 'fs'
 import path from 'path'
 
+// Ensure this component reads runtime environment variables on the server
+export const dynamic = 'force-dynamic'
+
 export default async function ModelsSection() {
   const products = await getProducts()
   // Try to read settings to determine featured list and main images
@@ -14,6 +17,27 @@ export default async function ModelsSection() {
     settings = JSON.parse(raw || '{}')
   } catch {
     // ignore and use defaults
+  }
+
+  // Apply runtime environment overrides (mirrors server /api/admin/settings behavior)
+  try {
+    if (process.env.FEATURED_ORDER && String(process.env.FEATURED_ORDER).trim() !== '') {
+      const list = String(process.env.FEATURED_ORDER).split(',').map(s => s.trim()).filter(Boolean)
+      if (list.length) settings.featured = list
+    }
+    if (process.env.FEATURED_MAIN_JSON && String(process.env.FEATURED_MAIN_JSON).trim() !== '') {
+      try {
+        const obj = JSON.parse(process.env.FEATURED_MAIN_JSON)
+        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+          settings.featuredMain = settings.featuredMain || {}
+          Object.entries(obj).forEach(([k, v]) => { settings.featuredMain[String(k)] = String(v) })
+        }
+      } catch (e) {
+        // ignore malformed JSON
+      }
+    }
+  } catch (e) {
+    // ignore env read errors
   }
 
   // If featured is defined, build the list preserving order in settings.featured
