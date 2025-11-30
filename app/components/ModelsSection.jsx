@@ -13,9 +13,27 @@ export default async function ModelsSection() {
   // Try to read settings to determine featured list and main images
   let settings = { featured: [], featuredMain: {} }
   try {
-    const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
-    const raw = fs.readFileSync(settingsPath, 'utf8')
-    settings = JSON.parse(raw || '{}')
+    // Prefer reading from DB when running in a server environment with the
+    // Supabase service role key configured. This ensures the home page will
+    // reflect settings persisted by the admin panel (which upserts into DB).
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const { data, error } = await supabaseAdmin.from('settings').select('payload').eq('id', 'site').maybeSingle()
+        if (!error && data && data.payload) {
+          settings = data.payload
+        } else {
+          // fallthrough to filesystem/storage below
+        }
+      } catch (e) {
+        // ignore DB errors and fallthrough
+      }
+    }
+    // If settings still empty, try reading local filesystem (development)
+    if (!settings || Object.keys(settings).length === 0) {
+      const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
+      const raw = fs.readFileSync(settingsPath, 'utf8')
+      settings = JSON.parse(raw || '{}')
+    }
   } catch {
     // filesystem read failed — attempt to read from Supabase Storage
     try {
