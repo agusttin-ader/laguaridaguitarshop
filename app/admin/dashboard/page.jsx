@@ -23,7 +23,7 @@ export default function AdminDashboard(){
   const uploadingHero = false
   const [heroPreview, setHeroPreview] = useState('')
   const [heroFileName, setHeroFileName] = useState('')
-  const [, setPendingHeroFile] = useState(null)
+  const [pendingHeroFile, setPendingHeroFile] = useState(null)
   const [debugErr, setDebugErr] = useState(null)
   const [authChecked, setAuthChecked] = useState(false)
   const [pendingApproval, setPendingApproval] = useState(false)
@@ -860,6 +860,35 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   setSavingSettings(true)
                   const previousHero = settings.heroImage || ''
                   try {
+                    // If the user selected a local file, upload it first to the server
+                    if (pendingHeroFile) {
+                      try {
+                        const form = new FormData()
+                        // ensure filename is safe — NewProductForm uses a timestamped name server-side; we keep original name here
+                        form.append('file', pendingHeroFile, pendingHeroFile.name)
+                        form.append('bucket', 'product-images')
+                        const upRes = await fetch('/api/admin/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form })
+                        if (!upRes.ok) {
+                          const txt = await upRes.text().catch(()=>null)
+                          throw new Error('Upload failed: ' + (txt || upRes.statusText))
+                        }
+                        const upJson = await upRes.json().catch(()=>null)
+                        const publicUrl = upJson?.publicUrl || null
+                        if (publicUrl) {
+                          // set the hero image to the uploaded public URL before persisting settings
+                          settings.heroImage = publicUrl
+                          setHeroPreview(publicUrl)
+                          setHeroFileName('')
+                          setPendingHeroFile(null)
+                        }
+                      } catch (uploadErr) {
+                        console.error('Hero upload failed', uploadErr)
+                        toast.error('Error subiendo la imagen de portada')
+                        setSavingSettings(false)
+                        return
+                      }
+                    }
+
                     const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ heroImage: settings.heroImage }) })
                     const persistedTo = res.headers.get('x-settings-persisted-to') || 'unknown'
                     const envOverrides = res.headers.get('x-settings-env-overrides') === 'true'

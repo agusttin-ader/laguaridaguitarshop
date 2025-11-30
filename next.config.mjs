@@ -12,13 +12,24 @@ const nextConfig = {
   },
   images: {
     // Allow images served from Supabase storage and other remote hosts used by uploaded product images
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'nlxihuohlbzxfsumnfxk.supabase.co',
-        pathname: '/**',
-      },
-    ],
+    // Derive the Supabase hostname from env var if available so Vercel deployments with different
+    // Supabase projects continue to work without changing this file.
+    remotePatterns: (() => {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+        if (supabaseUrl) {
+          const u = new URL(supabaseUrl)
+          return [{ protocol: 'https', hostname: u.hostname, pathname: '/**' }]
+        }
+      } catch (_) {}
+      return [
+        {
+          protocol: 'https',
+          hostname: 'nlxihuohlbzxfsumnfxk.supabase.co',
+          pathname: '/**',
+        },
+      ]
+    })(),
     // Configure image quality values used by next/image `quality` prop.
     // We use 75 as the baseline and 80 for some thumbnails where we explicitly set quality=80.
     qualities: [75, 80],
