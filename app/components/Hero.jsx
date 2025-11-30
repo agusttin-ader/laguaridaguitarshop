@@ -1,8 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 import HeroRender from './HeroRender'
+import { supabaseAdmin } from '../../lib/supabaseAdmin'
 
-export default function Hero() {
+export const dynamic = 'force-dynamic'
+
+export default async function Hero() {
   // Determine whether runtime env overrides are enabled. By default this is
   // disabled so the admin panel remains authoritative. To enable, set
   // `ENABLE_ENV_OVERRIDES=true` in your Vercel env vars.
@@ -18,17 +21,23 @@ export default function Hero() {
         const json = JSON.parse(raw)
         if (json && json.heroImage) heroImage = json.heroImage
       } catch {
-        // ignore and use fallback
+        // filesystem read failed — attempt to read from Supabase Storage as fallback
+        try {
+          if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            const { data, error } = await supabaseAdmin.storage.from('product-images').download('site-settings/settings.json')
+            if (!error && data) {
+              const txt = await data.text()
+              const json = JSON.parse(txt)
+              if (json && json.heroImage) heroImage = json.heroImage
+            }
+          }
+        } catch (_) {
+          // ignore
+        }
       }
     }
   } catch (e) {
-    // if env read/parsing fails, fall back to settings file
-    try {
-      const SETTINGS_PATH = path.resolve(process.cwd(), 'data', 'settings.json')
-      const raw = fs.readFileSync(SETTINGS_PATH, 'utf-8')
-      const json = JSON.parse(raw)
-      if (json && json.heroImage) heroImage = json.heroImage
-    } catch {}
+    // final fallback: do nothing, keep default
   }
 
   return <HeroRender heroImage={heroImage} />

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getProducts } from "../lib/getProducts";
 import fs from 'fs'
 import path from 'path'
+import { supabaseAdmin } from '../../lib/supabaseAdmin'
 
 // Ensure this component reads runtime environment variables on the server
 export const dynamic = 'force-dynamic'
@@ -16,7 +17,18 @@ export default async function ModelsSection() {
     const raw = fs.readFileSync(settingsPath, 'utf8')
     settings = JSON.parse(raw || '{}')
   } catch {
-    // ignore and use defaults
+    // filesystem read failed — attempt to read from Supabase Storage
+    try {
+      if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        const { data, error } = await supabaseAdmin.storage.from('product-images').download('site-settings/settings.json')
+        if (!error && data) {
+          const txt = await data.text()
+          settings = JSON.parse(txt || '{}')
+        }
+      }
+    } catch (e) {
+      // ignore and use defaults
+    }
   }
 
   // Apply runtime environment overrides only when explicitly enabled via
