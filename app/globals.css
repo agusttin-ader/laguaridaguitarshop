@@ -81,6 +81,50 @@
   --gold-100: #D4AF37;
 }
 
+/* Reusable hover style for buttons that should show a golden background and
+   dark icon color on hover. Use the class `btn-gold-hover` on buttons. */
+.btn-gold-hover {
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+.btn-gold-hover:hover {
+  background-color: var(--gold-100) !important;
+  color: #081017 !important;
+  box-shadow: 0 10px 26px rgba(212,175,55,0.12);
+}
+/* SVG color is intentionally not forced here to avoid changing icon shapes; */
+/* use `.btn-keep-white` on buttons that must keep white icons on hover. */
+
+/* Keep SVG icons white even when the button background changes on hover */
+.btn-keep-white:hover {
+  color: #ffffff !important;
+}
+.btn-keep-white:hover svg,
+.btn-keep-white:hover svg path,
+.btn-keep-white:hover svg circle,
+.btn-keep-white:hover svg rect {
+  /* Ensure icons are outlines (no fill) and strokes are white. This prevents
+     the triangle arrows from becoming solid shapes on hover. */
+  fill: none !important;
+  stroke: #ffffff !important;
+}
+
+/* Red (fiesta) hover variant for close button */
+.btn-red-hover {
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+.btn-red-hover:hover {
+  background-color: #ff2d55 !important; /* rojo fiesta */
+  color: #ffffff !important;
+  box-shadow: 0 10px 26px rgba(255,45,85,0.12);
+}
+.btn-red-hover:hover svg,
+.btn-red-hover:hover svg path,
+.btn-red-hover:hover svg circle,
+.btn-red-hover:hover svg rect {
+  fill: none !important;
+  stroke: #ffffff !important;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
