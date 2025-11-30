@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from 'react-icons/fa'
 import { FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
@@ -12,7 +12,7 @@ export default function ProductPage({ model }) {
     setSelected(i);
   }
 
-  const images = Array.isArray(model.images) ? model.images : []
+  const images = useMemo(() => (Array.isArray(model?.images) ? model.images : []), [model])
   // helper to pick best src from an image entry
   function pickBestSrc(entry) {
     if (!entry) return null

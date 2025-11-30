@@ -54,13 +54,13 @@ export async function POST(request) {
     if (uploadErr) return new Response(JSON.stringify({ error: String(uploadErr) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
 
     // Generate optimized variants (webp) at multiple widths
-    const SIZES = [320, 640, 1024]
+    const SIZES = [320, 640, 1024, 2048]
     const variants = {}
     for (const w of SIZES) {
       try {
         // create portrait-cropped variants (3:4) so thumbnails are vertical
         const h = Math.round(w * 4 / 3)
-        const outBuffer = await sharp(normalizedBuffer).resize({ width: w, height: h, fit: 'cover' }).webp({ quality: 80 }).toBuffer()
+        const outBuffer = await sharp(normalizedBuffer).resize({ width: w, height: h, fit: 'cover' }).webp({ quality: 85 }).toBuffer()
         const outName = `${Date.now()}_${safeName}-w${w}.webp`
         const { error: upErr } = await supabaseAdmin.storage.from(bucket).upload(outName, outBuffer, { contentType: 'image/webp' })
         if (!upErr) {
