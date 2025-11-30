@@ -123,7 +123,8 @@ export default async function ModelsSection() {
                       // prefer larger optimized variant for the hero/featured section
                       try {
                         if (imgEntry.variants && typeof imgEntry.variants === 'object') {
-                          if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
+                          if (imgEntry.variants.w2048) { src = imgEntry.variants.w2048 }
+                          else if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
                           else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
                           else if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
                         }
@@ -157,11 +158,11 @@ export default async function ModelsSection() {
                       alt={m.title}
                       fill
                       sizes="(min-width: 1024px) 50vw, 100vw"
-                      quality={80}
+                      quality={90}
                       className="object-cover object-center transition-transform duration-500 transform-gpu"
                       loading="eager"
                     />
-                  )
+                    )
                 })()}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
