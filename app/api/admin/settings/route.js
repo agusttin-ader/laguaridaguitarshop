@@ -5,12 +5,22 @@ import { isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOr
 
 const SETTINGS_PATH = path.resolve(process.cwd(), 'data', 'settings.json')
 
-function readSettings(){
+async function readSettings(){
   try {
     const raw = fs.readFileSync(SETTINGS_PATH, 'utf-8')
     return JSON.parse(raw)
-  } catch {
-    return { featured: [], heroImage: '/images/homepage.jpeg' }
+  } catch (e) {
+    // If filesystem is not writable/readable (serverless like Vercel),
+    // attempt to load settings from Supabase Storage as a fallback.
+    try {
+      // Use existing `product-images` bucket as a place to store settings.json
+      const { data, error } = await supabaseAdmin.storage.from('product-images').download('site-settings/settings.json')
+      if (error || !data) return { featured: [], heroImage: '/images/homepage.jpeg' }
+      const text = await data.text()
+      return JSON.parse(text)
+    } catch (_) {
+      return { featured: [], heroImage: '/images/homepage.jpeg' }
+    }
   }
 }
 
@@ -53,8 +63,25 @@ function applyEnvOverrides(settings){
   return settings
 }
 
-function writeSettings(obj){
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
+async function writeSettings(obj){
+  try {
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
+    return
+  } catch (e) {
+    // If writing to local filesystem fails (e.g., Vercel read-only),
+    // persist settings to Supabase Storage as a fallback so admin edits
+    // still work in production. Use `product-images/site-settings/settings.json`.
+    try {
+      const buf = Buffer.from(JSON.stringify(obj, null, 2), 'utf-8')
+      // upload with upsert=true to overwrite existing
+      const { data, error } = await supabaseAdmin.storage.from('product-images').upload('site-settings/settings.json', buf, { upsert: true })
+      if (error) throw error
+      return
+    } catch (err) {
+      // rethrow original fs error if storage fallback also fails
+      throw e
+    }
+  }
 }
 
 function unauthorized(){
@@ -62,7 +89,7 @@ function unauthorized(){
 }
 
 export async function GET(){
-  let settings = readSettings()
+  let settings = await readSettings()
   settings = applyEnvOverrides(settings)
   return new Response(JSON.stringify(settings), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
@@ -114,7 +141,7 @@ export async function PATCH(req){
   try {
     if (!validateJsonContentType(req)) return new Response(JSON.stringify({ error: 'Invalid content-type' }), { status: 415, headers: { 'Content-Type': 'application/json' } })
     const body = await req.json().catch(()=>({}))
-    let settings = readSettings()
+    let settings = await readSettings()
     // allow updating featured (array) and/or heroImage (string)
     if (body.featured) {
       if (!Array.isArray(body.featured)) return new Response(JSON.stringify({ error: 'featured must be array' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
@@ -132,7 +159,7 @@ export async function PATCH(req){
       settings.heroImage = sanitizeString(body.heroImage)
     }
     // Always persist to file. Env overrides still take precedence at GET-time.
-    writeSettings(settings)
+    await writeSettings(settings)
     settings = applyEnvOverrides(settings)
     return new Response(JSON.stringify(settings), { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (err) {
