@@ -1,0 +1,14 @@
+{
+  "featured": [
+    "39f2c35f-b475-4b90-9d19-94b24f6f0463",
+    "5360921d-8d9a-4d7f-94c0-5ffeedb291fc",
+    "071cc615-5c59-4721-ab25-44f998b1b9df"
+  ],
+  "featuredMain": {
+    "39f2c35f-b475-4b90-9d19-94b24f6f0463": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763842023014_IMG_7888.jpg",
+    "071cc615-5c59-4721-ab25-44f998b1b9df": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763916441832_IMG_9049.jpg",
+    "f578651c-9de8-4f4f-b4b1-cef9f363a47f": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763916871607_WhatsApp-Image-2025-11-21-at-18.24.39--2-.jpeg",
+    "5360921d-8d9a-4d7f-94c0-5ffeedb291fc": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763920215133_IMG_9396.jpg"
+  },
+  "heroImage": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763908165586_IMG_7905.jpg"
+}

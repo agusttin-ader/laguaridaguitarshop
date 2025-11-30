@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'fs'
 import path from 'path'
+import { info, error as logError } from './logger.mjs'
 
 function isValidSrc(s) {
   if (!s || typeof s !== 'string') return false
@@ -35,7 +36,7 @@ async function run() {
 
   const backupPath = settingsPath + '.bak.' + Date.now()
   fs.copyFileSync(settingsPath, backupPath)
-  console.log('Backup created at', backupPath)
+  info('Backup created at', backupPath)
 
   settings.featuredMain = settings.featuredMain || {}
   let changed = false
@@ -49,11 +50,11 @@ async function run() {
     if (isValidSrc(firstImg)) {
       settings.featuredMain[key] = firstImg
       changed = true
-      console.log('Replaced invalid featuredMain for', key, '->', firstImg)
+      info('Replaced invalid featuredMain for', key, '->', firstImg)
     } else {
       settings.featuredMain[key] = null
       changed = true
-      console.log('Cleared invalid featuredMain for', key)
+      info('Cleared invalid featuredMain for', key)
     }
   }
 
@@ -62,10 +63,10 @@ async function run() {
 
   if (changed) {
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8')
-    console.log('settings.json updated')
+    info('settings.json updated')
   } else {
-    console.log('No changes needed')
+    info('No changes needed')
   }
 }
 
-run().catch(err => { console.error(err); process.exit(1) })
+run().catch(err => { logError(err); process.exit(1) })

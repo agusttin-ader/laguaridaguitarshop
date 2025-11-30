@@ -27,10 +27,11 @@ import('dotenv/config')
     const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
 
-    console.log('Signing in...')
+    const { info, error: logError } = await import('./logger.mjs')
+    info('Signing in...')
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      console.error('Sign in error:', error.message || error)
+      logError('Sign in error:', error.message || error)
       process.exit(1)
     }
 
@@ -40,7 +41,7 @@ import('dotenv/config')
       process.exit(1)
     }
 
-    console.log('Got access token. Calling admin API...')
+    info('Got access token. Calling admin API...')
     const apiUrl = apiUrlArg || 'http://localhost:3000/api/admin/products'
 
     const res = await fetch(apiUrl, {
@@ -49,8 +50,8 @@ import('dotenv/config')
     })
 
     const text = await res.text()
-    console.log('API response status:', res.status)
-    console.log(text)
+    info('API response status:', res.status)
+    info(text)
   })
   .catch(err => {
     console.error(err)

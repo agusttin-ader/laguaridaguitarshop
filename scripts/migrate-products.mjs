@@ -8,6 +8,7 @@ if (fs.existsSync('.env.local')) {
 }
 import path from 'path'
 import supabaseAdmin from '../lib/supabaseAdmin.js'
+import { info, warn, error } from './logger.mjs'
 
 async function main(){
   const dataPath = path.join(process.cwd(), 'app', 'data', 'products.json')
@@ -21,17 +22,16 @@ async function main(){
   try { products = JSON.parse(raw || '[]') } catch (e){ console.error('Invalid JSON', e); process.exit(1) }
 
   if (!Array.isArray(products) || products.length === 0){
-    console.log('No products to migrate.')
+    info('No products to migrate.')
     process.exit(0)
   }
-
-  console.log(`Found ${products.length} products to migrate.`)
+  info(`Found ${products.length} products to migrate.`)
 
   let inserted = 0, skipped = 0
 
   for (const p of products){
     const title = p.title || p.name || ''
-    if (!title){ console.log('Skipping product without title', p); skipped++; continue }
+    if (!title){ info('Skipping product without title', p); skipped++; continue }
 
     // Normalize price to number when possible
     let priceNum = null
@@ -44,25 +44,25 @@ async function main(){
     try {
       // Check by title exact match first
       const { data: existing, error: selErr } = await supabaseAdmin.from('products').select('id,title').eq('title', title).limit(1).maybeSingle()
-      if (selErr){ console.warn('Warning checking existing', selErr); }
-      if (existing) { console.log('Skipping existing:', title); skipped++; continue }
+      if (selErr){ warn('Warning checking existing', selErr); }
+      if (existing) { info('Skipping existing:', title); skipped++; continue }
 
       const row = { title, description: p.description || '', specs: p.specs || {}, price: priceNum, images: p.images || [] }
       const { data, error } = await supabaseAdmin.from('products').insert([row]).select().maybeSingle()
-      if (error){ console.error('Insert error for', title, error); skipped++; continue }
-      console.log('Inserted:', data.id, title)
+      if (error){ error('Insert error for', title, error); skipped++; continue }
+      info('Inserted:', data.id, title)
       inserted++
-    } catch (err){ console.error('Error migrating', title, err); skipped++; }
+    } catch (err){ error('Error migrating', title, err); skipped++; }
   }
 
   // Backup original JSON
   const bakPath = path.join(process.cwd(), 'app', 'data', `products.json.bak.${Date.now()}`)
   try {
     await fs.promises.rename(dataPath, bakPath)
-    console.log('Backed up products.json to', bakPath)
+    info('Backed up products.json to', bakPath)
   } catch (e){ console.warn('Failed to rename products.json', e) }
 
-  console.log(`Migration finished. inserted=${inserted} skipped=${skipped}`)
+  info(`Migration finished. inserted=${inserted} skipped=${skipped}`)
 }
 
 main().catch((err)=>{ console.error(err); process.exit(1) })

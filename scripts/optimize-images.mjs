@@ -2,6 +2,7 @@
 import fs from 'fs'
 import path from 'path'
 import sharp from 'sharp'
+import { info, error } from './logger.mjs'
 
 // Simple image optimizer: generates WebP variants at multiple widths
 // Usage: `node ./scripts/optimize-images.mjs` or `npm run optimize:images`
@@ -28,9 +29,9 @@ async function processFile(file) {
     const outPath = path.join(OUT_DIR, outName)
     try {
       await sharp(input).resize({ width: w }).webp({ quality: 80 }).toFile(outPath)
-      console.log('Wrote', outPath)
+      info('Wrote', outPath)
     } catch (err) {
-      console.error('Failed to process', input, err)
+      error('Failed to process', input, err)
     }
   }
 }
@@ -44,12 +45,12 @@ async function run() {
 
   const files = fs.readdirSync(IMAGES_DIR).filter(isImageFile)
   if (files.length === 0) {
-    console.log('No image files to optimize in', IMAGES_DIR)
+    info('No image files to optimize in', IMAGES_DIR)
     return
   }
 
   for (const f of files) await processFile(f)
-  console.log('Done — optimized images are in', OUT_DIR)
+  info('Done — optimized images are in', OUT_DIR)
 }
 
 run().catch(err => { console.error(err); process.exit(1) })
