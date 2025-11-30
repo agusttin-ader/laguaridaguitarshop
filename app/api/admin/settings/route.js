@@ -4,10 +4,13 @@ import { supabaseAdmin } from '../../../../lib/supabaseAdmin'
 import { isOwner, sanitizeString, rateCheck, validateJsonContentType, validateOrigin } from '../../../../lib/adminAuth'
 
 const SETTINGS_PATH = path.resolve(process.cwd(), 'data', 'settings.json')
+let lastReadSource = 'filesystem'
+let lastWriteSource = 'filesystem'
 
 async function readSettings(){
   try {
     const raw = fs.readFileSync(SETTINGS_PATH, 'utf-8')
+    lastReadSource = 'filesystem'
     return JSON.parse(raw)
   } catch (e) {
     // If filesystem is not writable/readable (serverless like Vercel),
@@ -17,6 +20,7 @@ async function readSettings(){
       const { data, error } = await supabaseAdmin.storage.from('product-images').download('site-settings/settings.json')
       if (error || !data) return { featured: [], heroImage: '/images/homepage.jpeg' }
       const text = await data.text()
+      lastReadSource = 'storage'
       return JSON.parse(text)
     } catch (_) {
       return { featured: [], heroImage: '/images/homepage.jpeg' }
@@ -66,6 +70,7 @@ function applyEnvOverrides(settings){
 async function writeSettings(obj){
   try {
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
+    lastWriteSource = 'filesystem'
     return
   } catch (e) {
     // If writing to local filesystem fails (e.g., Vercel read-only),
@@ -76,6 +81,7 @@ async function writeSettings(obj){
       // upload with upsert=true to overwrite existing
       const { data, error } = await supabaseAdmin.storage.from('product-images').upload('site-settings/settings.json', buf, { upsert: true })
       if (error) throw error
+      lastWriteSource = 'storage'
       return
     } catch (err) {
       // rethrow original fs error if storage fallback also fails
@@ -90,8 +96,11 @@ function unauthorized(){
 
 export async function GET(){
   let settings = await readSettings()
+  const envEnabled = String(process.env.ENABLE_ENV_OVERRIDES || 'false').toLowerCase() === 'true'
   settings = applyEnvOverrides(settings)
-  return new Response(JSON.stringify(settings), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  const headers = { 'Content-Type': 'application/json', 'x-settings-persisted-to': lastReadSource }
+  if (envEnabled) headers['x-settings-env-overrides'] = 'true'
+  return new Response(JSON.stringify(settings), { status: 200, headers })
 }
 
 export async function PATCH(req){
@@ -160,8 +169,11 @@ export async function PATCH(req){
     }
     // Always persist to file. Env overrides still take precedence at GET-time.
     await writeSettings(settings)
+    const envEnabled = String(process.env.ENABLE_ENV_OVERRIDES || 'false').toLowerCase() === 'true'
     settings = applyEnvOverrides(settings)
-    return new Response(JSON.stringify(settings), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    const headers = { 'Content-Type': 'application/json', 'x-settings-persisted-to': lastWriteSource }
+    if (envEnabled) headers['x-settings-env-overrides'] = 'true'
+    return new Response(JSON.stringify(settings), { status: 200, headers })
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }

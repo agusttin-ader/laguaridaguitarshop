@@ -250,9 +250,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     try {
       const body = { featured: nextSettings.featured, featuredMain: nextSettings.featuredMain }
       const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) })
+      const persistedTo = res.headers.get('x-settings-persisted-to') || 'unknown'
+      const envOverrides = res.headers.get('x-settings-env-overrides') === 'true'
       const json = await res.json()
       if (!res.ok) throw json
       setSettings(json)
+      if (envOverrides) toast.warning('ATENCIÓN: Las variables de entorno (Vercel) están activas y pueden estar sobreescribiendo estos cambios')
+      toast.success(`Destacados guardados (persisted: ${persistedTo})`)
       // broadcast settings change
       try {
         if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
@@ -261,7 +265,6 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
           bc.close()
         }
       } catch (_) {}
-      toast.success('Destacados guardados')
     } catch (err) { console.error('Error saving featured', err); toast.error('Error guardando destacados') }
   }
 
@@ -858,10 +861,14 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   const previousHero = settings.heroImage || ''
                   try {
                     const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ heroImage: settings.heroImage }) })
+                    const persistedTo = res.headers.get('x-settings-persisted-to') || 'unknown'
+                    const envOverrides = res.headers.get('x-settings-env-overrides') === 'true'
                     const json = await res.json()
                     if (!res.ok) throw json
                     setSettings(json)
                     setHeroPreview(json.heroImage)
+                    if (envOverrides) toast.warning('ATENCIÓN: Las variables de entorno (Vercel) están activas y pueden estar sobreescribiendo estos cambios')
+                    toast.success(`Portada actualizada (persisted: ${persistedTo})`)
 
                     // If there was a previous hero and it's different from the new one,
                     // attempt to delete the old file from storage (best-effort).
