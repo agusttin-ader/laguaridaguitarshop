@@ -15,6 +15,19 @@ export default async function Hero() {
     if (enabled && process.env.HERO_IMAGE && String(process.env.HERO_IMAGE).trim() !== '') {
       heroImage = String(process.env.HERO_IMAGE).trim()
     } else {
+      // If we have a Supabase service role key, prefer reading the settings
+      // from the database. This ensures the Hero reflects the authoritative
+      // settings row when the admin panel persists to the DB (typical on Vercel).
+      try {
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          const { data, error } = await supabaseAdmin.from('settings').select('payload').eq('id', 'site').maybeSingle()
+          if (!error && data && data.payload && data.payload.heroImage) {
+            heroImage = data.payload.heroImage
+          }
+        }
+      } catch (_) {
+        // fallthrough to filesystem/storage below
+      }
       try {
         const SETTINGS_PATH = path.resolve(process.cwd(), 'data', 'settings.json')
         const raw = fs.readFileSync(SETTINGS_PATH, 'utf-8')
