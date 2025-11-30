@@ -7,16 +7,28 @@ const SETTINGS_PATH = path.resolve(process.cwd(), 'data', 'settings.json')
 let lastReadSource = 'filesystem'
 let lastWriteSource = 'filesystem'
 
-async function readSettings(){
+async function readSettings() {
+  // 1) Try DB-backed settings (preferred) — requires a `settings` table
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      const { data, error } = await supabaseAdmin.from('settings').select('payload').eq('id', 'site').maybeSingle()
+      if (!error && data && data.payload) {
+        lastReadSource = 'database'
+        return data.payload
+      }
+    } catch (_) {
+      // ignore DB errors and fallthrough
+    }
+  }
+
+  // 2) Try local filesystem (development)
   try {
     const raw = fs.readFileSync(SETTINGS_PATH, 'utf-8')
     lastReadSource = 'filesystem'
     return JSON.parse(raw)
   } catch (e) {
-    // If filesystem is not writable/readable (serverless like Vercel),
-    // attempt to load settings from Supabase Storage as a fallback.
+    // 3) Fallback: Supabase Storage (for serverless environments)
     try {
-      // Use existing `product-images` bucket as a place to store settings.json
       const { data, error } = await supabaseAdmin.storage.from('product-images').download('site-settings/settings.json')
       if (error || !data) return { featured: [], heroImage: '/images/homepage.jpeg' }
       const text = await data.text()
@@ -67,18 +79,30 @@ function applyEnvOverrides(settings){
   return settings
 }
 
-async function writeSettings(obj){
+async function writeSettings(obj) {
+  // 1) Try write to filesystem first (local dev)
   try {
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
     lastWriteSource = 'filesystem'
     return
   } catch (e) {
     // If writing to local filesystem fails (e.g., Vercel read-only),
-    // persist settings to Supabase Storage as a fallback so admin edits
-    // still work in production. Use `product-images/site-settings/settings.json`.
+    // try DB upsert (preferred server persistence) — requires `settings` table
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const upsertRes = await supabaseAdmin.from('settings').upsert({ id: 'site', payload: obj }, { returning: 'minimal' })
+        if (!upsertRes.error) {
+          lastWriteSource = 'database'
+          return
+        }
+      } catch (_) {
+        // ignore DB write errors and fallthrough to storage
+      }
+    }
+
+    // 2) Try Storage fallback
     try {
       const buf = Buffer.from(JSON.stringify(obj, null, 2), 'utf-8')
-      // upload with upsert=true to overwrite existing
       const { data, error } = await supabaseAdmin.storage.from('product-images').upload('site-settings/settings.json', buf, { upsert: true })
       if (error) throw error
       lastWriteSource = 'storage'
