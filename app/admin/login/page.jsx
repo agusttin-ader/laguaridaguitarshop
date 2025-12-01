@@ -163,10 +163,11 @@ export default function AdminLogin() {
           setTimeout(() => {
             try {
               if (typeof window !== 'undefined' && window.location.pathname && window.location.pathname.startsWith('/admin/login')) {
-                window.location.href = '/admin/dashboard'
+                // prefer replace to avoid leaving a stale history entry
+                window.location.replace('/admin/dashboard')
               }
             } catch (_) {}
-          }, 900)
+          }, 600)
         } catch (_) {}
         return
       }
@@ -266,7 +267,8 @@ export default function AdminLogin() {
 
   // subscribe to auth changes to keep user updated
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Subscribe to auth state changes and redirect immediately on sign-in.
+    const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
       try {
         const token = session?.access_token
         const { data: userData } = await supabase.auth.getUser()
@@ -275,19 +277,29 @@ export default function AdminLogin() {
         const ownerEmail = process.env.NEXT_PUBLIC_OWNER_EMAIL || 'agusttin.ader@gmail.com'
         setIsOwner((userData?.user?.email || '') === ownerEmail)
 
-        // If auth state shows a SIGNED_IN (or related) event, navigate
-        // immediately to the dashboard to avoid leaving the login page
-        // after a successful sign-in in deployed environments.
+        // On sign in, try router navigation first, then fall back to hard
+        // navigation to ensure the client ends up on the dashboard.
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           try { router.replace('/admin/dashboard') } catch { router.push('/admin/dashboard') }
+          try {
+            // If router didn't navigate for some reason, force a full reload
+            // to the dashboard after a short grace period.
+            setTimeout(() => {
+              try {
+                if (typeof window !== 'undefined' && window.location.pathname && window.location.pathname.startsWith('/admin/login')) {
+                  window.location.replace('/admin/dashboard')
+                }
+              } catch (_) {}
+            }, 400)
+          } catch (_) {}
         }
-      } catch {
+      } catch (err) {
         setCurrentUser(null)
         setAccessToken(null)
         setIsOwner(false)
       }
     })
-    return () => sub?.subscription?.unsubscribe?.()
+    return () => data?.subscription?.unsubscribe?.()
   }, [router])
 
   // After login, if user is not owner or admin, create a pending admin request and show modal then sign out
