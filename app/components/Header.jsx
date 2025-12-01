@@ -3,12 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FiMenu, FiX } from 'react-icons/fi'
-import { useTranslation } from 'react-i18next'
-import LanguageToggle from './LanguageToggle'
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const { t } = useTranslation();
+  
 
   const navLinkClass =
     "px-3 py-2 text-sm md:text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60";
@@ -21,21 +19,20 @@ export default function Header() {
           className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200"
           aria-label="Ir a inicio"
         >
-          {t('brand')}
+          La Guarida Guitarshop
         </Link>
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Principal">
           <Link href="/" className={navLinkClass}>
-            {t('home')}
+            Inicio
           </Link>
           <Link href="/modelos" className={navLinkClass}>
-            {t('models')}
+            Modelos
           </Link>
           <Link href="/contacto" className={navLinkClass}>
-            {t('about')}
+            Contacto
           </Link>
-          <LanguageToggle />
         </nav>
 
         {/* Mobile menu button */}
@@ -63,25 +60,22 @@ export default function Header() {
             className="py-2 transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60"
             onClick={() => setOpen(false)}
           >
-            {t('home')}
+            Inicio
           </Link>
           <Link
             href="/modelos"
             className="py-2 transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60"
             onClick={() => setOpen(false)}
           >
-            {t('models')}
+            Modelos
           </Link>
           <Link
             href="/contacto"
             className="py-2 transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60"
             onClick={() => setOpen(false)}
           >
-            {t('about')}
+            Contacto
           </Link>
-          <div className="px-4">
-            <LanguageToggle />
-          </div>
         </nav>
       </div>
     </header>

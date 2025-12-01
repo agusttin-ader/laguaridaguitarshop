@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import i18n from "i18next";
 
 export default function LanguageToggle() {
+  // Minimal toggle that updates a localStorage preference but does not rely on i18n package.
   const [lang, setLang] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('lg_lang') || 'es' : 'es'));
 
   useEffect(() => {
@@ -12,14 +12,9 @@ export default function LanguageToggle() {
     return () => window.removeEventListener('storage', onChange);
   }, []);
 
-  const toggle = async () => {
+  const toggle = () => {
     const next = lang === 'es' ? 'en' : 'es';
     localStorage.setItem('lg_lang', next);
-    try {
-      await i18n.changeLanguage(next);
-    } catch (e) {
-      // i18n may not be initialized yet — still store preference
-    }
     setLang(next);
   };
 
