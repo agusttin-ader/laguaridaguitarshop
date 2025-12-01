@@ -49,8 +49,9 @@ export async function POST(request) {
       normalizedBuffer = buffer
     }
 
-    // Upload normalized original
-    const { error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, normalizedBuffer, { contentType: file.type })
+    // Upload normalized original with long cache-control so CDN can cache it
+    const cacheControl = 'public, max-age=31536000, immutable'
+    const { error: uploadErr } = await supabaseAdmin.storage.from(bucket).upload(filename, normalizedBuffer, { contentType: file.type, cacheControl })
     if (uploadErr) return new Response(JSON.stringify({ error: String(uploadErr) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
 
     // Generate optimized variants (webp) at multiple widths
@@ -62,7 +63,7 @@ export async function POST(request) {
         const h = Math.round(w * 4 / 3)
         const outBuffer = await sharp(normalizedBuffer).resize({ width: w, height: h, fit: 'cover' }).webp({ quality: 85 }).toBuffer()
         const outName = `${Date.now()}_${safeName}-w${w}.webp`
-        const { error: upErr } = await supabaseAdmin.storage.from(bucket).upload(outName, outBuffer, { contentType: 'image/webp' })
+        const { error: upErr } = await supabaseAdmin.storage.from(bucket).upload(outName, outBuffer, { contentType: 'image/webp', cacheControl })
         if (!upErr) {
           const { data: publicData } = supabaseAdmin.storage.from(bucket).getPublicUrl(outName)
           variants[`w${w}`] = publicData.publicUrl

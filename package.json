@@ -11,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "optimize:images": "node ./scripts/optimize-images.mjs"
+    "optimize:images": "node ./scripts/optimize-images.mjs",
+    "reprocess:images": "node ./scripts/reprocess-images.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.28.5",
