@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import ToasterProvider from './components/ToasterProvider'
 import WhatsAppFloating from './components/WhatsAppFloating'
 import ImageOrientationNormalizer from './components/ImageOrientationNormalizer'
+import I18nProvider from './components/I18nProvider'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -81,12 +82,14 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        <ToasterProvider />
-        <ImageOrientationNormalizer />
-        {children}
-        <Footer />
-        <WhatsAppFloating />
+        <I18nProvider>
+          <Header />
+          <ToasterProvider />
+          <ImageOrientationNormalizer />
+          {children}
+          <Footer />
+          <WhatsAppFloating />
+        </I18nProvider>
       </body>
     </html>
   );
