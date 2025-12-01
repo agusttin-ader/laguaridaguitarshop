@@ -8,14 +8,14 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   const navLinkClass =
-    "px-3 py-2 text-sm md:text-base font-medium transition-colors duration-200 ease-out hover:text-[#D4AF37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60";
+    "px-3 py-2 text-sm md:text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60";
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#0D0D0D] text-[#EDEDED] font-sans">
       <div className="mx-auto flex h-[64px] md:h-[80px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="text-lg font-semibold tracking-wide hover:opacity-80"
+          className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200"
           aria-label="Ir a inicio"
         >
           La Guarida Guitar Shop
@@ -30,7 +30,7 @@ export default function Header() {
             Modelos
           </Link>
           <Link href="/contacto" className={navLinkClass}>
-            Contacto
+            Sobre nosotros
           </Link>
         </nav>
 
@@ -56,24 +56,24 @@ export default function Header() {
         <nav className="flex flex-col gap-1 px-4 pb-4" aria-label="Menú móvil">
           <Link
             href="/"
-            className="py-2 transition-colors duration-200 ease-out hover:text-[#D4AF37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
+            className="py-2 transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60"
             onClick={() => setOpen(false)}
           >
             Home
           </Link>
           <Link
             href="/modelos"
-            className="py-2 transition-colors duration-200 ease-out hover:text-[#D4AF37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
+            className="py-2 transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60"
             onClick={() => setOpen(false)}
           >
             Modelos
           </Link>
           <Link
             href="/contacto"
-            className="py-2 transition-colors duration-200 ease-out hover:text-[#D4AF37] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60"
+            className="py-2 transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60"
             onClick={() => setOpen(false)}
           >
-            Contacto
+            Sobre nosotros
           </Link>
         </nav>
       </div>

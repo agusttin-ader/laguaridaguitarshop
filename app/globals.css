@@ -1326,6 +1326,32 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 a { color: inherit; text-decoration: none; transition: color var(--transition-fast); }
 a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 
+/* Ensure header links and brand turn gold on hover — this overrides the
+   general `a { color: inherit }` rule which appears earlier in the cascade. */
+header a:hover, header .brand:hover, header .brand-title:hover {
+  color: var(--gold-100) !important;
+}
+
+/* Don't change header link color on mouse-click (focus caused by mouse).
+   Preserve a visible outline only for keyboard users via :focus-visible. */
+header a:focus {
+  color: inherit !important;
+}
+
+header a:focus:not(:focus-visible),
+header .brand:focus:not(:focus-visible),
+header .brand-title:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+header a:focus-visible,
+header .brand:focus-visible,
+header .brand-title:focus-visible {
+  outline: 3px solid rgba(212,175,55,0.12);
+  outline-offset: 2px;
+}
+
 
 
 
@@ -1380,6 +1406,60 @@ a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 .hero-section:focus-within .hero-image img {
   transform: none !important;
   transition: none !important;
+}
+
+/* --- Desktop-only hover/zoom: enable hover transforms only on devices
+   that support hover and precise pointing (desktop). This keeps mobile
+   experience stable and avoids accidental zoom on touch. */
+@media (hover: hover) and (pointer: fine) {
+  .thumb { transition: transform .24s cubic-bezier(.2,.9,.3,1), box-shadow .24s ease, border-color .16s ease; will-change: transform; }
+  .thumb:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 22px 48px rgba(2,6,23,0.38); border-color: rgba(212,175,55,0.06); }
+  .thumb:hover img { transform: scale(1.04); }
+
+  .group:hover .object-cover,
+  .group:focus-within .object-cover,
+  .group:hover .relative img,
+  .hero-section:hover .hero-image img,
+  .hero-section:focus-within .hero-image img {
+    transform: scale(1.005) !important;
+  }
+
+  .group:hover .object-cover,
+  .group:focus-within .object-cover,
+  .group:hover .relative img,
+  .hero-section:hover .hero-image img,
+  .hero-section:focus-within .hero-image img,
+  .thumb:hover img,
+  .thumb:focus-within img,
+  .featured-panel .product-list .product-row:hover img {
+    transform: scale(1.005) !important;
+    transition: transform 240ms cubic-bezier(.25,.85,.25,1), object-position 240ms cubic-bezier(.25,.85,.25,1);
+  }
+}
+
+/* --- Touch/devices without hover: disable hover transforms entirely */
+@media (hover: none), (pointer: coarse) {
+  .thumb,
+  .thumb img,
+  .thumb:hover,
+  .thumb:focus-within,
+  .group:hover .object-cover,
+  .group:hover .relative img,
+  .hero-section:hover .hero-image img,
+  .featured-panel .product-list .product-row:hover img {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove subtle zoom transitions on mobile to avoid layout shifts */
+  .thumb img { transition: none !important; }
+  .hero-section .hero-image img { transition: none !important; }
+}
+
+/* About page: reduce vertical padding on small screens for a tighter layout */
+@media (max-width: 640px) {
+  .about-page { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+  .about-page header h1 { font-size: 2rem !important; }
 }
 
 /* FORCE DARK THEME: override any system preference and ensure dark colors
