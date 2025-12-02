@@ -8,6 +8,10 @@ import { FiTrash2, FiStar, FiCopy, FiCheck } from 'react-icons/fi'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import SectionCard from '../../components/admin/SectionCard'
+import ProductCard from '../../components/admin/ProductCard'
+import AdminButton from '../../components/admin/AdminButton'
+import AdminInput from '../../components/admin/AdminInput'
 
 export default function AdminDashboard(){
   const [user, setUser] = useState(null)
@@ -557,34 +561,24 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         <div className="admin-grid">
           <div>
 
-          <div className="card" style={{marginTop:16}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <div>
-                <h3 style={{margin:0}}>Productos</h3>
-                <div className="muted" style={{fontSize:13}}>Listado de productos activos con acciones de editar y eliminar.</div>
-              </div>
-              <div>
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  <motion.button
-                    className="hamburger-button btn btn-ghost"
-                    aria-expanded={productsPanelOpen}
-                    onClick={() => setProductsPanelOpen(s => !s)}
-                    aria-label="Toggle panel productos"
-                    whileTap={{ scale: 0.96 }}
-                    whileHover={{ scale: 1.03 }}
-                    animate={{ rotate: productsPanelOpen ? 90 : 0 }}
-                    transition={{ type: 'spring', stiffness: 160, damping: 26 }}
-                  >☰</motion.button>
-                </div>
-              </div>
-            </div>
-            <div style={{marginTop:12}}>
+          <SectionCard title="Productos" description="Listado de productos activos con acciones de editar y eliminar." style={{marginTop:16}} badge={(
+            <motion.button
+              className="hamburger-button btn btn-ghost"
+              aria-expanded={productsPanelOpen}
+              onClick={() => setProductsPanelOpen(s => !s)}
+              aria-label="Toggle panel productos"
+              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.03 }}
+              animate={{ rotate: productsPanelOpen ? 90 : 0 }}
+              transition={{ type: 'spring', stiffness: 160, damping: 26 }}
+            >☰</motion.button>
+          )}>
+            <div>
               <div style={{marginBottom:12}}>
                 <button className="btn btn-primary btn-wide btn-full-mobile" onClick={() => router.push('/admin/products/new')}>Cargar producto</button>
               </div>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {/* Compact view when products panel closed */}
                   {!productsPanelOpen ? (
                     <div style={{display:'flex',flexDirection:'column',gap:8}} aria-hidden="true">
                       <div className="muted" style={{fontSize:13}}>Productos: {products.length}</div>
@@ -598,21 +592,11 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                           return (
                             <div key={id} style={{padding:8,borderRadius:8,background: expanded ? 'rgba(255,255,255,0.02)' : 'transparent'}}>
                               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                                <div style={{display:'flex',alignItems:'center',gap:12}}>
-                                  <div style={{width:92,height:60,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? (
-                                      /* eslint-disable-next-line @next/next/no-img-element */
-                                      <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-                                    ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                <ProductCard product={p} className="flex-1">
+                                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                                    <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle detalles">☰</button>
                                   </div>
-                                  <div>
-                                    <div style={{fontWeight:700}}>{p.title}</div>
-                                    <div className="muted" style={{fontSize:12}}>{p.price}</div>
-                                  </div>
-                                </div>
-                                <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                                  <button className="btn btn-ghost" onClick={() => setExpandedProducts(s => ({ ...s, [id]: !s[id] }))} aria-label="Toggle detalles">☰</button>
-                                </div>
+                                </ProductCard>
                               </div>
                               {expanded && (
                                 <div style={{marginTop:8,display:'flex',gap:8,alignItems:'center',justifyContent:'flex-end'}}>
@@ -646,33 +630,25 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                 </div>
               )}
             </div>
-          </div>
+          </SectionCard>
 
             <div className="section-divider" />
 
-          <div className="card" style={{marginTop:16}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <div>
-                <h2 style={{margin:0}}>Destacados</h2>
-                <div className="muted">Seleccioná hasta 3 productos que se mostrarán como destacados.</div>
-              </div>
-              <div>
-                <motion.button
-                  className="hamburger-button btn btn-ghost"
-                  aria-expanded={featuredPanelOpen}
-                  onClick={() => { setFeaturedPanelOpen(s => !s); }}
-                  aria-label="Toggle panel destacados"
-                  whileTap={{ scale: 0.96 }}
-                  whileHover={{ scale: 1.03 }}
-                  animate={{ rotate: featuredPanelOpen ? 90 : 0 }}
-                  transition={{ type: 'spring', stiffness: 160, damping: 26 }}
-                >☰</motion.button>
-              </div>
-            </div>
-            <div style={{marginTop:12}}>
+          <SectionCard title="Destacados" description="Seleccioná hasta 3 productos que se mostrarán como destacados." style={{marginTop:16}} badge={(
+            <motion.button
+              className="hamburger-button btn btn-ghost"
+              aria-expanded={featuredPanelOpen}
+              onClick={() => { setFeaturedPanelOpen(s => !s); }}
+              aria-label="Toggle panel destacados"
+              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.03 }}
+              animate={{ rotate: featuredPanelOpen ? 90 : 0 }}
+              transition={{ type: 'spring', stiffness: 160, damping: 26 }}
+            >☰</motion.button>
+          )}>
+            <div style={{marginTop:6}}>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {/* When closed, hide the full products list and show a compact summary + thumbnails */}
                   {!featuredPanelOpen ? (
                     <div style={{display:'flex',flexDirection:'column',gap:8}}>
                       <div className="muted">Pulse el botón ☰ para editar los Destacados</div>
@@ -730,7 +706,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                                     setSettings(nextSettings)
                                     try { scheduleSaveFeatured(nextSettings) } catch (_) {}
                                   }} />
-                                  {p.images && p.images.length > 0 && <button className="btn btn-ghost" onClick={() => openImagePicker(p)}>Elegir foto</button>}
+                                  {p.images && p.images.length > 0 && <AdminButton variant="ghost" onClick={() => openImagePicker(p)}>Elegir foto</AdminButton>}
                                 </div>
                               </div>
                             )
@@ -742,7 +718,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                 </div>
               )}
               <div style={{marginTop:12,display:'flex',gap:8}}>
-                <button className="btn btn-primary" onClick={async ()=>{
+                <AdminButton variant="primary" onClick={async ()=>{
                   setSavingSettings(true)
                   try {
                     const body = { featured: settings.featured, featuredMain: settings.featuredMain }
@@ -753,22 +729,20 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                     toast.success('Destacados guardados')
                   } catch (err) { console.error(err); toast.error('Error guardando destacados') }
                   finally { setSavingSettings(false) }
-                }}>{savingSettings ? 'Guardando...' : 'Guardar destacados'}</button>
-                <button className="btn btn-ghost" onClick={()=> fetchSettings()}>Cancelar</button>
+                }}>{savingSettings ? 'Guardando...' : 'Guardar destacados'}</AdminButton>
+                <AdminButton variant="ghost" onClick={()=> fetchSettings()}>Cancelar</AdminButton>
               </div>
             </div>
-          </div>
+          </SectionCard>
         </div>
         
         
 
           <div>
           {isOwner && (
-            <div className="card">
-              <h3>Herramientas</h3>
-              <p className="muted">Utilidades de depuración y acceso a Storage.</p>
-              <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:10}}>
-                <button className="btn btn-ghost" onClick={async ()=>{
+            <SectionCard title="Herramientas" description="Utilidades de depuración y acceso a Storage." style={{marginTop:0}}>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:4}}>
+                <AdminButton variant="ghost" onClick={async ()=>{
                   setDebugErr(null)
                   setBuckets(null)
                   try {
@@ -777,9 +751,9 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                     if (!res.ok) throw json
                     setBuckets(json)
                   } catch (err) { setDebugErr(String(err)); console.error(err) }
-                }}>Listar buckets</button>
+                }}>Listar buckets</AdminButton>
 
-                <button className="btn btn-ghost" onClick={async ()=>{
+                <AdminButton variant="ghost" onClick={async ()=>{
                   setDebugErr(null)
                   setSignedUrl(null)
                   const examplePath = prompt('Path del objeto (ej: 1763829090_file.jpg)')
@@ -790,7 +764,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                     if (!res.ok) throw json
                     setSignedUrl(json)
                   } catch (err) { setDebugErr(String(err)); console.error(err) }
-                }}>Generar signed URL</button>
+                }}>Generar signed URL</AdminButton>
               </div>
               {debugErr && <p style={{color:'red',marginTop:8}}>Error: {debugErr}</p>}
               {buckets && (
@@ -805,9 +779,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
               <div style={{marginTop:14,borderTop:'1px dashed #eee',paddingTop:12}}>
                 <h4 style={{margin:0}}>Administradores (solo propietario)</h4>
                 <div style={{display:'flex',gap:8,marginTop:8}}>
-                  <input id="newAdminId" placeholder="User ID (uuid)" style={{flex:1,padding:8,borderRadius:8,border:'1px solid #ddd'}} />
-                  <button className="btn btn-primary" onClick={async ()=>{
-                    const id = document.getElementById('newAdminId').value.trim()
+                  <AdminInput id="newAdminId" placeholder="User ID (uuid)" style={{flex:1,padding:8,borderRadius:8,border:'1px solid #ddd'}} />
+                  <AdminButton variant="primary" onClick={async ()=>{
+                    const el = document.getElementById('newAdminId')
+                    const id = el?.value?.trim?.() || ''
                     if (!id) { toast.error('User ID requerido'); return }
                     try {
                       const res = await fetch('/api/admin/admins', { method: 'POST', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id }) })
@@ -815,10 +790,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                       if (!res.ok) throw json
                       toast.success('Administrador agregado')
                     } catch (err) { toast.error('Error: ' + JSON.stringify(err)) }
-                  }}>Grant admin</button>
+                  }}>Grant admin</AdminButton>
                 </div>
                 <div style={{marginTop:10,display:'flex',gap:8}}>
-                  <button className="btn btn-ghost" onClick={async ()=>{
+                  <AdminButton variant="ghost" onClick={async ()=>{
                     try {
                       const res = await fetch('/api/admin/admins', { headers: { Authorization: `Bearer ${token}` } })
                       const json = await res.json()
@@ -827,27 +802,22 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                       const html = list.map(a=>`id: ${a.id}`).join('\n')
                       toast.success(`Admins:\n${html}`)
                     } catch (err) { toast.error('Error: ' + JSON.stringify(err)) }
-                  }}>List admins</button>
-                  <button className="btn btn-ghost" onClick={() => { fetchRequests(); setRequestsModalOpen(true) }}>Ver solicitudes</button>
-                  <button className="btn btn-ghost" onClick={() => openAdminsModal()}>Revoke admin</button>
+                  }}>List admins</AdminButton>
+                  <AdminButton variant="ghost" onClick={() => { fetchRequests(); setRequestsModalOpen(true) }}>Ver solicitudes</AdminButton>
+                  <AdminButton variant="ghost" onClick={() => openAdminsModal()}>Revoke admin</AdminButton>
                 </div>
-            
-                {/* requests are shown in a modal — use the "Ver solicitudes" button above */}
               </div>
-            </div>
+            </SectionCard>
           )}
 
           <div className="section-divider" />
 
-          <div className="card" style={{marginTop:16}}>
-            <h3>Hero</h3>
-            <p className="muted">Editar la imagen del Hero. Podés pegar una URL o subir un archivo.</p>
-            <div style={{marginTop:10}}>
+          <SectionCard title="Hero" description="Editar la imagen del Hero. Podés pegar una URL o subir un archivo." style={{marginTop:16}}>
+            <div style={{marginTop:6}}>
               <div className="form-row">
                 <label>Imagen actual</label>
                 <div style={{display:'flex',alignItems:'center',gap:12}}>
                   {(() => {
-                    // Preferir la preview local (pending file) y si no existe usar settings.heroImage
                     const src = normalizeSrc(heroPreview || settings.heroImage)
                     return src ? (
                       <div style={{width:160,height:96,overflow:'hidden',borderRadius:8}}>
@@ -861,7 +831,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
               </div>
               <div className="form-row">
                 <label>Ingresar URL / path</label>
-                <input value={settings.heroImage || ''} onChange={(e)=> { setSettings({...settings, heroImage: e.target.value}); setHeroPreview(e.target.value) }} />
+                <AdminInput value={settings.heroImage || ''} onChange={(e)=> { setSettings({...settings, heroImage: e.target.value}); setHeroPreview(e.target.value) }} />
               </div>
 
               <div className="form-row">
@@ -869,7 +839,6 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                 <input className="file-input-hidden" type="file" accept="image/*" id="heroFileInput" onChange={(e)=>{
                   const file = e.target.files?.[0]
                   if (!file) return
-                  // show filename immediately and create a local preview (before upload)
                   setHeroFileName(file.name || '')
                   setPendingHeroFile(file)
                   try {
@@ -878,7 +847,6 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   } catch (_) {
                     setHeroPreview('')
                   }
-                  // don't upload yet; wait until user clicks Guardar imagen
                 }}/>
                 <label htmlFor="heroFileInput" className="btn-file">Subir imagen</label>
                 {heroFileName ? <span className="file-name" title={heroFileName}>{heroFileName}</span> : null}
@@ -886,15 +854,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
               </div>
 
               <div style={{display:'flex',gap:8}}>
-                <button className="btn btn-primary" onClick={async ()=>{
+                <AdminButton variant="primary" onClick={async ()=>{
                   setSavingSettings(true)
                   const previousHero = settings.heroImage || ''
                   try {
-                    // If the user selected a local file, upload it first to the server
                     if (pendingHeroFile) {
                       try {
                         const form = new FormData()
-                        // ensure filename is safe — NewProductForm uses a timestamped name server-side; we keep original name here
                         form.append('file', pendingHeroFile, pendingHeroFile.name)
                         form.append('bucket', 'product-images')
                         const upRes = await fetch('/api/admin/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form })
@@ -905,7 +871,6 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                         const upJson = await upRes.json().catch(()=>null)
                         const publicUrl = upJson?.publicUrl || null
                         if (publicUrl) {
-                          // set the hero image to the uploaded public URL before persisting settings
                           settings.heroImage = publicUrl
                           setHeroPreview(publicUrl)
                           setHeroFileName('')
@@ -927,20 +892,12 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                     setSettings(json)
                     setHeroPreview(json.heroImage)
                     if (envOverrides) toast.warning('ATENCIÓN: Las variables de entorno (Vercel) están activas y pueden estar sobreescribiendo estos cambios')
-                    toast.success(`Portada actualizada (persisted: ${persistedTo})`)
-
-                    // If there was a previous hero and it's different from the new one,
-                    // attempt to delete the old file from storage (best-effort).
+                    toast.success('Portada actualizada')
                     try {
                       if (previousHero && previousHero !== json.heroImage) {
                         await fetch('/api/admin/storage/delete', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ publicUrl: previousHero, bucket: 'product-images' }) })
-                        // ignore response; it's best-effort
                       }
-                    } catch (delErr) {
-                      console.warn('Failed to delete previous hero image', delErr)
-                    }
-
-                    // Broadcast update to other tabs
+                    } catch (delErr) { console.warn('Failed to delete previous hero image', delErr) }
                     try {
                       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
                         const bc = new BroadcastChannel('la-guarida-settings')
@@ -948,15 +905,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                         bc.close()
                       }
                     } catch (bcErr) { /* ignore */ }
-
-                    toast.success('Portada actualizada')
                   } catch (err) { console.error(err); toast.error('Error actualizando portada') }
                   finally { setSavingSettings(false) }
-                }}>{savingSettings ? 'Guardando...' : 'Guardar imagen'}</button>
-                <button className="btn btn-ghost" onClick={()=> fetchSettings()}>Cancelar</button>
+                }}>{savingSettings ? 'Guardando...' : 'Guardar imagen'}</AdminButton>
+                <AdminButton variant="ghost" onClick={()=> fetchSettings()}>Cancelar</AdminButton>
               </div>
             </div>
-          </div>
+          </SectionCard>
         </div>
       </div>
       {/* Edit panel modal */}
