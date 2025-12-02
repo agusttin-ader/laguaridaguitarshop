@@ -125,8 +125,12 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     >
       <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
         {src ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={src} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+          (typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:'))) ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={src} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+          ) : (
+            <Image src={src} alt={prod.title} width={140} height={84} style={{objectFit:'cover',display:'block',width:'100%',height:'100%'}} />
+          )
         ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
       </div>
       <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
@@ -490,8 +494,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       return (
         <div className="admin-container admin-dashboard">
           <div style={{padding:40,display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/pending-approval.svg" alt="Pendiente de aprobación" loading="lazy" decoding="async" style={{width:220,maxWidth:'80%'}} />
+            <Image src="/images/pending-approval.svg" alt="Pendiente de aprobación" width={220} height={220} style={{width:'100%',maxWidth:220}} />
             <h2>Solicitud pendiente</h2>
             <div className="muted" style={{textAlign:'center'}}>Tu cuenta fue creada, pero necesitas que el administrador (agusttin.ader@gmail.com) te otorgue permisos para acceder al panel. Por favor, espera a que el propietario apruebe tu solicitud.</div>
             <div style={{display:'flex',gap:12,marginTop:12}}>
@@ -525,8 +528,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         <div className="admin-container admin-dashboard">
           <div style={{padding:40,display:'flex',flexDirection:'column',alignItems:'center',gap:18}}>
             <div style={{width:120,height:120,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:999,background:'#1f1f1f',border:'1px solid #2b2b2b'}}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/lock-closed.svg" alt="Acceso denegado" style={{width:64,height:64}} />
+              <Image src="/images/lock-closed.svg" alt="Acceso denegado" width={64} height={64} />
             </div>
             <h2>Acceso restringido</h2>
             <div className="muted" style={{textAlign:'center',maxWidth:560}}>No tienes permisos para ver esta sección. Por favor, inicia sesión con una cuenta de administrador para acceder al panel de administración.</div>
@@ -685,10 +687,16 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                               <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
                                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                                   <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                    { (p.images && p.images[0]) ? (
-                                      /* eslint-disable-next-line @next/next/no-img-element */
-                                      <img src={normalizeSrc(p.images[0])} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-                                    ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                                  { (p.images && p.images[0]) ? (
+                                                    (() => {
+                                                      const _s = normalizeSrc(p.images[0])
+                                                      if (!_s) return <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>
+                                                      if (typeof _s === 'string' && (_s.startsWith('blob:') || _s.startsWith('data:'))) {
+                                                        return (<img src={_s} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>)
+                                                      }
+                                                      return (<Image src={_s} alt={p.title} width={64} height={44} style={{width:'100%',height:'100%',objectFit:'cover'}} />)
+                                                    })()
+                                                  ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
                                     <div style={{fontWeight:700}}>{p.title}</div>
@@ -1149,10 +1157,14 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   const src = normalizeSrc(img)
                   if (!src) return null
                   const isSelected = normalizeSrc(imagePickerSelected) === normalizeSrc(img)
-                  return (
-                    <button key={i} type="button" onClick={() => setImagePickerSelected(img)} style={{width:140,height:96,overflow:'hidden',borderRadius:8,padding:0,border:isSelected ? '3px solid #D4AF37' : '1px solid #ddd'}}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt={`opt-${i}`} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                      return (
+                        <button key={i} type="button" onClick={() => setImagePickerSelected(img)} style={{width:140,height:96,overflow:'hidden',borderRadius:8,padding:0,border:isSelected ? '3px solid #D4AF37' : '1px solid #ddd'}}>
+                      { (typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:'))) ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={src} alt={`opt-${i}`} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                      ) : (
+                        <Image src={src} alt={`opt-${i}`} width={140} height={96} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                      )}
                     </button>
                   )
                 })}
