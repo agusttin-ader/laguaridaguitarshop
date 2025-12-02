@@ -125,6 +125,150 @@
   stroke: #ffffff !important;
 }
 
+/* Header nav link subtle gold shadow on hover */
+.nav-link, .nav-link:link, .nav-link:visited { transition: color 160ms ease, text-shadow 200ms ease, box-shadow 200ms ease; }
+.nav-link:hover, .nav-link:focus {
+  color: var(--gold-100) !important;
+  text-shadow: 0 6px 20px rgba(212,175,55,0.12);
+  box-shadow: 0 10px 30px rgba(212,175,55,0.06);
+}
+
+/* Panel button styles (desktop) */
+.btn-panel {
+  background: linear-gradient(180deg, rgba(212,175,55,0.06), rgba(212,175,55,0.02));
+  border: 1px solid rgba(212,175,55,0.12);
+  box-shadow: 0 8px 26px rgba(212,175,55,0.06);
+  backdrop-filter: blur(6px);
+}
+.btn-panel:hover { transform: translateY(-1px); box-shadow: 0 14px 40px rgba(212,175,55,0.10); }
+
+/* Panel button for mobile menu */
+.btn-panel-mobile { background: linear-gradient(180deg, rgba(212,175,55,0.04), rgba(212,175,55,0.01)); border: 1px solid rgba(255,255,255,0.04); }
+.btn-panel-mobile:hover { box-shadow: 0 12px 30px rgba(212,175,55,0.08); }
+
+/* Avatar menu styles — smoother, more elegant transitions (Apple-inspired) */
+.avatar-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  transform-origin: top right;
+  min-width: 12rem;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(11,11,11,0.98), rgba(11,11,11,0.92));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 18px 46px rgba(2,6,23,0.6), 0 6px 18px rgba(2,6,23,0.25);
+  backdrop-filter: blur(6px) saturate(120%);
+  will-change: transform, opacity;
+  z-index: 9999;
+  /* start closed */
+  transform: translateY(-10px) scale(0.985);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 260ms cubic-bezier(.2,.9,.3,1), opacity 260ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms cubic-bezier(.2,.9,.3,1);
+}
+
+.avatar-menu.open {
+  transform: translateY(6px) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.avatar-menu.closed {
+  transform: translateY(-10px) scale(0.985);
+  opacity: 0;
+  pointer-events: none;
+}
+/* closing state: play an elegant fade/slide out before unmount */
+.avatar-menu.closing {
+  transform: translateY(-6px) scale(0.99);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.avatar-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 18px;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(11,11,11,0.98), rgba(11,11,11,0.9));
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(255,255,255,0.03);
+  border-top: 1px solid rgba(255,255,255,0.03);
+  filter: drop-shadow(0 6px 18px rgba(2,6,23,0.35));
+}
+
+.avatar-menu-item { display:flex; align-items:center; gap:10px; padding-left:0; padding-right:8px; padding-top:8px; padding-bottom:8px; font-size:14px; letter-spacing:0.2px }
+.avatar-menu-item svg { opacity:0.95; margin-right:6px }
+.avatar-menu-item:hover { background: rgba(212,175,55,0.04); color: #fff }
+.avatar-menu-item:hover svg { filter: drop-shadow(0 6px 22px rgba(212,175,55,0.10)); }
+
+/* add subtle golden focus/surface on the avatar trigger when active */
+.avatar-trigger-active {
+  box-shadow: 0 8px 30px rgba(212,175,55,0.12), 0 2px 8px rgba(212,175,55,0.06) !important;
+  border: 1px solid rgba(212,175,55,0.14) !important;
+  transform: translateY(-1px);
+}
+
+.avatar-menu-item + .avatar-menu-item { border-top: 1px solid rgba(255,255,255,0.03) }
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-menu, .avatar-menu.open, .avatar-menu.closed { transition: none !important; transform: none !important; opacity: 1 !important; pointer-events: auto !important }
+}
+
+.mobile-drawer {
+  /* Professional mobile drawer: expands with max-height and fades, polished spacing */
+.mobile-drawer {
+  /* Professional mobile drawer: expands with max-height and fades, polished spacing */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: max-height 420ms cubic-bezier(.22,.9,.35,1), opacity 320ms ease, padding 320ms cubic-bezier(.22,.9,.35,1);
+  will-change: max-height, opacity;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(10,10,10,0.98), rgba(8,8,8,0.98));
+}
+.mobile-drawer.open {
+  opacity: 1;
+  pointer-events: auto;
+  max-height: 60vh; /* expand to this limit, content will scroll if larger */
+  padding-top: 10px;
+  padding-bottom: 14px;
+  box-shadow: 0 12px 36px rgba(2,6,23,0.22);
+}
+.mobile-drawer.closed {
+  opacity: 0;
+  pointer-events: none;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Hamburger icon visuals (animated lines -> X) */
+.hamburger-btn { color: var(--foreground); background: transparent; width:44px; height:44px }
+.hamburger-icon { display:block }
+.hamburger-btn .line { transition: transform 320ms cubic-bezier(.22,.9,.35,1), opacity 200ms ease; stroke: currentColor }
+.hamburger-btn .line.top { transform-origin: 12px 12px }
+.hamburger-btn .line.bottom { transform-origin: 12px 12px }
+.hamburger-btn.active .line.top { transform: translateY(5px) rotate(45deg) }
+.hamburger-btn.active .line.middle { opacity: 0 }
+.hamburger-btn.active .line.bottom { transform: translateY(-5px) rotate(-45deg) }
+.hamburger-btn:focus { outline: 2px solid rgba(212,175,55,0.12); border-radius: 10px }
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-drawer, .mobile-drawer.open, .mobile-drawer.closed { transition: none !important; opacity: 1 !important; pointer-events: auto !important }
+  .hamburger-btn .line { transition: none !important }
+}
+
+/* Mobile drawer item polish */
+.mobile-drawer a, .mobile-drawer button { display:block; padding: 12px 16px; font-size:16px; line-height:22px; color:var(--foreground); text-decoration:none }
+.mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(212,175,55,0.04); color: #fff }
+.mobile-drawer a:focus, .mobile-drawer button:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -151,6 +295,12 @@ body {
 
 /* Hide horizontal scrollbar and avoid accidental sideways scrolling caused by shadows/transforms */
 html, body, #__next { overflow-x: hidden; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+/* Lightweight mobile microinteractions: subtle scale on tap and optimized touch handling */
+.btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform 120ms ease, opacity 120ms ease; }
+.btn:active { transform: scale(0.986); }
+.image-fade { transition: opacity 220ms ease, transform 220ms ease; will-change: opacity, transform; }
 
 /* Ensure replaced elements don't exceed container width */
 img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block; }
