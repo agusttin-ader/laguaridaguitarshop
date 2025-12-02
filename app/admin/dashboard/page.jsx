@@ -259,13 +259,12 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     try {
       const body = { featured: nextSettings.featured, featuredMain: nextSettings.featuredMain }
       const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) })
-      const persistedTo = res.headers.get('x-settings-persisted-to') || 'unknown'
       const envOverrides = res.headers.get('x-settings-env-overrides') === 'true'
       const json = await res.json()
       if (!res.ok) throw json
       setSettings(json)
       if (envOverrides) toast.warning('ATENCIÓN: Las variables de entorno (Vercel) están activas y pueden estar sobreescribiendo estos cambios')
-      toast.success(`Destacados guardados (persisted: ${persistedTo})`)
+      // success confirmation is shown elsewhere; avoid verbose persisted details
       // broadcast settings change
       try {
         if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {

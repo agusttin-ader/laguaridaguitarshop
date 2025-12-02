@@ -16,10 +16,10 @@ export default function ToasterProvider(){
       reverseOrder={false}
       containerStyle={{ zIndex: 99999 }}
       toastOptions={{
-        // sensible defaults and per-type overrides
-        duration: 4000,
-        success: { duration: 4000 },
-        error: { duration: 6000 },
+        // sensible defaults and per-type overrides (shorter durations)
+          duration: 2500,
+          success: { duration: 2000 },
+          error: { duration: 3500 },
         style: {
           borderRadius: 8,
           background: '#0b0b0b',
