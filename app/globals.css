@@ -219,8 +219,6 @@
 
 .mobile-drawer {
   /* Professional mobile drawer: expands with max-height and fades, polished spacing */
-.mobile-drawer {
-  /* Professional mobile drawer: expands with max-height and fades, polished spacing */
   max-height: 0;
   opacity: 0;
   overflow: hidden;
