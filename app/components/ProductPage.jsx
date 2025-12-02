@@ -45,6 +45,7 @@ export default function ProductPage({ model }) {
   const zoomOverlayRef = useRef(null)
   const domRafRef = useRef(null)
   const zoomStateRef = useRef({ x: 0.5, y: 0.5, active: false, scale: 2 })
+  const pinchRef = useRef({ active: false, startDist: 0, startScale: 1 })
   const prevThumb = useCallback(() => {
     if (images.length === 0) return
     const next = (selected - 1 + images.length) % images.length
@@ -83,6 +84,15 @@ export default function ProductPage({ model }) {
       if (domRafRef.current) cancelAnimationFrame(domRafRef.current)
     }
   }, [])
+
+  // Lock body scroll while the lightbox is open to avoid background scroll on mobile
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    const prev = document.body.style.overflow
+    if (lightboxOpen) document.body.style.overflow = 'hidden'
+    else document.body.style.overflow = prev || ''
+    return () => { document.body.style.overflow = prev || '' }
+  }, [lightboxOpen])
 
   const handleZoomMove = useCallback((ev, rect, requestedScale)=>{
     if (!innerImgRef.current) return
@@ -484,6 +494,43 @@ export default function ProductPage({ model }) {
                                 onMouseLeave={()=>{
                                   if (!isPointerFine) return
                                   handleZoomLeave()
+                                }}
+                                onTouchStart={(e)=>{
+                                  if (!e.touches || e.touches.length < 2) return
+                                  // begin pinch
+                                  const t1 = e.touches[0]
+                                  const t2 = e.touches[1]
+                                  const dx = t2.clientX - t1.clientX
+                                  const dy = t2.clientY - t1.clientY
+                                  pinchRef.current.active = true
+                                  pinchRef.current.startDist = Math.hypot(dx, dy)
+                                  pinchRef.current.startScale = zoomStateRef.current.scale || 1
+                                }}
+                                onTouchMove={(e)=>{
+                                  if (!pinchRef.current.active) return
+                                  if (!e.touches || e.touches.length < 2) return
+                                  const t1 = e.touches[0]
+                                  const t2 = e.touches[1]
+                                  const dx = t2.clientX - t1.clientX
+                                  const dy = t2.clientY - t1.clientY
+                                  const dist = Math.hypot(dx, dy)
+                                  const ratio = pinchRef.current.startDist > 0 ? (dist / pinchRef.current.startDist) : 1
+                                  let newScale = pinchRef.current.startScale * ratio
+                                  newScale = Math.max(1, Math.min(newScale, 6))
+                                  zoomStateRef.current.scale = newScale
+                                  // compute center point between touches and call handleZoomMove
+                                  const cx = (t1.clientX + t2.clientX) / 2
+                                  const cy = (t1.clientY + t2.clientY) / 2
+                                  const rect = innerImgRef.current?.getBoundingClientRect()
+                                  if (!rect) return
+                                  // synthesize an event-like object with clientX/Y
+                                  const fakeEvent = { clientX: cx, clientY: cy }
+                                  handleZoomMove(fakeEvent, rect, newScale)
+                                }}
+                                onTouchEnd={(e)=>{
+                                  if (!pinchRef.current.active) return
+                                  if (e.touches && e.touches.length >= 2) return
+                                  pinchRef.current.active = false
                                 }}
                               />
                             </div>

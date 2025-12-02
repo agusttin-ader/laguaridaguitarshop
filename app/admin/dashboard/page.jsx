@@ -92,7 +92,7 @@ export default function AdminDashboard(){
 
 // Small presentational components memoized to avoid re-renders when parent state changes
 
-const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, handlers }) {
+const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, handlers, selectedCount = 0, maxReached = false }) {
   const thumb = prod ? (prod.images && prod.images[0] ? prod.images[0] : null) : null
   const src = normalizeSrc(thumb)
   return prod ? (
@@ -105,13 +105,19 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       animate="show"
       layout
       whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
       draggable
       onDragStart={(e) => handlers.handleFeaturedDragStart(e, idx)}
       onDragOver={handlers.handleFeaturedDragOver}
       onDrop={(e) => handlers.handleFeaturedDrop(e, idx)}
       onTouchStart={(e) => handlers.handleFeaturedTouchStart(e, idx)}
       onTouchEnd={(e) => handlers.handleFeaturedTouchEnd(e)}
-      style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'grab'}}
+      onClick={() => { try { handlers.handleFeaturedThumbTap && handlers.handleFeaturedThumbTap(fid) } catch(_){} }}
+      role="button"
+      aria-pressed={isSelected}
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); try { handlers.handleFeaturedThumbTap && handlers.handleFeaturedThumbTap(fid) } catch(_){} } }}
+      style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'pointer',position:'relative',opacity: (!isSelected && maxReached) ? 0.56 : 1}}
     >
       <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
         {src ? (
@@ -120,6 +126,9 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
       </div>
       <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
+      {isSelected ? (
+        <div aria-hidden style={{position:'absolute',top:8,right:8,minWidth:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:999,background:'#D4AF37',color:'#0D0D0D',fontWeight:700,fontSize:12,boxShadow:'0 2px 6px rgba(0,0,0,0.35)'}}> {String(idx+1)} </div>
+      ) : null}
     </motion.div>
   ) : null
 })
@@ -399,9 +408,10 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
   }
 
   function handleFeaturedTouchStart(e, idx) {
-    // prevent parent scroll if needed
+    // mark drag start index for potential reorder on touch.
+    // Do not prevent default here so simple taps still trigger click events
+    // which improves tactile selection on mobile.
     dragIndexRef.current = idx
-    try { e.preventDefault && e.preventDefault() } catch(_){}
   }
 
   function handleFeaturedTouchEnd(e) {
@@ -489,6 +499,21 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         </div>
       )
     }
+
+  function handleFeaturedThumbTap(fid) {
+    try {
+      const id = fid
+      const nextSet = new Set(settings.featured || [])
+      if (nextSet.has(id)) nextSet.delete(id)
+      else {
+        if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
+        nextSet.add(id)
+      }
+      const nextSettings = { ...settings, featured: Array.from(nextSet) }
+      setSettings(nextSettings)
+      try { scheduleSaveFeatured(nextSettings) } catch (_) {}
+    } catch (err) { console.warn('toggle featured failed', err) }
+  }
 
   
 
@@ -656,6 +681,8 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                         {(settings.featured || []).map((fid, idx) => {
                           const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || null
                           const isSelected = (settings.featured || []).includes(fid)
+                          const selectedCount = (settings.featured || []).length
+                          const maxReached = selectedCount >= 3
                           return (
                             <FeaturedThumb
                               key={fid}
@@ -663,7 +690,9 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                               fid={fid}
                               idx={idx}
                               isSelected={isSelected}
-                              handlers={{ handleFeaturedDragStart, handleFeaturedDragOver, handleFeaturedDrop, handleFeaturedTouchStart, handleFeaturedTouchEnd }}
+                              selectedCount={selectedCount}
+                              maxReached={maxReached}
+                              handlers={{ handleFeaturedDragStart, handleFeaturedDragOver, handleFeaturedDrop, handleFeaturedTouchStart, handleFeaturedTouchEnd, handleFeaturedThumbTap }}
                             />
                           )
                         })}
