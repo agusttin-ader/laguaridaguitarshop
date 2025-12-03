@@ -349,7 +349,7 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 }
 .card {
   background: var(--background);
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(255,255,255,0.03);
   padding: 16px;
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
@@ -359,15 +359,15 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 }
 .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); }
 /* Admin SectionCard and components */
-.section-card { width:100%; max-width:100%; box-sizing:border-box }
+.section-card { width:100%; max-width:100%; box-sizing:border-box; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border: 1px solid rgba(255,255,255,0.03); }
 .section-card .section-card-title { font-family: var(--font-geist-sans), system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; font-size:20px }
 .section-card .section-card-desc { color: #bfbfbf }
 .section-card-badge { background: rgba(255,255,255,0.03); padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); }
-.admin-btn { padding:10px 14px; border-radius:999px; font-weight:700; transition: transform 160ms ease, box-shadow 160ms ease }
+.admin-btn { padding:10px 14px; border-radius: 12px; font-weight:700; transition: transform 160ms ease, box-shadow 160ms ease }
 .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.28) }
 .product-card { width:100%; }
 .product-card img { display:block }
-.admin-input { padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color:var(--foreground); width:100%; }
+.admin-input { padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color:var(--foreground); width:100%; }
 
 @media (max-width: 640px) {
   .section-card { padding: 14px }
