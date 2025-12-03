@@ -27,20 +27,15 @@ export default function HeroRender({ heroImage }) {
     >
       {/* Background: single blurred image so the page stays performant and the hero is faded */}
       <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true" style={{backgroundColor: 'var(--background)'}}>
-        {/* Use a background-image div for the blurred backdrop. Some clients
-            render the plain <img> blur differently (white-ish artifacts) so
-            using background-image + a dark bgcolor ensures a consistent dark
-            blurred backdrop even when the image takes a moment to load. */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url(${encodeURI(heroImage || '/images/homepage.jpeg')})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'blur(40px)',
-            opacity: 0.6,
-            transform: 'scale(1.05)'
-          }}
+        {/* Use next/image for the blurred backdrop so we can mark it eager/priority
+            which prevents the devtools LCP warning when this image is above the fold. */}
+        <Image
+          src={heroImage || '/images/homepage.jpeg'}
+          alt=""
+          fill
+          style={{ objectFit: 'cover', filter: 'blur(40px)', opacity: 0.6, transform: 'scale(1.05)' }}
+          loading="eager"
+          priority
         />
 
         {/* Darken the lower area so copy and CTAs remain readable */}
@@ -85,6 +80,7 @@ export default function HeroRender({ heroImage }) {
             initial="hidden"
             animate="show"
             className="relative mx-auto w-full h-[60vh] md:h-[560px] lg:h-[720px] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 transform-gpu transition-transform transition-shadow duration-500 ease-out md:group-hover:scale-[1.02] md:group-hover:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] md:group-hover:ring-white/20 will-change-transform"
+            style={{position:'relative'}}
           >
             <Image
               src={heroImage || '/images/homepage.jpeg'}

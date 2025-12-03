@@ -11,9 +11,9 @@ export default function ProductCard({ product, children, className = '', onChoos
   const src = rawImg ? ensureEncoded(getSrcFromEntry(rawImg)) : null
   return (
     <div className={`product-card flex items-center gap-3 rounded-lg p-3 bg-[#0b0b0b] border border-neutral-800 ${className}`}>
-      <div className="product-card-img" style={{width:72,height:52,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
+      <div className="product-card-img" style={{width:72,height:52,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto',position:'relative'}}>
         {src ? (
-          <Image src={src} alt={title} width={72} height={52} style={{objectFit:'cover',display:'block'}} />
+            <Image src={src} alt={title} fill style={{objectFit:'cover',display:'block'}} />
         ) : (
           <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>
         )}

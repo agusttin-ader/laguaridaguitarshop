@@ -329,19 +329,20 @@ export default function ProductPage({ model }) {
                   const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
 
                   if (isExternal) {
-                    // external images rendered as plain <img>
-                    // Use object-cover so the main gallery image fills the area consistently
+                    // Render external images with next/image for proper priority/LCP handling.
+                    // The interactive/lightbox zoom still uses a plain <img> inside the lightbox.
                     return (
-                      <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={src}
-                              alt={`${model.title} imagen principal`}
-                              className="absolute inset-0 h-full w-full object-contain object-center bg-black cursor-zoom-in"
-                              loading="eager"
-                              onClick={()=>openLightbox(selected)}
-                            />
-                      </>
+                      <Image
+                        src={src}
+                        alt={`${model.title} imagen principal`}
+                        fill
+                        sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-contain object-center bg-black cursor-zoom-in"
+                        loading="eager"
+                        priority
+                        fetchPriority="high"
+                        onClick={()=>openLightbox(selected)}
+                      />
                     )
                   }
 

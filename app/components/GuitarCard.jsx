@@ -25,7 +25,7 @@ function GuitarCard({ title, description, price, image }) {
   )}`;
   return (
     <div className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#111111] transition-colors">
-      <div className="relative aspect-[4/3] w-full bg-black/30">
+      <div className="relative aspect-[4/3] w-full bg-black/30" style={{position:'relative'}}>
         {image ? (
           <Image
             src={encodeURI(normalizeImageEntry(image))}

@@ -110,7 +110,7 @@ export default async function ModelsSection() {
                 reversed ? "md:flex-row-reverse" : "md:flex-row"
               }`}
             >
-              <div className="relative w-full md:w-1/2 h-64 md:h-[520px] lg:h-[640px] overflow-hidden rounded-lg">
+              <div className="relative w-full md:w-1/2 h-64 md:h-[520px] lg:h-[640px] overflow-hidden rounded-lg" style={{position:'relative'}}>
                 {(() => {
                   // Prefer the featuredMain selection if available in settings
                   const id = m.id || m.slug || m.title

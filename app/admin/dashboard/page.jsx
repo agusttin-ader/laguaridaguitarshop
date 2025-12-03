@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../../lib/supabaseClient'
 import { FiTrash2, FiStar, FiCopy, FiCheck } from 'react-icons/fi'
 import Image from 'next/image'
+import { LockClosedIcon, CheckIcon } from '@heroicons/react/24/solid'
 import { toast } from 'react-hot-toast'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import SectionCard from '../../components/admin/SectionCard'
@@ -123,13 +124,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); try { handlers.handleFeaturedThumbTap && handlers.handleFeaturedThumbTap(fid) } catch(_){} } }}
       style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'pointer',position:'relative',opacity: (!isSelected && maxReached) ? 0.56 : 1}}
     >
-      <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto'}}>
+            <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto',position:'relative'}}>
         {src ? (
           (typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:'))) ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img src={src} alt={prod.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
           ) : (
-            <Image src={src} alt={prod.title} width={140} height={84} style={{objectFit:'cover',display:'block',width:'100%',height:'100%'}} />
+            <Image src={src} alt={prod.title} fill style={{objectFit:'cover',display:'block'}} />
           )
         ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
       </div>
@@ -290,6 +291,23 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     saveFeaturedTimeout.current = setTimeout(()=>{
       saveFeaturedToServer(nextSettings)
     }, 800)
+  }
+
+  // Toggle featured helper to reuse in checkbox and mobile overlay
+  function toggleFeaturedById(id) {
+    try {
+      const nextSet = new Set(settings.featured || [])
+      const isSelected = nextSet.has(id)
+      if (!isSelected) {
+        if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
+        nextSet.add(id)
+      } else {
+        nextSet.delete(id)
+      }
+      const nextSettings = { ...settings, featured: Array.from(nextSet) }
+      setSettings(nextSettings)
+      try { scheduleSaveFeatured(nextSettings) } catch (_) {}
+    } catch (e) { console.warn('toggleFeatured failed', e) }
   }
 
   
@@ -528,7 +546,8 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
         <div className="admin-container admin-dashboard">
           <div style={{padding:40,display:'flex',flexDirection:'column',alignItems:'center',gap:18}}>
             <div style={{width:120,height:120,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:999,background:'#1f1f1f',border:'1px solid #2b2b2b'}}>
-              <Image src="/images/lock-closed.svg" alt="Acceso denegado" width={64} height={64} />
+              {/* Heroicons lock component scaled to fill the badge */}
+              <LockClosedIcon aria-hidden="true" style={{width:84,height:84,color:'#D4AF37'}} />
             </div>
             <h2>Acceso restringido</h2>
             <div className="muted" style={{textAlign:'center',maxWidth:560}}>No tienes permisos para ver esta sección. Por favor, inicia sesión con una cuenta de administrador para acceder al panel de administración.</div>
@@ -686,17 +705,43 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                             return (
                               <div key={id} style={{padding:8,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,borderRadius:8,background:selected? 'rgba(255,255,255,0.01)':'transparent'}}>
                                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                                  <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111'}}>
-                                                  { (p.images && p.images[0]) ? (
-                                                    (() => {
-                                                      const _s = normalizeSrc(p.images[0])
-                                                      if (!_s) return <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>
-                                                      if (typeof _s === 'string' && (_s.startsWith('blob:') || _s.startsWith('data:'))) {
-                                                        return (<img src={_s} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>)
-                                                      }
-                                                      return (<Image src={_s} alt={p.title} width={64} height={44} style={{width:'100%',height:'100%',objectFit:'cover'}} />)
-                                                    })()
-                                                  ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
+                                  <div style={{width:64,height:44,overflow:'hidden',borderRadius:6,background:'#111',position:'relative'}}>
+                                    { (p.images && p.images[0]) ? (
+                                      (() => {
+                                        const _s = normalizeSrc(p.images[0])
+                                        if (!_s) return <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>
+                                        if (typeof _s === 'string' && (_s.startsWith('blob:') || _s.startsWith('data:'))) {
+                                          return (
+                                            <>
+                                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                                              <img src={_s} alt={p.title} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                                              <button type="button" aria-pressed={selected} aria-label={selected ? 'Quitar destacado' : 'Marcar como destacado'} className={`select-overlay mobile-only ${selected ? 'selected' : ''}`} onClick={()=> toggleFeaturedById(id)}>
+                                                {selected ? <CheckIcon className="check-icon" aria-hidden /> : null}
+                                              </button>
+                                            </>
+                                          )
+                                        }
+                                        // For external product-images (Supabase) prefer eager loading when likely above-the-fold
+                                        if (typeof _s === 'string' && _s.includes('/product-images/')) {
+                                          return (
+                                            <>
+                                              <Image src={_s} alt={p.title} fill style={{objectFit:'cover'}} loading="eager" />
+                                              <button type="button" aria-pressed={selected} aria-label={selected ? 'Quitar destacado' : 'Marcar como destacado'} className={`select-overlay mobile-only ${selected ? 'selected' : ''}`} onClick={()=> toggleFeaturedById(id)}>
+                                                {selected ? <CheckIcon className="check-icon" aria-hidden /> : null}
+                                              </button>
+                                            </>
+                                          )
+                                        }
+                                        return (
+                                          <>
+                                            <Image src={_s} alt={p.title} fill style={{objectFit:'cover'}} />
+                                            <button type="button" aria-pressed={selected} aria-label={selected ? 'Quitar destacado' : 'Marcar como destacado'} className={`select-overlay mobile-only ${selected ? 'selected' : ''}`} onClick={()=> toggleFeaturedById(id)}>
+                                              {selected ? <CheckIcon className="check-icon" aria-hidden /> : null}
+                                            </button>
+                                          </>
+                                        )
+                                      })()
+                                    ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
                                     <div style={{fontWeight:700}}>{p.title}</div>
@@ -704,16 +749,9 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                                   </div>
                                 </div>
                                 <div style={{display:'flex',alignItems:'center',gap:8}}>
-                                  <input type="checkbox" checked={selected} onChange={(e)=>{
-                                    const nextSet = new Set(settings.featured || [])
-                                    if (e.target.checked) {
-                                      if ((settings.featured || []).length >= 3) { toast.error('Máximo 3 destacados'); return }
-                                      nextSet.add(id)
-                                    } else { nextSet.delete(id) }
-                                    const nextSettings = { ...settings, featured: Array.from(nextSet) }
-                                    setSettings(nextSettings)
-                                    try { scheduleSaveFeatured(nextSettings) } catch (_) {}
-                                  }} />
+                                  <button type="button" className={`desktop-select-btn ${selected ? 'selected' : ''}`} aria-pressed={selected} aria-label={selected ? 'Quitar destacado' : 'Marcar como destacado'} onClick={() => toggleFeaturedById(id)}>
+                                    {selected ? <CheckIcon className="check-icon" aria-hidden /> : <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden><rect x="0" y="0" width="20" height="20" rx="4" stroke="rgba(255,255,255,0.08)"/></svg>}
+                                  </button>
                                   {p.images && p.images.length > 0 && <AdminButton variant="ghost" onClick={() => openImagePicker(p)}>Elegir foto</AdminButton>}
                                 </div>
                               </div>
@@ -828,9 +866,9 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   {(() => {
                     const src = normalizeSrc(heroPreview || settings.heroImage)
                     return src ? (
-                      <div style={{width:160,height:96,overflow:'hidden',borderRadius:8}}>
-                        <Image src={src} alt="miniatura portada" width={320} height={192} style={{objectFit:'cover',width:'100%',height:'100%'}} />
-                      </div>
+                      <div style={{width:160,height:96,overflow:'hidden',borderRadius:8,position:'relative'}}>
+                          <Image src={src} alt="miniatura portada" fill style={{objectFit:'cover'}} />
+                        </div>
                     ) : (
                       <div className="muted">Sin imagen</div>
                     )
@@ -1029,7 +1067,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                           <div className="image-thumb">
                             {src ? (
                               /* eslint-disable-next-line @next/next/no-img-element */
-                              <img src={src} alt={`img-${i}`} loading="lazy" decoding="async" />
+                              <img src={src} alt={`img-${i}`} loading={src && String(src).includes('/product-images/') ? 'eager' : 'lazy'} decoding="async" />
                             ) : (
                               <div className="muted" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No preview</div>
                             )}

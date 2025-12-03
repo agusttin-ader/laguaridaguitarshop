@@ -35,7 +35,7 @@ function ModelCard({ m, isFirst }) {
   return (
     <article className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
       <Link href={`/modelos/${encodeURIComponent(m.slug)}`} className="block">
-        <div className="relative aspect-[4/3] w-full">
+        <div className="relative aspect-[4/3] w-full" style={{position:'relative'}}>
           <Image
             src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
             alt={m.title}
