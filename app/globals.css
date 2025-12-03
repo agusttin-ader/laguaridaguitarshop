@@ -345,7 +345,10 @@ button, input[type="button"], input[type="submit"] { text-align: center; }
 /* Ensure hamburger button is hidden on desktop (large screens) even if utility classes
    are not applied properly. Keep visible for tablet & mobile. */
 @media (min-width: 1024px) {
-  .hamburger-btn, .hamburger-button { display: none !important }
+  /* Only hide the header/mobile-site hamburger on large screens.
+     Some in-panel controls (e.g. admin product panels, destacados) also
+     use the `.hamburger-button` class — keep those visible on desktop. */
+  header .hamburger-btn, header .hamburger-button { display: none !important }
 }
 
 /* Mobile drawer item polish */
