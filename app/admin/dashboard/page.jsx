@@ -763,7 +763,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                                 </div>
                                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                                   {p.images && p.images.length > 0 && (
-                                    <AdminButton variant="ghost" onClick={() => openImagePicker(p)} style={{display:'inline-flex',alignItems:'center',gap:8}} aria-label="Imagen principal" title="Imagen principal">
+                                    <AdminButton variant="ghost" className="admin-btn--affirm" onClick={() => openImagePicker(p)} style={{display:'inline-flex',alignItems:'center',gap:8}} aria-label="Imagen principal" title="Imagen principal">
                                       <FiImage size={14} aria-hidden />
                                       Imagen
                                     </AdminButton>

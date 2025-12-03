@@ -128,10 +128,10 @@
 }
 
 /* Cancel / Close / Logout buttons: red on hover/focus/active */
-.btn-ghost, .btn.btn-ghost {
+.btn-ghost, .btn.btn-ghost, .admin-btn--ghost {
   transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
 }
-.btn-ghost:hover, .btn-ghost:focus {
+.btn-ghost:hover, .btn-ghost:focus, .admin-btn--ghost:hover, .admin-btn--ghost:focus {
   background-color: var(--danger-600) !important;
   color: #ffffff !important;
   border-color: rgba(255,45,85,0.12) !important;
@@ -156,6 +156,21 @@
   box-shadow: 0 8px 26px rgba(212,175,55,0.18) !important;
 }
 
+/* Affirmative ghost buttons (e.g. 'Imagen') — use gold instead of red */
+.admin-btn--affirm, .btn-affirm {
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+.admin-btn--affirm:hover, .admin-btn--affirm:focus, .btn-affirm:hover, .btn-affirm:focus {
+  background: var(--gold-100) !important;
+  color: #081017 !important;
+  box-shadow: 0 12px 36px rgba(212,175,55,0.14);
+  border-color: rgba(212,175,55,0.06) !important;
+}
+.admin-btn--affirm:active, .btn-affirm:active {
+  transform: translateY(0) scale(0.996);
+  box-shadow: 0 8px 26px rgba(212,175,55,0.18) !important;
+}
+
 /* Close icons inside menus (X buttons) should also turn red on hover */
 .menu-close-btn, .btn-close, button[aria-label="Cerrar"], button[title="Cerrar"] {
   transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
@@ -171,10 +186,13 @@
 }
 
 /* Ensure SVG icons inside red/gold states inherit color */
-.btn-ghost:hover svg, .btn-primary:hover svg, .admin-btn--primary:hover svg { color: inherit; }
+.btn-ghost:hover svg, .btn-primary:hover svg, .admin-btn--primary:hover svg, .admin-btn--ghost:hover svg, .admin-btn--affirm:hover svg { color: inherit; }
 
 /* Keep transitions smooth and accessible */
-.btn, .admin-btn { transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease, color 160ms ease; }
+.btn, .admin-btn { transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease, color 160ms ease; text-align: center; }
+
+/* Ensure native button elements also center their text */
+button, input[type="button"], input[type="submit"] { text-align: center; }
 
 /* Header nav link subtle gold shadow on hover */
 .nav-link, .nav-link:link, .nav-link:visited { transition: color 160ms ease, text-shadow 200ms ease, box-shadow 200ms ease; }
