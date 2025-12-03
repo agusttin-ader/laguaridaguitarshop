@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import supabase from '../../lib/supabaseClient'
 import { toast } from 'react-hot-toast'
 import { FiTrash2, FiStar } from 'react-icons/fi'
 import ConfirmDialog from './ConfirmDialog'
 
-export default function NewProductForm({ onCreated }){
+export default function NewProductForm({ onCreated, onCancel }){
+  const router = useRouter()
   function normalizeUploaded(img) {
     if (!img) return null
     // prefer optimized variants if available
@@ -222,8 +224,22 @@ export default function NewProductForm({ onCreated }){
           {files.length > 0 && <div className="file-names" style={{marginTop:8}}>{files.map(f=>f.name).join(', ')}</div>}
         </div>
 
-        <div style={{marginTop:12}}>
+        <div style={{marginTop:12, display: 'flex', gap: 8, alignItems: 'center'}}>
           <button className="btn btn-file" type="submit">Crear producto</button>
+          <button type="button" className="btn btn-ghost" onClick={() => {
+            try {
+              if (typeof onCancel === 'function') return onCancel()
+              if (typeof window !== 'undefined') {
+                const w = window.innerWidth || 1024
+                // Desktop breakpoint: 900px and above -> go to panel
+                if (w >= 1024) return router.push('/admin')
+                // Mobile/tablet: attempt to go back (likely closes modal), fallback to /admin
+                try { router.back() } catch (_) { router.push('/admin') }
+              } else {
+                router.push('/admin')
+              }
+            } catch (e) { try { router.push('/admin') } catch(_){} }
+          }}>Cancelar</button>
           <span className="status">{status}</span>
         </div>
       </form>

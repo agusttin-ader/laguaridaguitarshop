@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../../lib/supabaseClient'
-import { FiTrash2, FiStar, FiCopy, FiCheck } from 'react-icons/fi'
+import { FiTrash2, FiStar, FiCopy, FiCheck, FiImage } from 'react-icons/fi'
 import Image from 'next/image'
 import { LockClosedIcon, CheckIcon } from '@heroicons/react/24/solid'
 import { toast } from 'react-hot-toast'
@@ -13,6 +13,7 @@ import SectionCard from '../../components/admin/SectionCard'
 import ProductCard from '../../components/admin/ProductCard'
 import AdminButton from '../../components/admin/AdminButton'
 import AdminInput from '../../components/admin/AdminInput'
+import NewProductModal from '../../components/NewProductModal'
 
 export default function AdminDashboard(){
   const [user, setUser] = useState(null)
@@ -45,6 +46,7 @@ export default function AdminDashboard(){
   const [loadingAdmins, setLoadingAdmins] = useState(false)
   const [featuredPanelOpen, setFeaturedPanelOpen] = useState(false)
   const [productsPanelOpen, setProductsPanelOpen] = useState(false)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const saveFeaturedTimeout = useRef(null)
   const dragIndexRef = useRef(null)
   const editDragIndexRef = useRef(null)
@@ -122,9 +124,9 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       aria-pressed={isSelected}
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); try { handlers.handleFeaturedThumbTap && handlers.handleFeaturedThumbTap(fid) } catch(_){} } }}
-      style={{minWidth:140,display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'pointer',position:'relative',opacity: (!isSelected && maxReached) ? 0.56 : 1}}
+      style={{display:'flex',flexDirection:'column',gap:6,padding:8,borderRadius:8,background:'#0b0b0b',border:'1px solid #222',cursor:'pointer',position:'relative',opacity: (!isSelected && maxReached) ? 0.56 : 1}}
     >
-            <div style={{width:140,height:84,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto',position:'relative'}}>
+        <div className="featured-thumb-img" style={{position:'relative'}}>
         {src ? (
           (typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:'))) ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -134,7 +136,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
           )
         ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>}
       </div>
-      <div style={{fontSize:13,fontWeight:700,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',maxWidth:140}} title={prod.title}>{prod.title}</div>
+      <div className="featured-thumb-title" title={prod.title}>{prod.title}</div>
       {isSelected ? (
         <div aria-hidden style={{position:'absolute',top:8,right:8,minWidth:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:999,background:'#D4AF37',color:'#0D0D0D',fontWeight:700,fontSize:12,boxShadow:'0 2px 6px rgba(0,0,0,0.35)'}}> {String(idx+1)} </div>
       ) : null}
@@ -596,7 +598,16 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
           )}>
             <div>
               <div style={{marginBottom:12}}>
-                <button className="btn btn-primary btn-wide btn-full-mobile" onClick={() => router.push('/admin/products/new')}>Cargar producto</button>
+                <button className="btn btn-primary btn-wide btn-full-mobile" onClick={() => {
+                  try {
+                    const w = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 1024
+                    if (w >= 1024) {
+                      setCreateModalOpen(true)
+                    } else {
+                      router.push('/admin/products/new')
+                    }
+                  } catch (e) { router.push('/admin/products/new') }
+                }}>Cargar producto</button>
               </div>
               {products.length === 0 ? <div className="muted">No hay productos</div> : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
@@ -673,7 +684,8 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   {!featuredPanelOpen ? (
                     <div style={{display:'flex',flexDirection:'column',gap:8}}>
                       <div className="muted">Pulse el botón ☰ para editar los Destacados</div>
-                      <div style={{display:'flex',gap:8,alignItems:'center',overflowX:'auto',paddingTop:6}}>
+                      <div className="muted mobile-only" style={{fontSize:13}}>Tocá la foto para seleccionarla</div>
+                      <div className="featured-grid" style={{paddingTop:6}}>
                         {(settings.featured || []).map((fid, idx) => {
                           const prod = products.find(pp => (pp.id || pp.slug || pp.title) === fid) || null
                           const isSelected = (settings.featured || []).includes(fid)
@@ -699,6 +711,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                       <motion.div variants={panelVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.36 }} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
                         <div style={{flex:1,maxHeight:420,overflowY:'auto',paddingRight:8}}>
                           <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>Productos (marcá hasta 3)</div>
+                          <div className="muted mobile-only" style={{fontSize:13,marginBottom:8}}>En móviles/tablets: tocá la foto para seleccionarla</div>
                           {products.map(p => {
                             const id = p.id || p.slug || p.title
                             const selected = (settings.featured || []).includes(id)
@@ -744,15 +757,20 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                                     ) : <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div> }
                                   </div>
                                   <div>
-                                    <div style={{fontWeight:700}}>{p.title}</div>
-                                    <div className="muted" style={{fontSize:12}}>{p.price}</div>
+                                    <div className="admin-product-title">{p.title}</div>
+                                    <div className="admin-product-price muted">{p.price}</div>
                                   </div>
                                 </div>
                                 <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                  {p.images && p.images.length > 0 && (
+                                    <AdminButton variant="ghost" onClick={() => openImagePicker(p)} style={{display:'inline-flex',alignItems:'center',gap:8}} aria-label="Imagen principal" title="Imagen principal">
+                                      <FiImage size={14} aria-hidden />
+                                      Imagen
+                                    </AdminButton>
+                                  )}
                                   <button type="button" className={`desktop-select-btn ${selected ? 'selected' : ''}`} aria-pressed={selected} aria-label={selected ? 'Quitar destacado' : 'Marcar como destacado'} onClick={() => toggleFeaturedById(id)}>
                                     {selected ? <CheckIcon className="check-icon" aria-hidden /> : <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden><rect x="0" y="0" width="20" height="20" rx="4" stroke="rgba(255,255,255,0.08)"/></svg>}
                                   </button>
-                                  {p.images && p.images.length > 0 && <AdminButton variant="ghost" onClick={() => openImagePicker(p)}>Elegir foto</AdminButton>}
                                 </div>
                               </div>
                             )
@@ -1141,6 +1159,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
           </motion.div>
         )}
       </AnimatePresence>
+      <NewProductModal open={createModalOpen} onClose={() => setCreateModalOpen(false)} onCreated={(prod) => { fetchProducts(); setCreateModalOpen(false); }} />
       <AnimatePresence>
         {requestsModalOpen && (
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -1190,13 +1209,13 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="modal-content card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} style={{maxWidth:800,margin:'40px auto',padding:18, maxHeight: '80vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
               <h4 style={{marginTop:0}}>Elegir foto principal</h4>
-              <div style={{display:'flex',flexWrap:'wrap',gap:10,marginTop:8}}>
-                    {(imagePickerImages || []).map((img, i) => {
+                <div className="image-picker-grid">
+                  {(imagePickerImages || []).map((img, i) => {
                   const src = normalizeSrc(img)
                   if (!src) return null
                   const isSelected = normalizeSrc(imagePickerSelected) === normalizeSrc(img)
                       return (
-                        <button key={i} type="button" onClick={() => setImagePickerSelected(img)} style={{width:140,height:96,overflow:'hidden',borderRadius:8,padding:0,border:isSelected ? '3px solid #D4AF37' : '1px solid #ddd'}}>
+                        <button key={i} type="button" onClick={() => setImagePickerSelected(img)} className={`image-picker-option ${isSelected ? 'selected' : ''}`}>
                       { (typeof src === 'string' && (src.startsWith('blob:') || src.startsWith('data:'))) ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img src={src} alt={`opt-${i}`} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
@@ -1207,7 +1226,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   )
                 })}
               </div>
-              <div style={{display:'flex',justifyContent:'flex-end',marginTop:12,gap:8}}>
+              <div className="modal-footer">
                 <button className="btn btn-ghost" onClick={() => setImagePickerOpen(false)}>Cancelar</button>
                 <button className="btn btn-primary" onClick={() => {
                   if (imagePickerSelected) {

@@ -32,6 +32,8 @@ export default function ProductPage({ model }) {
   }
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [dragX, setDragX] = useState(0)
+  const [pinching, setPinching] = useState(false)
+  const [zoomActive, setZoomActive] = useState(false)
   const [isPointerFine, setIsPointerFine] = useState(() => {
     try {
       if (typeof window === 'undefined') return true
@@ -46,6 +48,8 @@ export default function ProductPage({ model }) {
   const domRafRef = useRef(null)
   const zoomStateRef = useRef({ x: 0.5, y: 0.5, active: false, scale: 2 })
   const pinchRef = useRef({ active: false, startDist: 0, startScale: 1 })
+  const touchStartXRef = useRef(null)
+  const touchDeltaRef = useRef(0)
   const prevThumb = useCallback(() => {
     if (images.length === 0) return
     const next = (selected - 1 + images.length) % images.length
@@ -85,13 +89,27 @@ export default function ProductPage({ model }) {
     }
   }, [])
 
-  // Lock body scroll while the lightbox is open to avoid background scroll on mobile
+  // Lock body/html scroll while the lightbox is open to avoid background scroll/bounce on mobile
   useEffect(() => {
     if (typeof document === 'undefined') return
-    const prev = document.body.style.overflow
-    if (lightboxOpen) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = prev || ''
-    return () => { document.body.style.overflow = prev || '' }
+    const prevBodyOverflow = document.body.style.overflow
+    const prevDocOverflow = document.documentElement.style.overflow
+    const prevOverscroll = document.documentElement.style.overscrollBehavior
+    if (lightboxOpen) {
+      // lock both <html> and <body> to avoid scrolling and bounce on mobile
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+      document.documentElement.style.overscrollBehavior = 'none'
+    } else {
+      document.body.style.overflow = prevBodyOverflow || ''
+      document.documentElement.style.overflow = prevDocOverflow || ''
+      document.documentElement.style.overscrollBehavior = prevOverscroll || ''
+    }
+    return () => {
+      document.body.style.overflow = prevBodyOverflow || ''
+      document.documentElement.style.overflow = prevDocOverflow || ''
+      document.documentElement.style.overscrollBehavior = prevOverscroll || ''
+    }
   }, [lightboxOpen])
 
   const handleZoomMove = useCallback((ev, rect, requestedScale)=>{
@@ -148,6 +166,7 @@ export default function ProductPage({ model }) {
 
   const handleZoomEnter = useCallback((ev, rect, requestedScale=2) => {
     zoomStateRef.current.active = true
+    try { setZoomActive(true) } catch(e){}
     // determine allowed scale based on natural size to avoid pixelation
     try {
       const img = innerImgRef.current
@@ -229,6 +248,7 @@ export default function ProductPage({ model }) {
 
   const handleZoomLeave = useCallback(()=>{
     zoomStateRef.current.active = false
+    try { setZoomActive(false) } catch(e){}
     if (domRafRef.current) cancelAnimationFrame(domRafRef.current)
     domRafRef.current = null
     if (innerImgRef.current) {
@@ -385,7 +405,7 @@ export default function ProductPage({ model }) {
           <AnimatePresence>
             {lightboxOpen && (
               <motion.div
-                className="fixed inset-0 z-50 flex items-center justify-center"
+                className="fixed inset-0 z-50 flex items-center justify-center lightbox-root"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, transition: { duration: 0.18 } }}
                 exit={{ opacity: 0, transition: { duration: 0.12 } }}
@@ -408,20 +428,52 @@ export default function ProductPage({ model }) {
                   {/* minimap removed per request */}
 
                   {/* Draggable/swipable image container */}
-                  <motion.div ref={imgWrapRef} className="flex items-center justify-center w-[95vw] h-[95vh] touch-pan-y" onClick={(e)=>e.stopPropagation()}>
+                  <motion.div
+                    ref={imgWrapRef}
+                    className="flex items-center justify-center w-[95vw] h-[95vh] touch-pan-y"
+                    onClick={(e)=>e.stopPropagation()}
+                    onTouchStart={(e)=>{
+                      if (!e.touches) return
+                      if (e.touches.length === 1) {
+                        touchStartXRef.current = e.touches[0].clientX
+                        touchDeltaRef.current = 0
+                      }
+                    }}
+                    onTouchMove={(e)=>{
+                      if (!e.touches) return
+                      if (e.touches.length === 1) {
+                        const x = e.touches[0].clientX
+                        const y = e.touches[0].clientY
+                        const startX = touchStartXRef.current
+                        if (typeof startX === 'number') {
+                          touchDeltaRef.current = x - startX
+                        }
+                        // if zoom active (one-finger pan), update overlay center
+                        if (zoomActive) {
+                          const rect = innerImgRef.current?.getBoundingClientRect()
+                          if (rect) handleZoomMove({ clientX: x, clientY: y }, rect, zoomStateRef.current.scale)
+                        }
+                      }
+                    }}
+                    onTouchEnd={(e)=>{
+                      // handle single-finger swipe to change image when not zoomActive
+                      const dx = touchDeltaRef.current || 0
+                      const threshold = 60
+                      if (!zoomActive && Math.abs(dx) > threshold) {
+                        if (dx > 0) prevThumb()
+                        else nextThumb()
+                      }
+                      touchStartXRef.current = null
+                      touchDeltaRef.current = 0
+                    }}
+                  >
                     <motion.div
-                      drag="x"
+                      drag={false}
                       dragElastic={0.14}
                       dragConstraints={{ left: -1000, right: 1000 }}
                       onDrag={(e, info)=> setDragX(info.offset.x)}
                       onDragEnd={(e, info)=>{
-                        const vx = info.velocity.x || 0
-                        const ox = info.offset.x || 0
-                        const threshold = 280
-                        // use velocity + offset thresholds for intuitive swipe
-                        if (vx > 500 || ox > threshold){ prevThumb() }
-                        else if (vx < -500 || ox < -threshold){ nextThumb() }
-                        // reset drag position via animation
+                        // keep handlers but disable default translate behavior by not relying on drag for navigation
                         setDragX(0)
                       }}
                       animate={{ x: 0 }}
@@ -506,6 +558,7 @@ export default function ProductPage({ model }) {
                                   pinchRef.current.active = true
                                   pinchRef.current.startDist = Math.hypot(dx, dy)
                                   pinchRef.current.startScale = zoomStateRef.current.scale || 1
+                                  try { setPinching(true) } catch(e){}
                                 }}
                                 onTouchMove={(e)=>{
                                   if (!pinchRef.current.active) return
@@ -532,6 +585,7 @@ export default function ProductPage({ model }) {
                                   if (!pinchRef.current.active) return
                                   if (e.touches && e.touches.length >= 2) return
                                   pinchRef.current.active = false
+                                  try { setPinching(false) } catch(e){}
                                 }}
                               />
                             </div>

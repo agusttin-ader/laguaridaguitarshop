@@ -79,6 +79,8 @@
   --shadow-soft: 0 8px 24px rgba(2,6,23,0.08);
   --shadow-medium: 0 18px 40px rgba(2,6,23,0.12);
   --gold-100: #D4AF37;
+  --danger-500: #ff3b4a;
+  --danger-600: #ff2d55;
 }
 
 /* Reusable hover style for buttons that should show a golden background and
@@ -124,6 +126,55 @@
   fill: none !important;
   stroke: #ffffff !important;
 }
+
+/* Cancel / Close / Logout buttons: red on hover/focus/active */
+.btn-ghost, .btn.btn-ghost {
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+.btn-ghost:hover, .btn-ghost:focus {
+  background-color: var(--danger-600) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,45,85,0.12) !important;
+  box-shadow: 0 10px 30px rgba(255,45,85,0.12);
+}
+.btn-ghost:active {
+  transform: translateY(0) scale(0.995);
+  box-shadow: 0 6px 18px rgba(255,45,85,0.14) !important;
+}
+
+/* Primary / Save buttons: gold on hover and active */
+.btn-primary, .admin-btn--primary {
+  transition: background 180ms ease, box-shadow 180ms ease, transform 120ms ease;
+}
+.btn-primary:hover, .admin-btn--primary:hover {
+  background: var(--gold-100) !important;
+  color: #081017 !important;
+  box-shadow: 0 14px 40px rgba(212,175,55,0.14);
+}
+.btn-primary:active, .admin-btn--primary:active {
+  transform: translateY(0) scale(0.996);
+  box-shadow: 0 8px 26px rgba(212,175,55,0.18) !important;
+}
+
+/* Close icons inside menus (X buttons) should also turn red on hover */
+.menu-close-btn, .btn-close, button[aria-label="Cerrar"], button[title="Cerrar"] {
+  transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+.menu-close-btn:hover, .btn-close:hover, button[aria-label="Cerrar"]:hover, button[title="Cerrar"]:hover {
+  color: #fff !important;
+  background-color: var(--danger-500) !important;
+}
+
+/* Generic interaction: when activating (clicking) buttons that are not ghost/close/save, show golden shadow to convey press */
+.btn:not(.btn-ghost):not(.btn-primary):active, .admin-btn:not(.admin-btn--ghost):active {
+  box-shadow: 0 12px 36px rgba(212,175,55,0.12) !important;
+}
+
+/* Ensure SVG icons inside red/gold states inherit color */
+.btn-ghost:hover svg, .btn-primary:hover svg, .admin-btn--primary:hover svg { color: inherit; }
+
+/* Keep transitions smooth and accessible */
+.btn, .admin-btn { transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease, color 160ms ease; }
 
 /* Header nav link subtle gold shadow on hover */
 .nav-link, .nav-link:link, .nav-link:visited { transition: color 160ms ease, text-shadow 200ms ease, box-shadow 200ms ease; }
@@ -247,7 +298,18 @@
 }
 
 /* Hamburger icon visuals (animated lines -> X) */
-.hamburger-btn, .hamburger-button { color: var(--foreground); background: transparent; width:44px; height:44px }
+.hamburger-btn, .hamburger-button {
+  color: var(--foreground);
+  background: transparent;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; /* prevents baseline shift for glyphs */
+  font-size: 16px; /* sensible default for the glyph */
+  text-align: center;
+}
 .hamburger-icon { display:block }
 .hamburger-btn .line, .hamburger-button .line { transition: transform 320ms cubic-bezier(.22,.9,.35,1), opacity 200ms ease; stroke: currentColor }
 .hamburger-btn .line.top, .hamburger-button .line.top { transform-origin: 12px 12px }
@@ -436,10 +498,139 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 .thumb { width:120px; height:88px; border-radius:8px; overflow:hidden; border:1px solid #eee; display:flex; align-items:center; justify-content:center }
 .thumb img { width:100%; height:100%; object-fit:cover; display:block; transition: transform .28s cubic-bezier(.2,.9,.3,1); }
 
+/* Admin product list typography tweaks to allow more image room */
+.admin-product-title { font-size: 14px; font-weight: 700; line-height: 1.05; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: normal }
+.admin-product-price { font-size: 12px; color: #d6c8a6 }
+
 /* Hover/active polish for thumbnails */
 .thumb { transition: transform .24s cubic-bezier(.2,.9,.3,1), box-shadow .24s ease, border-color .16s ease; will-change: transform; }
 .thumb:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 22px 48px rgba(2,6,23,0.38); border-color: rgba(212,175,55,0.06); }
 .thumb:hover img { transform: scale(1.04); }
+
+/* Image picker option inside the "Elegir foto principal" modal */
+.image-picker-option {
+  width: 140px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 0;
+  border: 1px solid #ddd;
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 0;
+}
+.image-picker-option img, .image-picker-option picture, .image-picker-option .next-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.image-picker-option.selected {
+  border: 3px solid var(--gold-100) !important;
+  box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+}
+
+/* Grid layout for image picker: prefer 2 columns when space allows */
+.image-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+  /* allow the grid to scroll if the modal height is constrained */
+  max-height: calc(80vh - 120px);
+  overflow-y: auto;
+  padding-right: 6px; /* room for scrollbar on some browsers */
+  box-sizing: border-box;
+}
+
+/* Make each option fill its grid cell and be slightly smaller so two columns fit nicely */
+.image-picker-option {
+  width: 100% !important;
+  height: 80px !important;
+}
+
+/* Sticky footer inside modal so actions remain visible while scrolling */
+.modal-content { /* ensure sticky children behave */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.modal-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 0 0 0;
+  margin-top: 12px;
+  background: linear-gradient(180deg, rgba(10,10,10,0.98), rgba(8,8,8,0.98));
+  border-top: 1px solid rgba(255,255,255,0.03);
+  z-index: 9;
+}
+
+/* Slightly reduce button sizes inside modal footer on small screens */
+@media (max-width: 480px) {
+  .image-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modal-footer { padding: 10px 0; }
+  .modal-footer .btn { padding: 8px 12px; font-size: 14px }
+}
+
+/* Featured thumbnails grid (no horizontal scroll). Desktop: 3 cols, tablet:2, phone:1 */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 4px;
+  align-items: start;
+}
+.featured-thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #0b0b0b;
+  border: 1px solid #222;
+  cursor: pointer;
+  position: relative;
+  min-height: 108px;
+}
+.featured-thumb-img {
+  width: 100%;
+  /* Ensure next/image with `fill` has a non-zero height: use padding-top aspect-ratio fallback */
+  position: relative;
+  padding-top: 60%; /* 84/140 = 0.6 -> 60% */
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111;
+  min-height: 64px; /* safety for very small containers */
+}
+.featured-thumb-img img, .featured-thumb-img .next-image, .featured-thumb-img picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.featured-thumb-title {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.featured-thumb.selected {
+  box-shadow: 0 10px 30px rgba(212,175,55,0.06);
+  border: 2px solid rgba(212,175,55,0.08);
+}
+
+@media (max-width: 1024px) {
+  .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 320px) {
+  .featured-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+  .featured-thumb { padding: 6px; }
+  .featured-thumb-img { aspect-ratio: 4 / 3; }
+}
 
 /* Small circular delete button shown on image thumbnails */
 .thumb-delete {
@@ -522,9 +713,27 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 /* Dark-themed admin login to match main site hero */
 .admin-login .card {
   background: linear-gradient(180deg, #0D0D0D 0%, #121212 100%);
+
+/* Make 'Foto' button compact and centered in admin product lists */
+.admin-dashboard .admin-btn--ghost {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 10px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  min-width: 64px !important;
+  white-space: nowrap !important;
+  border-radius: 10px;
+}
+.admin-dashboard .admin-btn--ghost svg { width: 14px; height: 14px }
   border: 1px solid rgba(255,255,255,0.06);
   color: #EDEDED;
 }
+
+/* Force centered label/icon inside ghost admin buttons (defensive) */
+.admin-dashboard .admin-btn--ghost { text-align: center; }
 .admin-login .muted { color: #bfbfbf }
 .admin-login .form-row input[type="email"], .admin-login .form-row input[type="password"], .admin-login .form-row textarea {
   background: rgba(255,255,255,0.03);
@@ -760,17 +969,25 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   cursor: pointer;
   transition: background 200ms ease;
 }
+
+/* Lightbox / fullscreen viewer: prevent native scrolling and overscroll on touch devices
+   so the JS-driven swipe/drag prev/next UI remains the only mechanism to navigate images. */
+.lightbox-root {
+  touch-action: none; /* disable browser touch panning */
+  -ms-touch-action: none;
+  overscroll-behavior: none; /* prevent bounce/scroll chaining */
+}
 .select-overlay .check-icon {
   width: 28px;
   height: 28px;
   color: #ffffff;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
   border-radius: 999px;
   padding: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
 }
 .select-overlay.selected {
   background: rgba(0,0,0,0.46);
@@ -798,10 +1015,40 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 .desktop-select-btn.selected { background: var(--gold-100); color: #081017; border-color: rgba(0,0,0,0.06); }
 .desktop-select-btn .check-icon { width:18px; height:18px; }
 
-@media (max-width: 768px) {
-  .select-overlay { display: flex; }
+/* Mobile / tablet overrides (<=768px): hide desktop select, smaller 'Elegir foto', bigger/thicker center check */
+/* Mobile / tablet overrides: hide desktop select on tablets and smaller devices,
+   make the mobile overlay visible and increase the mobile check size. */
+@media (max-width: 1024px) {
+  /* Hide the desktop-style selection button on tablets and phones */
+  .desktop-select-btn { display: none !important; }
+
+  /* Hide any desktop-only tiny checkbox visuals */
   .desktop-only-checkbox { display: none !important; }
+
+  /* Make ghost buttons a bit smaller on narrow screens so the layout fits */
+  .admin-dashboard .admin-btn--ghost {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+  }
+
+  /* Ensure the select overlay is visible and uses a stronger visual */
+  .select-overlay { display: flex !important; transition: background 200ms ease, opacity 160ms ease; }
+  .select-overlay .check-icon {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+    background: rgba(0,0,0,0.65);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.6);
+    transform: scale(1);
+  }
+  .select-overlay .check-icon svg { filter: drop-shadow(0 1px 0 rgba(0,0,0,0.25)); }
+
+  /* Utility: explicit mobile-only helper class (hidden by default, shown here) */
+  .mobile-only { display: inline-flex !important; }
 }
+
+/* Default: hide mobile-only elements on desktop by default */
+.mobile-only { display: none; }
 .admin-login .eye-btn svg { opacity: 0.9 }
 
 /* Spinner (simple stroke animation) */
@@ -997,12 +1244,19 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 
 /* Dashboard: refined hamburger/menu and panel styles */
 .hamburger-button {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:44px; height:44px; padding:8px; border-radius:12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 8px;
+  border-radius: 12px;
   background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
   border: 1px solid rgba(255,255,255,0.04);
   box-shadow: 0 10px 30px rgba(2,6,23,0.30);
   transition: transform 300ms cubic-bezier(.2,.9,.3,1), box-shadow 300ms ease, border-color 220ms ease, background 220ms ease;
+  line-height: 1;
+  font-size: 16px;
 }
 .hamburger-button:hover { transform: translateY(-3px) rotate(0.5deg); box-shadow: 0 26px 60px rgba(2,6,23,0.45); border-color: rgba(255,255,255,0.06); }
 .hamburger-button:active { transform: translateY(-1px) scale(0.995); }
