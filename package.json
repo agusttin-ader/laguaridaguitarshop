@@ -15,19 +15,16 @@
     "reprocess:images": "node ./scripts/reprocess-images.mjs"
   },
   "dependencies": {
-    "@babel/parser": "^7.28.5",
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.84.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^11.18.2",
     "next": "16.0.3",
-    "photoswipe": "^5.3.5",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
-    "sharp": "^0.32.6",
-    "swiper": "^10.3.0"
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

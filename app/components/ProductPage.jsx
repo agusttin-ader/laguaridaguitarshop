@@ -450,19 +450,19 @@ export default function ProductPage({ model }) {
                         }
                         // if zoom active (one-finger pan), update overlay center
                         if (zoomActive) {
+                          // prevent the browser from scrolling the page while panning the zoomed image
+                          try { e.preventDefault(); } catch (err) {}
                           const rect = innerImgRef.current?.getBoundingClientRect()
                           if (rect) handleZoomMove({ clientX: x, clientY: y }, rect, zoomStateRef.current.scale)
+                        }
+                        // if a pinch gesture is active (two-finger), also prevent default scrolling
+                        if (pinchRef.current && pinchRef.current.active) {
+                          try { e.preventDefault(); } catch (err) {}
                         }
                       }
                     }}
                     onTouchEnd={(e)=>{
-                      // handle single-finger swipe to change image when not zoomActive
-                      const dx = touchDeltaRef.current || 0
-                      const threshold = 60
-                      if (!zoomActive && Math.abs(dx) > threshold) {
-                        if (dx > 0) prevThumb()
-                        else nextThumb()
-                      }
+                      // Reset touch tracking. Swiping to change image is disabled — use prev/next buttons.
                       touchStartXRef.current = null
                       touchDeltaRef.current = 0
                     }}
@@ -563,6 +563,8 @@ export default function ProductPage({ model }) {
                                 onTouchMove={(e)=>{
                                   if (!pinchRef.current.active) return
                                   if (!e.touches || e.touches.length < 2) return
+                                  // while pinching, prevent default browser pinch/zoom behavior
+                                  try { e.preventDefault(); } catch (err) {}
                                   const t1 = e.touches[0]
                                   const t2 = e.touches[1]
                                   const dx = t2.clientX - t1.clientX
