@@ -342,6 +342,12 @@ button, input[type="button"], input[type="submit"] { text-align: center; }
   .hamburger-btn .line { transition: none !important }
 }
 
+/* Ensure hamburger button is hidden on desktop (large screens) even if utility classes
+   are not applied properly. Keep visible for tablet & mobile. */
+@media (min-width: 1024px) {
+  .hamburger-btn, .hamburger-button { display: none !important }
+}
+
 /* Mobile drawer item polish */
 .mobile-drawer a, .mobile-drawer button { display:inline-flex; align-items:center; gap:8px; padding: 12px 16px; font-size:16px; line-height:22px; color:var(--foreground); text-decoration:none }
 .mobile-drawer a:hover, .mobile-drawer button:hover { background: rgba(212,175,55,0.04); color: #fff }
@@ -641,13 +647,34 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
   border: 2px solid rgba(212,175,55,0.08);
 }
 
+/* Mobile & tablet: show featured thumbnails in a horizontal row so touch drag/reorder works.
+   Keep desktop/grid behaviour above 1024px. */
 @media (max-width: 1024px) {
-  .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .featured-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    padding-top: 6px;
+  }
+  .featured-grid::-webkit-scrollbar { height: 8px; }
+  .featured-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 999px; }
+  .featured-thumb {
+    flex: 0 0 auto;
+    width: 140px; /* compact thumbnail width on mobile/tablet */
+    min-width: 120px;
+    padding: 6px;
+    min-height: 96px;
+  }
+  .featured-thumb-img { padding-top: 64%; }
 }
-@media (max-width: 320px) {
-  .featured-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-  .featured-thumb { padding: 6px; }
-  .featured-thumb-img { aspect-ratio: 4 / 3; }
+@media (max-width: 420px) {
+  /* smaller phones: make thumbs even more compact */
+  .featured-thumb { width: 120px; min-width: 100px; padding: 6px; }
+  .featured-thumb-img { padding-top: 68%; }
 }
 
 /* Small circular delete button shown on image thumbnails */

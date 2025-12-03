@@ -13,12 +13,7 @@ export default function Header() {
   const isAdminRoute = typeof pathname === 'string' && pathname.startsWith('/admin')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState(null)
-  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false)
-  const [menuClosing, setMenuClosing] = useState(false)
-  const closingTimeout = useRef(null)
-  const [menuOpening, setMenuOpening] = useState(false)
-  const avatarRef = useRef(null)
-  const menuRef = useRef(null)
+  // Avatar and menu are static identifiers on desktop — no avatar dropdown menu
   const mobileBtnRef = useRef(null)
   const mobileMenuRef = useRef(null)
   
@@ -49,60 +44,7 @@ export default function Header() {
     return () => { mounted = false; try { sub?.subscription?.unsubscribe?.() } catch {} }
   }, [])
 
-  // Close avatar menu when clicking outside or pressing Escape.
-  // Keep the menu mounted during a short 'closing' animation before unmounting.
-  useEffect(() => {
-    const menuVisible = avatarMenuOpen || menuClosing
-    if (!menuVisible) return
-
-    function closeWithAnimation() {
-      setAvatarMenuOpen(false)
-      setMenuClosing(true)
-      // fallback timeout in case transitionend isn't fired
-      if (closingTimeout.current) clearTimeout(closingTimeout.current)
-      closingTimeout.current = setTimeout(() => {
-        setMenuClosing(false)
-        closingTimeout.current = null
-      }, 600)
-    }
-
-    // Use pointerdown in capture phase so we detect outside clicks before other handlers
-    function onDocPointer(e) {
-      try {
-        const path = e.composedPath ? e.composedPath() : (e.path || [])
-        // if click is inside trigger or menu, ignore
-        const insideTrigger = path.some((node) => node && node.dataset && node.dataset.avatarTrigger !== undefined)
-        const insideMenu = path.some((node) => node && node.dataset && node.dataset.avatarMenu !== undefined)
-        if (insideTrigger || insideMenu) return
-      } catch (err) {
-        if (e.target && (e.target.closest && e.target.closest('[data-avatar-trigger]'))) return
-        if (e.target && (e.target.closest && e.target.closest('[data-avatar-menu]'))) return
-      }
-      closeWithAnimation()
-    }
-
-    function onKey(e){ if (e.key === 'Escape') closeWithAnimation() }
-
-    document.addEventListener('pointerdown', onDocPointer, true)
-    document.addEventListener('keydown', onKey)
-
-    // If menuRef is present, listen for transitionend to remove closing state precisely
-    const el = menuRef.current
-    function onTransitionEnd(ev) {
-      if (ev.propertyName === 'opacity' || ev.propertyName === 'transform') {
-        setMenuClosing(false)
-        if (closingTimeout.current) { clearTimeout(closingTimeout.current); closingTimeout.current = null }
-      }
-    }
-    if (el) el.addEventListener('transitionend', onTransitionEnd)
-
-    return () => {
-      document.removeEventListener('pointerdown', onDocPointer, true)
-      document.removeEventListener('keydown', onKey)
-      if (el) el.removeEventListener('transitionend', onTransitionEnd)
-      if (closingTimeout.current) { clearTimeout(closingTimeout.current); closingTimeout.current = null }
-    }
-  }, [avatarMenuOpen, menuClosing])
+  // Avatar menu removed: avatar is only an identifier on desktop
   
 
   const navLinkClass =
@@ -151,36 +93,9 @@ export default function Header() {
   }
 
   function closeMenuAnimated() {
-    // start closing animation then clear after transition/fallback
-    setAvatarMenuOpen(false)
-    setMenuClosing(true)
-    setMenuOpening(false)
-    if (closingTimeout.current) clearTimeout(closingTimeout.current)
-    closingTimeout.current = setTimeout(() => { setMenuClosing(false); closingTimeout.current = null }, 400)
+    // kept for compatibility but no avatar menu UI exists
   }
 
-  function toggleAvatarMenu() {
-    if (avatarMenuOpen) {
-      // already open -> close with animation
-      closeMenuAnimated()
-      return
-    }
-    if (menuClosing) {
-      // was closing, cancel and reopen
-      if (closingTimeout.current) { clearTimeout(closingTimeout.current); closingTimeout.current = null }
-      setMenuClosing(false)
-      setAvatarMenuOpen(true)
-      // ensure opening animation runs
-      setMenuOpening(true)
-      requestAnimationFrame(() => setMenuOpening(false))
-      return
-    }
-    // default: open
-    setAvatarMenuOpen(true)
-    setMenuOpening(true)
-    // trigger the opening class change on next frame so CSS transition runs
-    requestAnimationFrame(() => setMenuOpening(false))
-  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#0D0D0D] text-[#EDEDED] font-sans">
@@ -193,8 +108,8 @@ export default function Header() {
           La Guarida Guitarshop
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Principal">
+        {/* Desktop nav (large screens and up) */}
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Principal">
           <Link href="/" className={navLinkClass}>
             Inicio
           </Link>
@@ -211,30 +126,23 @@ export default function Header() {
           )}
         </nav>
 
-        {/* Admin indicator (desktop) */}
+        {/* Admin indicator (large screens and up) - static identifier (no desktop menus) */}
         {isLoggedIn && (
           <>
-            <div className="hidden md:flex items-center gap-3 ml-4">
-              <div ref={avatarRef} className="relative" aria-label="Avatar admin">
-                <button data-avatar-trigger type="button" onClick={toggleAvatarMenu} className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37]/20 to-transparent ring-1 ring-white/6 text-sm font-semibold text-[#EDEDED] focus:outline-none ${avatarMenuOpen ? 'avatar-trigger-active' : ''}`} aria-haspopup="true" aria-expanded={avatarMenuOpen} aria-label="Abrir menú admin">
-                  {(user?.email || user?.id || 'A').toString().charAt(0).toUpperCase()}
-                </button>
-                {/* badge removed: no extra hamburger indicator next to avatar */}
-                {(avatarMenuOpen || menuClosing) && (
-                  <div ref={menuRef} data-avatar-menu role="menu" className={`avatar-menu origin-top-right absolute right-0 top-full mt-2 w-48 rounded-lg z-50 py-2 ${avatarMenuOpen && !menuClosing ? 'open' : 'closing'}`}>
-                    <Link href="/admin/dashboard" onClick={() => closeMenuAnimated()} className="avatar-menu-item block px-4 py-3 text-sm font-medium text-white/90" role="menuitem">Administración</Link>
-                    <button type="button" onClick={()=>{ closeMenuAnimated(); if (closingTimeout.current) clearTimeout(closingTimeout.current); closingTimeout.current = setTimeout(()=>{ setMenuClosing(false); closingTimeout.current = null }, 400); handleSignOut() }} className="avatar-menu-item block w-full text-left px-4 py-3 text-sm font-medium text-white/80" role="menuitem">Cerrar sesión</button>
-                  </div>
-                )}
-              </div>
-              <span className="text-sm text-white/80">Admin</span>
-            </div>
-            {/* small indicator for mobile (avatar toggles same menu) */}
-              <div className="md:hidden flex items-center gap-2 mr-2">
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37]/20 to-transparent ring-1 ring-white/6 text-sm font-semibold text-[#EDEDED]" aria-hidden>
+            <div className="hidden lg:flex items-center gap-3 ml-4">
+              <div className="relative" aria-label="Avatar admin">
+                <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37]/20 to-transparent ring-1 ring-white/6 text-sm font-semibold text-[#EDEDED]`} aria-hidden>
                   {(user?.email || user?.id || 'A').toString().charAt(0).toUpperCase()}
                 </div>
               </div>
+              <span className="text-sm text-white/80">Admin</span>
+            </div>
+            {/* small indicator for mobile/tablet (static) */}
+            <div className="lg:hidden flex items-center gap-2 mr-2">
+              <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37]/20 to-transparent ring-1 ring-white/6 text-sm font-semibold text-[#EDEDED]" aria-hidden>
+                {(user?.email || user?.id || 'A').toString().charAt(0).toUpperCase()}
+              </div>
+            </div>
           </>
         )}
 
@@ -243,7 +151,7 @@ export default function Header() {
           id="mobile-menu-button"
           ref={mobileBtnRef}
           type="button"
-          className={`hamburger-btn md:hidden inline-flex items-center justify-center p-2 rounded-md focus:outline-none ${open ? 'active' : ''}`}
+          className={`hamburger-btn lg:hidden inline-flex items-center justify-center p-2 rounded-md focus:outline-none ${open ? 'active' : ''}`}
           aria-controls="mobile-menu"
           aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
           aria-expanded={open}
@@ -262,7 +170,7 @@ export default function Header() {
       <div
         id="mobile-menu"
         ref={mobileMenuRef}
-        className={`${open ? 'mobile-drawer open' : 'mobile-drawer closed'} md:hidden bg-[#0D0D0D]`}
+        className={`${open ? 'mobile-drawer open' : 'mobile-drawer closed'} lg:hidden bg-[#0D0D0D]`}
         aria-hidden={!open}
       >
         <nav className="flex flex-col gap-1 px-4 pb-4 max-h-[58vh] overflow-auto" aria-label="Menú móvil">
