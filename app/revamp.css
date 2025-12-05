@@ -82,6 +82,63 @@
 /* Small utilities */
 .text-gold { color: var(--revamp-gold) }
 
+/* Header / Navigation revamp (scoped) */
+.revamp-header {
+  background: linear-gradient(180deg, rgba(8,8,8,0.98), rgba(10,10,10,0.98));
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.revamp-header .mx-auto { padding-left: 14px; padding-right: 14px }
+.revamp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.revamp-brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(212,175,55,0.14), rgba(212,175,55,0.06));
+  display: inline-block;
+  flex: 0 0 44px;
+}
+.revamp-logo {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  font-size: 1rem;
+}
+
+/* Navigation links - larger hit area on mobile */
+.revamp-nav-link {
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+}
+.revamp-nav-link:hover { background: rgba(212,175,55,0.04); color: var(--revamp-gold) }
+
+/* Mobile hamburger: larger tap target + subtle ring */
+.revamp-header .hamburger-btn {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+.revamp-header .hamburger-btn:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
+
+/* Mobile menu items: clearer spacing */
+.revamp-header #mobile-menu a, .revamp-header #mobile-menu button {
+  padding: 14px 16px !important;
+  border-radius: 10px;
+}
+
+@media (min-width: 1024px) {
+  .revamp-brand-mark { width:48px; height:48px }
+  .revamp-logo { font-size: 1.05rem }
+}
+
+
 /* Hero specific typography utilities (mobile-first) */
 .revamp-title {
   font-family: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue');
