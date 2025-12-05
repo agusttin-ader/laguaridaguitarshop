@@ -1,0 +1,108 @@
+/* Revamp styles (scoped, minimal) - mobile-first boutique look
+   This file enhances existing components (hero, footer, CTAs) using
+   a restrained palette and spacing. It is intentionally scoped and
+   uses specific class names to avoid interfering with admin pages.
+*/
+
+:root {
+  --revamp-bg: #0b0b0b;
+  --revamp-foreground: #efefef;
+  --revamp-graphite: #111216;
+  --revamp-gold: #D4AF37;
+  --revamp-muted: #bdbdbd;
+  --revamp-radius: 14px;
+}
+
+/* Mobile-first hero polish */
+.hero-section {
+  background: linear-gradient(180deg, rgba(11,11,11,0.96), rgba(6,6,6,0.98));
+  color: var(--revamp-foreground);
+  padding-top: 18px;
+  padding-bottom: 40px;
+}
+
+.hero-section .hero-cta {
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.08);
+  color: var(--revamp-foreground);
+  padding: 12px 20px;
+  border-radius: 9999px;
+  box-shadow: none;
+}
+.hero-section .hero-cta:hover {
+  background: var(--revamp-gold);
+  color: #081017;
+  transform: translateY(-1px) scale(1.01);
+}
+
+/* Make hero heading slightly more refined and compact on mobile */
+.hero-section h1 {
+  font-weight: 600;
+  line-height: 1.05;
+  margin: 0;
+}
+.hero-section p { color: #cfcfcf; margin-top: 10px }
+
+/* Card visual for hero image: more whitespace and softer shadows */
+.hero-section .group > .relative { border-radius: var(--revamp-radius); overflow: hidden }
+
+/* Revamped footer: compact, elegant */
+.revamp-footer {
+  background: linear-gradient(180deg, rgba(8,8,8,0.99), rgba(10,10,10,0.98));
+  color: var(--revamp-muted);
+  padding: 22px 0;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+.revamp-footer a { color: var(--revamp-muted); transition: color 160ms ease }
+.revamp-footer a:hover { color: var(--revamp-gold) }
+
+/* CTA/button visibility improvements (used across small CTAs) */
+.revamp-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--revamp-foreground);
+}
+.revamp-cta:hover { background: rgba(212,175,55,0.07); color: var(--revamp-gold) }
+
+/* Make image containers responsive and keep heavy effects on larger viewports */
+@media (min-width: 768px) {
+  .hero-section { padding-top: 40px; padding-bottom: 60px }
+  .hero-section .hero-image { filter: none !important; opacity: 1 !important }
+}
+
+/* Accessibility focus styles for interactive elements */
+.revamp-cta:focus, .hero-cta:focus, a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 3px }
+
+/* Small utilities */
+.text-gold { color: var(--revamp-gold) }
+
+/* Hero specific typography utilities (mobile-first) */
+.revamp-title {
+  font-family: var(--font-sans, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue');
+  font-weight: 600;
+  font-size: 1.75rem; /* ~28px */
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+}
+.revamp-subtitle {
+  color: #cfcfcf;
+  font-size: 0.975rem; /* ~15.6px */
+  line-height: 1.5;
+  max-width: 42ch;
+}
+
+@media (min-width: 640px) {
+  .revamp-title { font-size: 2.25rem; /* ~36px */ }
+  .revamp-subtitle { font-size: 1.05rem; }
+}
+
+@media (min-width: 1024px) {
+  .revamp-title { font-size: 3rem; /* ~48px */ }
+  .revamp-subtitle { font-size: 1.125rem; }
+}

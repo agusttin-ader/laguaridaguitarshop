@@ -52,13 +52,13 @@ export default function HeroRender({ heroImage }) {
         >
           <motion.h1
             variants={item}
-            className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
+            className="revamp-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
           >
             Encontrá tu próximo sonido
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-4 max-w-xl text-base leading-7 text-[#cfcfcf] sm:text-lg drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]"
+            className="revamp-subtitle mt-4 drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]"
           >
             Descubrí guitarras seleccionadas para inspirarte todos los días: calidad
             premium, envío rápido y atención experta para que toques sin límites.
@@ -66,7 +66,7 @@ export default function HeroRender({ heroImage }) {
           <motion.div variants={item} className="mt-8">
             <Link
               href="/modelos"
-              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] hover:bg-[#D4AF37] hover:opacity-100 hover:shadow-lg hover:shadow-[#D4AF37]/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60 hero-cta"
+              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60 hero-cta revamp-cta"
             >
               Ver modelos
             </Link>
