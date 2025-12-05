@@ -7,14 +7,33 @@ export async function getProducts() {
   let dbProducts = []
   try {
     const { data, error } = await supabaseAdmin.from('products').select('*').order('created_at', { ascending: false })
-    if (!error && Array.isArray(data)) dbProducts = data.map((r) => ({
-      id: r.id,
-      slug: r.slug || (r.title ? makeSlug(r.title) : r.id),
-      title: r.title,
-      description: r.description,
-      price: typeof r.price === 'number' ? `U$S ${r.price}` : r.price,
-      images: Array.isArray(r.images) ? normalizeImages(r.images) : [],
-    }))
+    if (!error && Array.isArray(data)) dbProducts = data.map((r) => {
+      // Normalize images: support arrays, objects and JSON-encoded strings
+      let imgs = []
+      try {
+        if (Array.isArray(r.images)) imgs = normalizeImages(r.images)
+        else if (typeof r.images === 'string' && r.images.trim() !== '') {
+          try {
+            const parsed = JSON.parse(r.images)
+            if (Array.isArray(parsed)) imgs = normalizeImages(parsed)
+          } catch (e) {
+            // treat as single URL string
+            imgs = normalizeImages([r.images])
+          }
+        }
+      } catch (e) {
+        imgs = []
+      }
+
+      return {
+        id: r.id,
+        slug: r.slug || (r.title ? makeSlug(r.title) : r.id),
+        title: r.title,
+        description: r.description,
+        price: typeof r.price === 'number' ? `U$S ${r.price}` : r.price,
+        images: imgs,
+      }
+    })
   } catch (err) {
     console.error('getProducts: DB fetch failed', err)
   }
@@ -29,20 +48,40 @@ export async function getProducts() {
     // ignore
   }
 
-  // Merge: preferring DB products, then append any json products not already present (by slug or title)
+  // Merge: prefer DB products, but fall back to local JSON for missing images or missing products
   const merged = [...dbProducts]
-  const existingKeys = new Set(merged.map((p) => p.slug || p.id || p.title))
+  const existingMap = new Map(merged.map((p) => [(p.slug || p.id || p.title), p]))
   for (const jp of jsonProducts) {
     const key = jp.slug || jp.id || jp.title
-    if (!existingKeys.has(key)) {
-      merged.push({
+    if (!existingMap.has(key)) {
+      const entry = {
         id: jp.id || null,
         slug: jp.slug || (jp.title ? jp.title.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-') : null),
         title: jp.title,
         description: jp.description,
         price: jp.price,
         images: Array.isArray(jp.images) ? normalizeImages(jp.images) : [],
-      })
+      }
+      merged.push(entry)
+      existingMap.set(key, entry)
+    } else {
+      // If DB exists but has no usable images, prefer json images
+      const existing = existingMap.get(key)
+      const hasUsable = Array.isArray(existing.images) && existing.images.length > 0
+      if (!hasUsable && Array.isArray(jp.images) && jp.images.length > 0) {
+        existing.images = normalizeImages(jp.images)
+      } else if (hasUsable) {
+        // If DB images are placeholders (homepage), and JSON has real images, replace
+        const allPlaceholders = existing.images.every((e) => {
+          try {
+            const u = (e && (e.url || e)) || ''
+            return String(u).includes('/images/homepage.jpeg')
+          } catch { return false }
+        })
+        if (allPlaceholders && Array.isArray(jp.images) && jp.images.length > 0) {
+          existing.images = normalizeImages(jp.images)
+        }
+      }
     }
   }
 
@@ -51,13 +90,19 @@ export async function getProducts() {
 
 function normalizeImages(images) {
   // Ensure each image entry is an object with at least a `url` property
+  const homepagePlaceholder = '/images/homepage.jpeg'
   return (images || []).map((img) => {
     if (!img) return null
-    if (typeof img === 'string') return { url: String(img) }
+    if (typeof img === 'string') {
+      const u = String(img)
+      if (u === homepagePlaceholder) return null
+      return { url: u }
+    }
     if (typeof img === 'object') {
       // If it's already shaped like { url, variants }, keep it but ensure url exists
       const url = img.url || img.publicUrl || img.path || img.name || null
       const variants = img.variants || {}
+      if (url === homepagePlaceholder) return null
       return { ...img, url, variants }
     }
     return null
