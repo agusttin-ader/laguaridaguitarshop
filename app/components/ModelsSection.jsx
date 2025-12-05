@@ -92,8 +92,8 @@ export default async function ModelsSection() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-      <h2 className="mb-8 text-3xl font-semibold text-[#EDEDED]">Destacados</h2>
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 revamp-section">
+      <h2 className="revamp-section-title text-3xl">Destacados</h2>
 
       <div className="flex flex-col gap-12">
         {(displayList || []).map((m, idx) => {
@@ -106,7 +106,7 @@ export default async function ModelsSection() {
           return (
             <article
               key={m.slug}
-              className={`group w-full rounded-2xl bg-[#0d0d0d] p-6 shadow-sm overflow-hidden flex flex-col items-stretch ${
+              className={`group w-full revamp-card revamp-featured ${
                 reversed ? "md:flex-row-reverse" : "md:flex-row"
               }`}
             >
@@ -205,14 +205,14 @@ export default async function ModelsSection() {
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-5 py-2 text-sm font-medium text-[#0D0D0D] shadow-sm transition-transform duration-150 hover:scale-105"
+                    className="revamp-cta inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium text-[#0D0D0D] transition-transform duration-150 hover:scale-105"
                   >
                     Me interesa
                   </a>
 
                   <Link
                     href={`/modelos/${encodeURIComponent(m.slug)}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-colors duration-150 hover:border-[#D4AF37] hover:text-[#D4AF37]"
+                    className="revamp-cta inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white/90 transition-colors duration-150"
                   >
                     Ver guitarra
                   </Link>

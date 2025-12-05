@@ -161,9 +161,9 @@ export default function ModelListClient({ products = [] }) {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 revamp-section">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#EDEDED]">Modelos</h1>
+        <h1 className="revamp-section-title text-2xl sm:text-3xl">Modelos</h1>
 
         <div className="flex items-center gap-3">
           {filters ? (
@@ -173,7 +173,7 @@ export default function ModelListClient({ products = [] }) {
           <button
             aria-label="Filtrar modelos"
             onClick={() => setIsOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-transparent px-3 py-2 hover:bg-white/4 transition"
+            className="inline-flex items-center gap-2 revamp-nav-link"
             title="Filtrar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -184,9 +184,11 @@ export default function ModelListClient({ products = [] }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="revamp-product-grid">
             {filtered.map((m, idx) => (
-              <MemoModelCard key={m.slug} m={m} isFirst={idx === 0} />
+              <div key={m.slug} className="">
+                <MemoModelCard key={m.slug} m={m} isFirst={idx === 0} />
+              </div>
             ))}
           </div>
 
