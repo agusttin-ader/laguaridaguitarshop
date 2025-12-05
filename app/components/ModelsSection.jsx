@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getProducts } from "../lib/getProducts";
+import FeaturedCard from './cards/FeaturedCard'
 import fs from 'fs'
 import path from 'path'
 import { supabaseAdmin } from '../../lib/supabaseAdmin'
@@ -96,131 +97,9 @@ export default async function ModelsSection() {
       <h2 className="mb-8 text-3xl font-semibold text-[#EDEDED]">Destacados</h2>
 
       <div className="flex flex-col gap-12">
-        {(displayList || []).map((m, idx) => {
-          const middleIndex = Math.floor((displayList || []).length / 2)
-          let reversed = idx % 2 === 1;
-          // Force invert for the middle card (computed) so text is left, image right
-          if (idx === middleIndex) reversed = true;
-          // Ensure Gibson LPJ 2014 has image on the right
-          if (m.slug === "gibson-lpj-2014") reversed = true;
-          return (
-            <article
-              key={m.slug}
-              className={`group w-full rounded-2xl bg-[#0d0d0d] p-6 shadow-sm overflow-hidden flex flex-col items-stretch ${
-                reversed ? "md:flex-row-reverse" : "md:flex-row"
-              }`}
-            >
-              <div className="relative w-full md:w-1/2 h-64 md:h-[520px] lg:h-[640px] overflow-hidden rounded-lg" style={{position:'relative'}}>
-                {(() => {
-                  // Prefer the featuredMain selection if available in settings
-                  const id = m.id || m.slug || m.title
-                  const mainFromSettings = settings.featuredMain && settings.featuredMain[id]
-                  const imgEntry = mainFromSettings || (m.images && m.images[0])
-                  let src = '/images/homepage.jpeg'
-                  if (imgEntry) {
-                    if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
-                    else if (typeof imgEntry === 'object' && imgEntry !== null) {
-                      // prefer larger optimized variant for the hero/featured section
-                      try {
-                        if (imgEntry.variants && typeof imgEntry.variants === 'object') {
-                          if (imgEntry.variants.w2048) { src = imgEntry.variants.w2048 }
-                          else if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
-                          else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
-                          else if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
-                        }
-                      } catch {}
-                      if (!src || src === '/images/homepage.jpeg') {
-                        if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
-                        else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
-                      }
-                    }
-                  }
-
-                  const isExternal = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
-
-                  if (isExternal) {
-                    return (
-                      <Image
-                        src={encodeURI(src)}
-                        alt={m.title}
-                        fill
-                        sizes="(min-width: 1024px) 50vw, 100vw"
-                        quality={80}
-                        className="object-cover object-center transition-transform duration-500 transform-gpu"
-                        loading="eager"
-                      />
-                    )
-                  }
-
-                    return (
-                    <Image
-                      src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
-                      alt={m.title}
-                      fill
-                      sizes="(min-width: 1024px) 50vw, 100vw"
-                      quality={90}
-                      className="object-cover object-center transition-transform duration-500 transform-gpu"
-                      loading="eager"
-                    />
-                    )
-                })()}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              </div>
-
-              <div className="w-full md:w-1/2 flex flex-col justify-center px-0 md:px-8 py-6">
-                <h3 className="text-3xl font-semibold text-[#EDEDED]">{m.title}</h3>
-                <p className="mt-4 text-lg font-medium text-white/90">{getTeaser(m)}</p>
-
-                {(() => {
-                  const map = {}
-                  if (m.specs && typeof m.specs === 'object') Object.entries(m.specs).forEach(([k, v]) => (map[k.toLowerCase()] = v))
-                  // also accept top-level keys
-                  for (const k of ['marca','modelo','anio','año']) {
-                    if (k in m && m[k] != null && String(m[k]).trim() !== '') map[k] = m[k]
-                  }
-                  const order = ["marca", "modelo", "anio", "año"]
-                  const labels = { marca: 'Marca', modelo: 'Modelo', anio: 'Año', 'año': 'Año' }
-                  const visible = []
-                  for (const k of order) {
-                    if (k in map && map[k] != null && String(map[k]).trim() !== '') visible.push({ key: k, label: labels[k] || k, value: map[k] })
-                  }
-                  if (visible.length === 0) return null
-                  return (
-                    <div className="mt-4">
-                      <ul className="list-disc list-inside text-sm text-white/75">
-                        {visible.map(({ key, label, value }) => (
-                          <li key={key} className="truncate">
-                            <strong className="text-white">{label}:</strong> <span className="text-white/90">{String(value)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )
-                })()}
-
-                <div className="mt-6 flex items-center gap-4">
-                  <a
-                    href={`https://wa.me/541168696491?text=${encodeURIComponent(
-                      `Hola me interesa esta guitarra: ${m.title}`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-5 py-2 text-sm font-medium text-[#0D0D0D] shadow-sm transition-transform duration-150 hover:scale-105"
-                  >
-                    Me interesa
-                  </a>
-
-                  <Link
-                    href={`/modelos/${encodeURIComponent(m.slug)}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-colors duration-150 hover:border-[#D4AF37] hover:text-[#D4AF37]"
-                  >
-                    Ver guitarra
-                  </Link>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+        {(displayList || []).map((m, idx) => (
+          <FeaturedCard key={m.slug} m={m} idx={idx} total={(displayList || []).length} settings={settings} />
+        ))}
       </div>
     </section>
   );
