@@ -82,6 +82,47 @@
 /* Small utilities */
 .text-gold { color: var(--revamp-gold) }
 
+/* Final CTA adjustments: make primary CTAs more visible while keeping mobile-first
+   behavior. Hero CTA will be prominent on desktop and slightly lighter on mobile. */
+.hero-section .hero-cta {
+  font-weight: 600;
+  border: none;
+  background: var(--revamp-gold);
+  color: #081017;
+  box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+}
+
+/* On small screens keep CTA full width and slightly subtler shadow */
+@media (max-width: 639px) {
+  .hero-section .hero-cta {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    color: var(--revamp-foreground);
+    border: 1px solid rgba(212,175,55,0.08);
+    box-shadow: none;
+  }
+}
+
+/* Brand mark content (initials) */
+.revamp-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #efefef;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.revamp-brand-mark::before { content: 'LG'; }
+
+/* Slightly increase global content breathing for hero */
+.hero-section .max-w-7xl { padding-left: 16px; padding-right: 16px }
+
+/* Ensure focus styles are prominent */
+.revamp-cta:focus, .hero-cta:focus, .revamp-nav-link:focus { outline: 3px solid rgba(212,175,55,0.14); outline-offset: 3px }
+
+
 /* Header / Navigation revamp (scoped) */
 .revamp-header {
   background: linear-gradient(180deg, rgba(8,8,8,0.98), rgba(10,10,10,0.98));
