@@ -2,11 +2,12 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import Button from '../common/Button'
+import { useRouter } from 'next/navigation'
 import Card from '../common/Card'
 import { getSrcFromEntry, ensureEncoded } from '../../../lib/imageHelpers'
 
 export default function ProductCard({ product, href = null, isFirst = false }){
+  const router = useRouter()
   const title = product?.title || 'Sin título'
   const price = product?.price || ''
   const rawImg = (product?.images && product.images[0]) ? product.images[0] : null
@@ -34,7 +35,15 @@ export default function ProductCard({ product, href = null, isFirst = false }){
             </div>
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); window.open(whatsappHref, '_blank', 'noopener') }}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (href) {
+                  e.preventDefault()
+                  router.push(href)
+                } else {
+                  window.open(whatsappHref, '_blank', 'noopener')
+                }
+              }}
               className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 cta-gold-hover"
             >
               Consultar
