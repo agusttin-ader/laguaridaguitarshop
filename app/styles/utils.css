@@ -1,0 +1,50 @@
+/* Utility classes and shared component tokens for the revamp */
+
+/* Base CTA used across components */
+.revamp-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--revamp-foreground);
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+}
+.revamp-cta:hover { background: rgba(212,175,55,0.08); color: var(--revamp-gold); transform: translateY(-1px); }
+
+/* Primary CTA variant */
+.revamp-cta.primary {
+  /* Golden button with a dark inset for contrast and visibility */
+  background: linear-gradient(180deg, rgba(212,175,55,0.98), rgba(181,142,45,0.98));
+  color: #ffffff;
+  border: 1px solid rgba(212,175,55,0.22);
+  box-shadow: 0 10px 30px rgba(2,6,23,0.45), inset 0 4px 14px rgba(0,0,0,0.36);
+  border-radius: 12px;
+  padding: 12px 20px;
+  transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+}
+.revamp-cta.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 48px rgba(2,6,23,0.55), inset 0 6px 18px rgba(0,0,0,0.44);
+  background: linear-gradient(180deg, rgba(222,182,80,1), rgba(181,142,45,1));
+}
+
+/* Focus styles shared */
+.revamp-cta:focus, .hero-cta:focus, a:focus, .revamp-nav-link:focus {
+  outline: 3px solid rgba(212,175,55,0.12);
+  outline-offset: 3px;
+}
+
+/* Small text utility */
+.text-gold { color: var(--revamp-gold); }
+
+/* Small button-like utility for compact badges */
+.revamp-badge { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; background:#efefef; color:#081017; border-radius:9999px; font-weight:600 }
+
+/* Placeholder / no-image utility */
+.no-image { display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg,#0a0a0a,#060606); color: #9b9b9b; font-weight: 600; height: 220px; border-radius: 12px; }

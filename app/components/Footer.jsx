@@ -7,7 +7,7 @@ import { openAndAutoClose } from '../lib/windowHelpers'
 
 export default function Footer() {
   return (
-    <footer className="mt-12 w-full bg-[#0D0D0D] text-[#B5B5B5]">
+    <footer className="mt-12 w-full bg-[#0D0D0D] text-[#B5B5B5] revamp-footer">
       <div className="mx-auto flex h-[150px] max-w-7xl items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full text-center text-sm font-sans">
           <div className="mb-3 flex items-center justify-center gap-6">

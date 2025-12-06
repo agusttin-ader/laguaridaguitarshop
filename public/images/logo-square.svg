@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" viewBox="0 0 560 560" role="img" aria-label="La Guarida Logo">
+  <defs>
+    <style>
+      .bg{fill:transparent}
+      .frame{fill:none;stroke:#D4AF37;stroke-width:8}
+    </style>
+    <!-- subtle gold drop shadow for the frame -->
+    <filter id="gold-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#D4AF37" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- transparent background so the header background shows through -->
+  <rect class="bg" x="0" y="0" width="560" height="560" rx="16" />
+  <rect class="frame" x="20" y="20" width="520" height="520" rx="12" filter="url(#gold-shadow)" />
+
+  <!-- intentionally left blank: logo mark only (no text) -->
+</svg>

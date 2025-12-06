@@ -994,14 +994,20 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                   <textarea value={editingProduct.description || ''} onChange={(e)=> setEditingProduct({...editingProduct, description: e.target.value})} style={{width:'100%',padding:8,borderRadius:8,border:'1px solid #333',minHeight:80}} />
                   <div style={{marginTop:10,display:'flex',gap:8}}>
                     <button className="btn btn-primary" onClick={async ()=>{
-                      // save changes via PATCH
+                      // save changes via PATCH — improved error handling and refresh
                       try {
-                        const body = { id: editingProduct.id, title: editingProduct.title, description: editingProduct.description, price: editingProduct.price, images: editingProduct.images }
+                        const body = { id: editingProduct.id, title: editingProduct.title, description: editingProduct.description, price: editingProduct.price, images: editingProduct.images, specs: editingProduct.specs }
                         const res = await fetch('/api/admin/products', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) })
-                        const json = await res.json()
-                        if (!res.ok) throw json
-                        // update local list
-                        setProducts((prev)=> prev.map(p => p.id === json.id ? json : p))
+                        const contentType = res.headers.get('content-type') || ''
+                        const json = contentType.includes('application/json') ? await res.json().catch(()=>null) : null
+                        const txt = json ? JSON.stringify(json) : await res.text().catch(()=>null)
+                        if (!res.ok) {
+                          console.error('Failed PATCH', res.status, txt)
+                          toast.error('Error guardando: ' + (json?.error?.message || json?.error || txt || res.statusText))
+                          return
+                        }
+                        // Refresh list from server to ensure products.json and DB are in sync
+                        try { await fetchProducts() } catch (e) { console.warn('fetchProducts failed after PATCH', e) }
                         setEditingProduct(null)
                         toast.success('Producto guardado')
                       } catch (err) { console.error(err); toast.error('Error guardando') }

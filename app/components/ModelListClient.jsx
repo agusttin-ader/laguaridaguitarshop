@@ -1,71 +1,12 @@
 "use client"
-import { useState, useMemo, useEffect, memo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
+import ProductCard from './cards/ProductCard'
 import FilterModal from './FilterModal'
 
-function pickImage(m) {
-  const imgEntry = (m.images && m.images[0]) || null
-  let src = '/images/homepage.jpeg'
-  if (imgEntry) {
-    if (typeof imgEntry === 'string' && imgEntry.trim() !== '') src = imgEntry
-    else if (typeof imgEntry === 'object' && imgEntry !== null) {
-      // Prefer higher-resolution variants first to avoid pixelated previews.
-      try {
-        if (imgEntry.variants && typeof imgEntry.variants === 'object') {
-          if (imgEntry.variants.w1024) { src = imgEntry.variants.w1024 }
-          else if (imgEntry.variants.w640) { src = imgEntry.variants.w640 }
-          else if (imgEntry.variants.w320) { src = imgEntry.variants.w320 }
-        }
-      } catch { }
-      if (!src || src === '/images/homepage.jpeg') {
-        if (typeof imgEntry.url === 'string' && imgEntry.url.trim() !== '') src = imgEntry.url
-        else if (typeof imgEntry.path === 'string' && imgEntry.path.trim() !== '') src = imgEntry.path
-      }
-    }
-  }
-  return src
-}
 
-// React import not required for JSX in modern Next.js setups
-
-function ModelCard({ m, isFirst }) {
-  const src = pickImage(m)
-  return (
-    <article className="rounded-2xl overflow-hidden bg-[#0D0D0D] shadow-sm transition-shadow hover:shadow-lg">
-      <Link href={`/modelos/${encodeURIComponent(m.slug)}`} className="block">
-        <div className="relative aspect-[4/3] w-full" style={{position:'relative'}}>
-          <Image
-            src={typeof src === 'string' && src.trim() !== '' ? encodeURI(src) : '/images/homepage.jpeg'}
-            alt={m.title}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            quality={75}
-            className="object-cover"
-            loading={isFirst ? 'eager' : 'lazy'}
-            decoding="async"
-          />
-        </div>
-
-        <div className="p-4">
-          <h2 className="text-lg font-semibold text-[#EDEDED]">{m.title}</h2>
-          <p className="mt-2 text-sm text-white/70 line-clamp-3">{m.description}</p>
-            <div className="mt-4 flex items-center justify-between">
-            <div className="text-base font-semibold text-[#EDEDED]">{(() => {
-              const n = Number(String(m.price || m.priceRaw || '').replace(/[^0-9.]/g, ''))
-              if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
-              return m.price || '$0'
-            })()}</div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40">Ver detalles</span>
-          </div>
-        </div>
-      </Link>
-    </article>
-  )
-}
-
-const MemoModelCard = memo(ModelCard)
+// Public product card now delegated to `ProductCard` for consistency and reuse
 
 export default function ModelListClient({ products = [] }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -116,11 +57,20 @@ export default function ModelListClient({ products = [] }) {
       const year = (p.anio || p.año || p.specs?.anio || p.specs?.year || '')
       if (filters.year && String(filters.year).trim() !== '') {
         const fy = parseInt(String(filters.year).replace(/[^0-9-]/g, ''), 10)
-        if (!isNaN(fy) && Number(year) && Number(year) !== fy) return false
+        const py = parseInt(String(year).replace(/[^0-9-]/g, ''), 10)
+        if (!isNaN(fy)) {
+          // If product year is parseable and doesn't match, filter out
+          if (!isNaN(py) && py !== fy) return false
+          // If product year is not parseable (missing) and user filtered by year, exclude
+          if (isNaN(py)) return false
+        }
       }
 
       if (filters.color && String((p.specs?.color || p.color || '')).toLowerCase().indexOf(String(filters.color).toLowerCase()) === -1) return false
-      if (filters.pickups && String((p.specs?.pickups || p.microfonos || '')).toLowerCase().indexOf(String(filters.pickups).toLowerCase()) === -1) return false
+
+      // pickups / micrófonos: consider multiple possible fields used across the dataset
+      const pickupsHaystack = [p.specs?.pickups, p.specs?.microfonos, p.microfonos].filter(Boolean).join(' ')
+      if (filters.pickups && String(pickupsHaystack).toLowerCase().indexOf(String(filters.pickups).toLowerCase()) === -1) return false
 
       const priceNum = Number(String(p.price || p.priceRaw || '').replace(/[^0-9.]/g, '')) || 0
       if (typeof filters.priceFrom !== 'undefined' && filters.priceFrom !== null && Number(filters.priceFrom) && priceNum < Number(filters.priceFrom)) return false
@@ -129,6 +79,16 @@ export default function ModelListClient({ products = [] }) {
       return true
     })
   }, [cleaned, filters])
+
+  // Sort filtered products by numeric price descending (highest first)
+  const sorted = useMemo(() => {
+    const parsePrice = (p) => {
+      try {
+        return Number(String(p?.price || p?.priceRaw || '').replace(/[^0-9.]/g, '')) || 0
+      } catch (e) { return 0 }
+    }
+    return (filtered || []).slice().sort((a, b) => parsePrice(b) - parsePrice(a))
+  }, [filtered])
 
   function handleApply(f) {
     // Normalize numeric fields
@@ -161,9 +121,9 @@ export default function ModelListClient({ products = [] }) {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 revamp-section">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#EDEDED]">Modelos</h1>
+        <h1 className="revamp-section-title text-2xl sm:text-3xl">Modelos</h1>
 
         <div className="flex items-center gap-3">
           {filters ? (
@@ -173,7 +133,7 @@ export default function ModelListClient({ products = [] }) {
           <button
             aria-label="Filtrar modelos"
             onClick={() => setIsOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-transparent px-3 py-2 hover:bg-white/4 transition"
+            className="inline-flex items-center gap-2 revamp-nav-link"
             title="Filtrar"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -184,9 +144,11 @@ export default function ModelListClient({ products = [] }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((m, idx) => (
-              <MemoModelCard key={m.slug} m={m} isFirst={idx === 0} />
+      <div className="revamp-product-grid">
+            {sorted.map((m, idx) => (
+              <div key={m.slug} className="">
+                <ProductCard product={m} href={`/modelos/${encodeURIComponent(m.slug)}`} isFirst={idx === 0} />
+              </div>
             ))}
           </div>
 

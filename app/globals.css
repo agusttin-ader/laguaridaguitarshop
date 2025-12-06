@@ -535,17 +535,6 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 .thumb:hover img { transform: scale(1.04); }
 
 /* Image picker option inside the "Elegir foto principal" modal */
-.image-picker-option {
-  width: 140px;
-  height: 96px;
-  overflow: hidden;
-  border-radius: 8px;
-  padding: 0;
-  border: 1px solid #ddd;
-  display: inline-block;
-  box-sizing: border-box;
-  margin: 0;
-}
 .image-picker-option img, .image-picker-option picture, .image-picker-option .next-image {
   width: 100%;
   height: 100%;

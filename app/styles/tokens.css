@@ -1,0 +1,17 @@
+/* Centralized design tokens for the revamp (colors, radii, semantic tokens) */
+:root {
+  --revamp-bg: #0b0b0b;
+  --revamp-foreground: #efefef;
+  --revamp-graphite: #111216;
+  --revamp-gold: #D4AF37;
+  --revamp-muted: #bdbdbd;
+  --revamp-radius: 14px;
+
+  /* Typographic tokens */
+  --revamp-font-sans: var(--font-inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue');
+
+  /* Breakpoints as tokens (used in JS or other styles if needed) */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+}
