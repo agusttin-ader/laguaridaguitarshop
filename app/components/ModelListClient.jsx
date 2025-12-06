@@ -6,8 +6,6 @@ import ProductCard from './cards/ProductCard'
 import FilterModal from './FilterModal'
 
 
-// React import not required for JSX in modern Next.js setups
-
 // Public product card now delegated to `ProductCard` for consistency and reuse
 
 export default function ModelListClient({ products = [] }) {

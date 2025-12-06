@@ -94,7 +94,7 @@ export default function FilterModal({ isOpen, onClose, onApply, initial = {} }) 
             <input value={filters.pickups ?? ''} onChange={e => update('pickups', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: HH, SS" />
           </div>
 
-            {/* Precio removido del modal según petición */}
+            
         </div>
 
         <footer className="mt-6 flex items-center justify-end gap-3">
