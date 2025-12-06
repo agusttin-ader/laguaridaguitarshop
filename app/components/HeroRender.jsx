@@ -22,7 +22,7 @@ export default function HeroRender({ heroImage }) {
   // Server-side read of settings to avoid client flash of default image.
   return (
     <section
-      className="hero-section relative w-full min-h-screen text-[#EDEDED]"
+      className="hero-section relative w-full text-[#EDEDED]"
       aria-label="Hero guitarras"
     >
       {/* Background: single blurred image so the page stays performant and the hero is faded */}
@@ -42,7 +42,7 @@ export default function HeroRender({ heroImage }) {
         <div className="absolute left-0 right-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
       </div>
 
-      <div className="relative z-10 mx-auto grid max-w-7xl min-h-screen grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:px-8">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-10 sm:px-6 md:grid-cols-2 lg:px-8">
         {/* Left: copy */}
         <motion.div
           variants={container}
@@ -76,7 +76,7 @@ export default function HeroRender({ heroImage }) {
             variants={item}
             initial="hidden"
             animate="show"
-            className="relative mx-auto w-full h-[60vh] md:h-[560px] lg:h-[720px] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 transform-gpu transition-transform transition-shadow duration-500 ease-out md:group-hover:scale-[1.02] md:group-hover:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] md:group-hover:ring-white/20 will-change-transform"
+            className="relative mx-auto w-full h-[40vh] sm:h-[46vh] md:h-[56vh] lg:h-[72vh] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 transform-gpu transition-transform transition-shadow duration-500 ease-out md:group-hover:scale-[1.02] md:group-hover:shadow-[0_30px_100px_-40px_rgba(0,0,0,0.75)] md:group-hover:ring-white/20 will-change-transform"
             style={{position:'relative'}}
           >
             <Image

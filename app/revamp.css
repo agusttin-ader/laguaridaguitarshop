@@ -12,12 +12,17 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   font-family: var(--revamp-font-sans);
 }
 
+/* Prevent accidental horizontal scroll on small devices */
+html, body { overflow-x: hidden; }
+
 /* Mobile-first hero polish */
 .hero-section {
   background: linear-gradient(180deg, rgba(11,11,11,0.96), rgba(6,6,6,0.98));
   color: var(--revamp-foreground);
   padding-top: 18px;
   padding-bottom: 40px;
+  /* let hero size itself on small screens so text doesn't get cut */
+  min-height: auto;
 }
 
 .hero-section .hero-cta {
@@ -73,6 +78,10 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   padding: 22px 0;
   border-top: 1px solid rgba(255,255,255,0.03);
 }
+
+/* Ensure the mobile menu drawer doesn't create horizontal overflow */
+.mobile-drawer, .mobile-drawer.open, .mobile-drawer.closed { inset: 0 0 auto 0; width: 100%; box-sizing: border-box }
+.mobile-drawer { left: 0; right: 0 }
 .revamp-footer a { color: var(--revamp-muted); transition: color 160ms ease }
 .revamp-footer a:hover { color: var(--revamp-gold) }
 
@@ -148,6 +157,31 @@ revamp-product-grid { display: grid; grid-template-columns: repeat(1, minmax(0,1
 @media (min-width: 768px) { .revamp-product-grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.25rem } }
 @media (min-width: 1024px) { .revamp-product-grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.5rem } }
 @media (min-width: 1440px) { .revamp-product-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1.5rem } }
+
+/* Make grid children stretch so cards have uniform heights per row */
+.revamp-product-grid > * { display: flex; flex-direction: column; }
+.revamp-product-grid > * .revamp-card { height: 100%; display: flex; flex-direction: column; }
+.revamp-product-grid > * .revamp-card .relative { flex: 0 0 auto }
+.revamp-product-grid > * .revamp-card > .flex-1 { flex: 1 }
+
+/* Slightly smaller gaps on small screens and touch-friendly hit targets */
+@media (max-width: 639px) {
+  .revamp-product-grid { gap: 0.9rem; }
+  .revamp-card { border-radius: 12px; }
+  .revamp-card .px-5 { padding-left: 12px; padding-right: 12px }
+  .revamp-card .py-5 { padding-top: 12px; padding-bottom: 12px }
+  .revamp-cta, .hero-cta, .revamp-nav-link, .mobile-drawer a, .mobile-drawer button {
+    padding: 12px 14px !important; /* larger, touch-friendly */
+    min-height: 44px; /* meet touch target guidelines */
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .hero-section .revamp-title { font-size: 1.5rem }
+}
+
+/* Make hero image and layout adapt so text is never cut off */
+.hero-section .max-w-7xl { padding-left: 12px; padding-right: 12px }
+.hero-section .hero-copy { padding-top: 18px; padding-bottom: 18px }
+
 
 /* Reduce spacing between cards on small/mobile screens to avoid oversized gaps */
 @media (max-width: 639px) {
