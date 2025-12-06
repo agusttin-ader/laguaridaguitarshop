@@ -3,6 +3,7 @@
 import React from 'react'
 import Image from "next/image";
 import Link from "next/link";
+import Button from './common/Button'
 
 function GuitarCard({ title, description, price, image }) {
   function normalizeImageEntry(img) {
@@ -59,15 +60,7 @@ function GuitarCard({ title, description, price, image }) {
             <span className="text-sm text-white/60">USD</span>
           </div>
 
-          <Link
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-[#081017] bg-[var(--revamp-gold)] hover:scale-[1.01] shadow-sm hover:shadow-md transition duration-180"
-            aria-label={`Consultar sobre ${title}`}
-          >
-            Consultar
-          </Link>
+          <Button href={whatsappHref} className="text-[#081017] bg-[var(--revamp-gold)]">Consultar</Button>
         </div>
       </div>
     </article>
