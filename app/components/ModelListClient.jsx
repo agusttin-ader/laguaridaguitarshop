@@ -59,11 +59,20 @@ export default function ModelListClient({ products = [] }) {
       const year = (p.anio || p.año || p.specs?.anio || p.specs?.year || '')
       if (filters.year && String(filters.year).trim() !== '') {
         const fy = parseInt(String(filters.year).replace(/[^0-9-]/g, ''), 10)
-        if (!isNaN(fy) && Number(year) && Number(year) !== fy) return false
+        const py = parseInt(String(year).replace(/[^0-9-]/g, ''), 10)
+        if (!isNaN(fy)) {
+          // If product year is parseable and doesn't match, filter out
+          if (!isNaN(py) && py !== fy) return false
+          // If product year is not parseable (missing) and user filtered by year, exclude
+          if (isNaN(py)) return false
+        }
       }
 
       if (filters.color && String((p.specs?.color || p.color || '')).toLowerCase().indexOf(String(filters.color).toLowerCase()) === -1) return false
-      if (filters.pickups && String((p.specs?.pickups || p.microfonos || '')).toLowerCase().indexOf(String(filters.pickups).toLowerCase()) === -1) return false
+
+      // pickups / micrófonos: consider multiple possible fields used across the dataset
+      const pickupsHaystack = [p.specs?.pickups, p.specs?.microfonos, p.microfonos].filter(Boolean).join(' ')
+      if (filters.pickups && String(pickupsHaystack).toLowerCase().indexOf(String(filters.pickups).toLowerCase()) === -1) return false
 
       const priceNum = Number(String(p.price || p.priceRaw || '').replace(/[^0-9.]/g, '')) || 0
       if (typeof filters.priceFrom !== 'undefined' && filters.priceFrom !== null && Number(filters.priceFrom) && priceNum < Number(filters.priceFrom)) return false
