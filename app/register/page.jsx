@@ -48,23 +48,23 @@ export default function RegisterPage(){
 
       <form onSubmit={handleSubmit} className="space-y-4 bg-[#0b0b0b] p-6 rounded-2xl shadow-md">
         <div>
-          <label className="block text-sm text-white/80">Nombre de usuario</label>
-          <input className="form-input mt-1 w-full" value={username} onChange={e=>setUsername(e.target.value)} placeholder="ej: agustin" required />
+          <label htmlFor="reg-username" className="block text-sm text-white/80">Nombre de usuario</label>
+          <input id="reg-username" name="username" className="form-input mt-1 w-full" value={username} onChange={e=>setUsername(e.target.value)} placeholder="ej: agustin" required />
         </div>
 
         <div>
-          <label className="block text-sm text-white/80">Email</label>
-          <input className="form-input mt-1 w-full" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tu@correo.com" required />
+          <label htmlFor="reg-email" className="block text-sm text-white/80">Email</label>
+          <input id="reg-email" name="email" className="form-input mt-1 w-full" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="tu@correo.com" required />
         </div>
 
         <div>
-          <label className="block text-sm text-white/80">Contraseña</label>
-          <input className="form-input mt-1 w-full" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Contraseña" required />
+          <label htmlFor="reg-password" className="block text-sm text-white/80">Contraseña</label>
+          <input id="reg-password" name="password" className="form-input mt-1 w-full" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Contraseña" required />
         </div>
 
         <div>
-          <label className="block text-sm text-white/80">Confirmar contraseña</label>
-          <input className="form-input mt-1 w-full" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Repetí la contraseña" required />
+          <label htmlFor="reg-confirm" className="block text-sm text-white/80">Confirmar contraseña</label>
+          <input id="reg-confirm" name="confirm" className="form-input mt-1 w-full" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Repetí la contraseña" required />
         </div>
 
         <div className="flex items-center gap-3">
