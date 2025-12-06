@@ -9,11 +9,28 @@ export default function ProductCard({ product, children, className = '', onChoos
   const price = product?.price || ''
   const rawImg = (product?.images && product.images[0]) ? product.images[0] : null
   const src = rawImg ? ensureEncoded(getSrcFromEntry(rawImg)) : null
+  // Prefer optimized local images (if image is in /images) by mapping to /_optimized/<base>-w{size}.webp
+  const mapToOptimized = (url, preferWidth = 640) => {
+    try {
+      if (!url || typeof url !== 'string') return url
+      if (!url.startsWith('/images/')) return url
+      const parts = url.split('/')
+      const name = parts[parts.length - 1]
+      const base = name.replace(/\.[^.]+$/, '')
+      // prefer WebP 640; fallback to original URL
+      return `/ _optimized/${base}-w${preferWidth}.webp`.replace('/ _optimized','/_optimized')
+    } catch (e) { return url }
+  }
+
+  const finalSrc = src ? mapToOptimized(src, 640) : null
+
   return (
     <div className={`product-card flex items-center gap-3 rounded-lg p-3 bg-[#0b0b0b] border border-neutral-800 ${className}`}>
       <div className="product-card-img" style={{width:72,height:52,overflow:'hidden',borderRadius:8,background:'#111',flex:'0 0 auto',position:'relative'}}>
-        {src ? (
-            <Image src={src} alt={title} fill style={{objectFit:'cover',display:'block'}} />
+        {finalSrc ? (
+            <Image src={finalSrc} alt={title} fill style={{objectFit:'cover',display:'block'}} loading="lazy" />
+        ) : src ? (
+            <Image src={src} alt={title} fill style={{objectFit:'cover',display:'block'}} loading="lazy" />
         ) : (
           <div className="muted" style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>No foto</div>
         )}

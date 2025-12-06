@@ -25,13 +25,23 @@ async function processFile(file) {
   const base = path.parse(file).name
 
   for (const w of SIZES) {
-    const outName = `${base}-w${w}.webp`
-    const outPath = path.join(OUT_DIR, outName)
+    // WebP output
+    const outNameWebp = `${base}-w${w}.webp`
+    const outPathWebp = path.join(OUT_DIR, outNameWebp)
+    // AVIF output
+    const outNameAvif = `${base}-w${w}.avif`
+    const outPathAvif = path.join(OUT_DIR, outNameAvif)
     try {
-      await sharp(input).resize({ width: w }).webp({ quality: 80 }).toFile(outPath)
-      info('Wrote', outPath)
+      await sharp(input).resize({ width: w }).webp({ quality: 80 }).toFile(outPathWebp)
+      info('Wrote', outPathWebp)
     } catch (err) {
-      error('Failed to process', input, err)
+      error('Failed to process webp', input, err)
+    }
+    try {
+      await sharp(input).resize({ width: w }).avif({ quality: 60 }).toFile(outPathAvif)
+      info('Wrote', outPathAvif)
+    } catch (err) {
+      error('Failed to process avif', input, err)
     }
   }
 }
