@@ -107,7 +107,7 @@ export default function Header() {
         >
           <div className="revamp-brand-mark" aria-hidden>
             {/* Logo image (SVG placed at /public/images/logo-square.svg) */}
-            <Image src="/images/logo-square.svg" alt="La Guarida" width={44} height={44} className="object-contain rounded-md block logo-mark" />
+            <img src="/images/logo-square.svg" alt="La Guarida" width={44} height={44} className="object-contain rounded-md block logo-mark" />
           </div>
           <span className="revamp-logo hidden md:inline-block">La Guarida Guitarshop</span>
         </Link>
