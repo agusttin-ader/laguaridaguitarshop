@@ -212,7 +212,7 @@ export default async function ModelsSection() {
 
                   <Link
                     href={`/modelos/${encodeURIComponent(m.slug)}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-colors duration-150 hover:border-[#D4AF37] hover:text-[#D4AF37]"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white/90 transition-colors duration-150 hover:border-[#D4AF37] hover:text-[#D4AF37] cta-gold-hover"
                   >
                     Ver guitarra
                   </Link>

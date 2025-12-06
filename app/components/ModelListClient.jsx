@@ -57,7 +57,7 @@ function ModelCard({ m, isFirst }) {
               if (!isNaN(n)) return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
               return m.price || '$0'
             })()}</div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40">Ver detalles</span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 cta-gold-hover">Ver detalles</span>
           </div>
         </div>
       </Link>
@@ -130,6 +130,16 @@ export default function ModelListClient({ products = [] }) {
     })
   }, [cleaned, filters])
 
+  // Sort filtered products by numeric price descending (highest first)
+  const sorted = useMemo(() => {
+    const parsePrice = (p) => {
+      try {
+        return Number(String(p?.price || p?.priceRaw || '').replace(/[^0-9.]/g, '')) || 0
+      } catch (e) { return 0 }
+    }
+    return (filtered || []).slice().sort((a, b) => parsePrice(b) - parsePrice(a))
+  }, [filtered])
+
   function handleApply(f) {
     // Normalize numeric fields
     const next = { ...f }
@@ -185,7 +195,7 @@ export default function ModelListClient({ products = [] }) {
       </div>
 
       <div className="revamp-product-grid">
-            {filtered.map((m, idx) => (
+            {sorted.map((m, idx) => (
               <div key={m.slug} className="">
                 <MemoModelCard key={m.slug} m={m} isFirst={idx === 0} />
               </div>

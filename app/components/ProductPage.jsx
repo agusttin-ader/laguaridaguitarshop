@@ -310,6 +310,15 @@ export default function ProductPage({ model }) {
 
   const currentSrc = pickBestSrc(images[selected]) || '/images/homepage.jpeg'
 
+  // helper to present a friendly label for spec keys (map english 'year' to 'Año')
+  function labelForKey(k){
+    if (!k) return ''
+    const lk = k.toString().toLowerCase()
+    if (lk === 'year' || lk === 'anio' || lk === 'año') return 'Año'
+    // default: capitalize first letter
+    return (k[0] || '').toUpperCase() + k.slice(1)
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -357,7 +366,7 @@ export default function ProductPage({ model }) {
                         alt={`${model.title} imagen principal`}
                         fill
                         sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
-                        className="object-contain object-center bg-black cursor-zoom-in"
+                        className="object-cover object-center bg-black cursor-zoom-in"
                         loading="eager"
                         priority
                         fetchPriority="high"
@@ -372,7 +381,7 @@ export default function ProductPage({ model }) {
                       alt={`${model.title} imagen principal`}
                       fill
                       sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
-                        className="object-contain object-center bg-black cursor-zoom-in"
+                        className="object-cover object-center bg-black cursor-zoom-in"
                         onClick={()=>openLightbox(selected)}
                     />
                   )
@@ -613,20 +622,76 @@ export default function ProductPage({ model }) {
 
           <p className="mt-4 text-base text-white/75">{model.description}</p>
 
+          {/* Product specifications: render point-by-point (one per line) */}
+          {(() => {
+            const specs = model?.specs
+            // if explicit specs present, render them (object/array/string)
+            if (specs) {
+              if (Array.isArray(specs) && specs.length > 0) {
+                return (
+                  <ul className="mt-4 list-disc list-inside space-y-2 text-white/75">
+                    {specs.map((s, i) => (
+                      <li key={i} className="leading-relaxed">{String(s)}</li>
+                    ))}
+                  </ul>
+                )
+              }
+
+              if (typeof specs === 'string' && specs.trim() !== '') {
+                const parts = specs.split(/\r?\n/).map(p => p.trim()).filter(Boolean)
+                return (
+                  <ul className="mt-4 list-disc list-inside space-y-2 text-white/75">
+                    {parts.map((p, i) => <li key={i} className="leading-relaxed">{p}</li>)}
+                  </ul>
+                )
+              }
+
+              if (typeof specs === 'object') {
+                const entries = Object.entries(specs).filter(([k,v])=>v!=null && String(v).trim()!=='')
+                if (entries.length > 0) {
+                  return (
+                    <ul className="mt-4 list-disc list-inside space-y-2 text-white/75">
+                      {entries.map(([k,v]) => (
+                        <li key={k} className="leading-relaxed"><strong className="text-white">{labelForKey(k)}:</strong> <span className="text-white/80">{String(v)}</span></li>
+                      ))}
+                    </ul>
+                  )
+                }
+              }
+            }
+
+            // fallback: some products store specs as top-level keys like 'marca','modelo','anio'
+            const allowed = ['marca','modelo','anio','serial','estado','color','acabado','cuerpo','mástil','mastil','trastera','microfonos','microfono','puente','bridge','escala']
+            const fallbackEntries = Object.entries(model || {}).filter(([k,v]) => allowed.includes(k.toLowerCase()) && v != null && String(v).trim() !== '')
+            if (fallbackEntries.length > 0) {
+              return (
+                <ul className="mt-4 list-disc list-inside space-y-2 text-white/75">
+                  {fallbackEntries.map(([k,v]) => (
+                    <li key={k} className="leading-relaxed"><strong className="text-white">{labelForKey(k)}:</strong> <span className="text-white/80">{String(v)}</span></li>
+                  ))}
+                </ul>
+              )
+            }
+
+            return null
+          })()}
+
           <div className="mt-6 flex items-center gap-4">
             <span className="text-2xl font-semibold text-[#EDEDED]">{model.price}</span>
           </div>
 
-          <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Contactar por WhatsApp: Me interesa ${model.title}`}
-            className="mt-6 inline-flex w-max items-center justify-center gap-3 rounded-full px-6 py-3 text-sm font-medium btn btn-gold focus-visible:outline-none focus-visible:ring-2"
-          >
-            <FaWhatsapp className="h-4 w-4 text-white" aria-hidden />
-            Me interesa
-          </a>
+          <div className="mt-6">
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Contactar por WhatsApp: Me interesa ${model.title}`}
+              className="revamp-cta primary whatsapp-cta w-full flex items-center justify-center gap-3"
+            >
+              <FaWhatsapp className="h-4 w-4 text-white" aria-hidden />
+              Me interesa
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -4,18 +4,12 @@
    uses specific class names to avoid interfering with admin pages.
 */
 
-:root {
-  --revamp-bg: #0b0b0b;
-  --revamp-foreground: #efefef;
-  --revamp-graphite: #111216;
-  --revamp-gold: #D4AF37;
-  --revamp-muted: #bdbdbd;
-  --revamp-radius: 14px;
-}
+@import './styles/tokens.css';
+@import './styles/utils.css';
 
 /* Use Inter variable from layout when available for a refined sans */
 body, .revamp-section, .revamp-title, .revamp-subtitle {
-  font-family: var(--font-inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue');
+  font-family: var(--revamp-font-sans);
 }
 
 /* Mobile-first hero polish */
@@ -28,16 +22,23 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 
 .hero-section .hero-cta {
   background: transparent;
-  border: 1px solid rgba(212,175,55,0.08);
-  color: var(--revamp-foreground);
-  padding: 12px 20px;
+  border: 1.5px solid rgba(212,175,55,0.95);
+  color: #ffffff !important;
+  padding: 12px 22px;
   border-radius: 9999px;
-  box-shadow: none;
+  font-weight: 600;
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transition: transform 240ms cubic-bezier(.2,.9,.3,1), box-shadow 240ms cubic-bezier(.2,.9,.3,1), border-color 180ms ease, background 160ms ease;
 }
-.hero-section .hero-cta:hover {
-  background: var(--revamp-gold);
-  color: #081017;
-  transform: translateY(-1px) scale(1.01);
+.hero-section .hero-cta:hover,
+.hero-section .hero-cta:focus {
+  background: rgba(212,175,55,0.06); /* subtle warmed background to help the glow */
+  color: #ffffff !important;
+  transform: translateY(-3px) scale(1.01);
+  border-color: rgba(212,175,55,1);
+  /* more intense golden glow */
+  box-shadow: 0 24px 100px rgba(212,175,55,0.48), 0 0 140px rgba(212,175,55,0.32);
 }
 
 /* Make hero heading slightly more refined and compact on mobile */
@@ -61,31 +62,6 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 .revamp-footer a { color: var(--revamp-muted); transition: color 160ms ease }
 .revamp-footer a:hover { color: var(--revamp-gold) }
 
-/* CTA/button visibility improvements (used across small CTAs) */
-.revamp-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.06);
-  color: var(--revamp-foreground);
-  font-weight: 600;
-  letter-spacing: 0.1px;
-}
-.revamp-cta:hover { background: rgba(212,175,55,0.08); color: var(--revamp-gold); transform: translateY(-1px); }
-
-/* Primary CTA variation for stronger visual weight */
-.revamp-cta.primary {
-  background: var(--revamp-gold);
-  color: #081017;
-  border: none;
-  box-shadow: 0 10px 30px rgba(212,175,55,0.12);
-}
-.revamp-cta.primary:hover { transform: translateY(-2px) scale(1.01) }
-
 /* Make image containers responsive and keep heavy effects on larger viewports */
 @media (min-width: 768px) {
   .hero-section { padding-top: 40px; padding-bottom: 60px }
@@ -95,17 +71,30 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 /* Accessibility focus styles for interactive elements */
 .revamp-cta:focus, .hero-cta:focus, a:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 3px }
 
+/*
+  Remove the visible focus box for mouse/click interactions on header/nav
+  while preserving keyboard accessibility via :focus-visible. This hides
+  the outline when the element receives focus by mouse, but keeps it for
+  keyboard users who need visible focus indicators.
+*/
+.revamp-nav-link:focus:not(:focus-visible),
+.revamp-header .hamburger-btn:focus:not(:focus-visible),
+.revamp-brand-mark:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Small utilities */
 .text-gold { color: var(--revamp-gold) }
 
-/* Final CTA adjustments: make primary CTAs more visible while keeping mobile-first
-   behavior. Hero CTA will be prominent on desktop and slightly lighter on mobile. */
-.hero-section .hero-cta {
-  font-weight: 600;
-  border: none;
-  background: var(--revamp-gold);
-  color: #081017;
-  box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+/* Final CTA adjustments: keep primary hero CTA with gold background and
+   subtle shadow on idle; more pronounced gradient and lift on hover. */
+/* Respect reduced motion preferences - keep minimal movement for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .hero-section .hero-cta {
+    transition: none !important;
+  }
+  .hero-section .hero-cta:hover { transform: none !important; box-shadow: none !important; }
 }
 
 /* On small screens keep CTA full width and slightly subtler shadow */
@@ -115,8 +104,8 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
     width: 100%;
     text-align: center;
     background: transparent;
-    color: var(--revamp-foreground);
-    border: 1px solid rgba(212,175,55,0.08);
+    color: #ffffff !important;
+    border: 1.25px solid rgba(212,175,55,0.95);
     box-shadow: none;
   }
 }
@@ -130,7 +119,6 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   font-weight: 600;
   font-size: 0.95rem;
 }
-.revamp-brand-mark::before { content: 'LG'; }
 
 /* Slightly increase global content breathing for hero */
 .hero-section .max-w-7xl { padding-left: 16px; padding-right: 16px }
@@ -176,8 +164,10 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: linear-gradient(135deg, rgba(212,175,55,0.14), rgba(212,175,55,0.06));
-  display: inline-block;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 44px;
 }
 .revamp-logo {
@@ -185,6 +175,69 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   letter-spacing: 0.2px;
   font-size: 1rem;
 }
+
+/* subtle gold glow around the logo image to lift it from the header */
+.revamp-brand-mark .logo-mark {
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(212,175,55,0.12), 0 1px 0 rgba(0,0,0,0.35) inset;
+  transition: box-shadow 200ms ease, transform 160ms ease;
+}
+.revamp-brand-mark .logo-mark:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 36px rgba(212,175,55,0.16), 0 1px 0 rgba(0,0,0,0.35) inset;
+}
+
+/* WhatsApp 'Me interesa' product CTA: dark background, gold outline, white text/icon
+   - Initial: dark gray background (#141414-ish), white text, thin gold border
+   - Hover: keep dark background, add golden shadow/glow and slight lift
+*/
+.revamp-cta.whatsapp-cta,
+.whatsapp-cta,
+.btn-gold.whatsapp-cta,
+a.btn-gold.whatsapp-cta,
+a.revamp-cta.whatsapp-cta {
+  background: #171717 !important; /* dark gray - keeps contrast with white text */
+  color: #ffffff !important;
+  border: 1.25px solid rgba(212,175,55,0.95) !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  transition: box-shadow 200ms ease, transform 160ms ease, border-color 160ms ease !important;
+}
+.revamp-cta.whatsapp-cta svg, .whatsapp-cta svg, .btn-gold.whatsapp-cta svg { color: #ffffff !important; fill: #ffffff !important; }
+.revamp-cta.whatsapp-cta:hover,
+.whatsapp-cta:hover,
+.btn-gold.whatsapp-cta:hover,
+a.revamp-cta.whatsapp-cta:hover {
+  background: #171717 !important; /* keep background visible/dark */
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 40px rgba(212,175,55,0.18), 0 6px 18px rgba(212,175,55,0.07) !important;
+  border-color: rgba(212,175,55,1) !important;
+}
+.revamp-cta.whatsapp-cta:focus-visible,
+.whatsapp-cta:focus-visible {
+  outline: 3px solid rgba(212,175,55,0.12) !important;
+  outline-offset: 4px !important;
+}
+
+/* Ensure mobile compact rule doesn't override the dark background for product CTA */
+@media (max-width: 640px) {
+  .revamp-cta.whatsapp-cta, .whatsapp-cta { width: 100% !important; max-width: none !important; }
+}
+
+/* Generic gold-hover CTA used for 'Ver detalles' / 'Ver guitarra' */
+.cta-gold-hover {
+  transition: background 180ms ease, box-shadow 200ms ease, color 140ms ease, transform 160ms ease;
+}
+.cta-gold-hover:hover, .cta-gold-hover:focus {
+  background: var(--revamp-gold) !important;
+  color: #081017 !important;
+  box-shadow: 0 18px 40px rgba(212,175,55,0.16) !important;
+  transform: translateY(-2px) !important;
+  border-color: rgba(212,175,55,0.12) !important;
+}
+.cta-gold-hover:focus-visible { outline: 3px solid rgba(212,175,55,0.10) !important; outline-offset: 4px !important }
 
 /* Navigation links - larger hit area on mobile */
 .revamp-nav-link {
@@ -242,3 +295,38 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   .revamp-title { font-size: 3rem; /* ~48px */ }
   .revamp-subtitle { font-size: 1.125rem; }
 }
+
+/* Product page: mobile-first gallery, thumbnails and CTAs */
+.product-page {
+  color: var(--revamp-foreground);
+}
+.product-main { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+.product-gallery { border-radius: 12px; overflow: hidden; background: var(--revamp-graphite); }
+.product-main-image { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: linear-gradient(180deg,#0b0b0b,#060606); }
+.product-thumbnails { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 6px; }
+.product-thumbnails img { width: 72px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; }
+.product-thumbnails img[aria-current="true"] { box-shadow: 0 8px 20px rgba(2,6,23,0.45); transform: translateY(-3px); border-color: rgba(212,175,55,0.12); }
+.product-info { padding: 14px; background: transparent; }
+.product-ctas { display: flex; gap: 10px; margin-top: 12px; }
+.product-ctas .revamp-cta { flex: 1; }
+
+/* On larger screens show gallery + info side-by-side */
+@media (min-width: 768px) {
+  .product-main { grid-template-columns: 1fr 380px; align-items: start; }
+  .product-main-image { aspect-ratio: 4/3; }
+  .product-thumbnails img { width: 84px; height: 64px; }
+  .product-ctas { gap: 12px; }
+}
+
+/* Lightbox / modal overlay tweak (if present) */
+.lightbox-overlay { background: rgba(0,0,0,0.82); display: flex; align-items: center; justify-content: center; }
+.lightbox-image { max-width: 88vw; max-height: 88vh; border-radius: 10px; box-shadow: 0 20px 60px rgba(2,6,23,0.6); }
+
+/* Contact / About page tweaks for card and aside */
+.about-page .prose-invert > div { border-radius: 14px; }
+.about-page .rounded-2xl { border-radius: 14px; }
+.about-page a { color: var(--revamp-gold); font-weight: 600 }
+
+/* Small utility: show placeholder when no image exists */
+.no-image { display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg,#0a0a0a,#060606); color: #9b9b9b; font-weight: 600; height: 220px; border-radius: 12px; }
+

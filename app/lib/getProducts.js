@@ -8,10 +8,9 @@ export async function getProducts() {
   try {
     const { data, error } = await supabaseAdmin.from('products').select('*').order('created_at', { ascending: false })
     if (!error && Array.isArray(data)) dbProducts = data.map((r) => ({
-      id: r.id,
+      // include all DB fields so frontend can access specs/metadata when present
+      ...r,
       slug: r.slug || (r.title ? makeSlug(r.title) : r.id),
-      title: r.title,
-      description: r.description,
       price: typeof r.price === 'number' ? `U$S ${r.price}` : r.price,
       images: Array.isArray(r.images) ? normalizeImages(r.images) : [],
     }))
@@ -36,11 +35,10 @@ export async function getProducts() {
     const key = jp.slug || jp.id || jp.title
     if (!existingKeys.has(key)) {
       merged.push({
+        // keep original JSON fields so specs/marca/modelo are preserved
+        ...jp,
         id: jp.id || null,
-        slug: jp.slug || (jp.title ? jp.title.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-') : null),
-        title: jp.title,
-        description: jp.description,
-        price: jp.price,
+        slug: jp.slug || (jp.title ? makeSlug(jp.title) : null),
         images: Array.isArray(jp.images) ? normalizeImages(jp.images) : [],
       })
     }

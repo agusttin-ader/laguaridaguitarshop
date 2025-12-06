@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from 'next/image'
 import { FiLogOut } from 'react-icons/fi'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter, usePathname } from 'next/navigation'
@@ -47,8 +48,7 @@ export default function Header() {
   // Avatar menu removed: avatar is only an identifier on desktop
   
 
-  const navLinkClass =
-    "nav-link revamp-nav-link px-3 py-2 text-sm md:text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60";
+  const navLinkClass = "revamp-nav-link";
 
   // Lock body scroll while the mobile menu is open to prevent background scroll
   useEffect(() => {
@@ -102,11 +102,14 @@ export default function Header() {
       <div className="mx-auto flex h-[64px] md:h-[80px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200 revamp-brand"
+          className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200 revamp-brand flex items-center gap-3"
           aria-label="Ir a inicio"
         >
-          <span className="revamp-brand-mark" aria-hidden />
-          <span className="revamp-logo">La Guarida Guitarshop</span>
+          <div className="revamp-brand-mark" aria-hidden>
+            {/* Logo image (SVG placed at /public/images/logo-square.svg) */}
+            <Image src="/images/logo-square.svg" alt="La Guarida" width={44} height={44} className="object-contain rounded-md block logo-mark" />
+          </div>
+          <span className="revamp-logo hidden md:inline-block">La Guarida Guitarshop</span>
         </Link>
 
         {/* Desktop nav (large screens and up) */}
