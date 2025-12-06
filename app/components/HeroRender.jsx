@@ -66,7 +66,7 @@ export default function HeroRender({ heroImage }) {
           <motion.div variants={item} className="mt-8">
             <Link
               href="/modelos"
-              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60 hero-cta revamp-cta"
+              className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition-transform transition-colors duration-200 ease-out hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/60 hero-cta revamp-cta primary"
             >
               Ver modelos
             </Link>

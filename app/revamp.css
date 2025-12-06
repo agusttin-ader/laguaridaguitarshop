@@ -13,6 +13,11 @@
   --revamp-radius: 14px;
 }
 
+/* Use Inter variable from layout when available for a refined sans */
+body, .revamp-section, .revamp-title, .revamp-subtitle {
+  font-family: var(--font-inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue');
+}
+
 /* Mobile-first hero polish */
 .hero-section {
   background: linear-gradient(180deg, rgba(11,11,11,0.96), rgba(6,6,6,0.98));
@@ -65,10 +70,21 @@
   padding: 10px 16px;
   border-radius: 10px;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
   color: var(--revamp-foreground);
+  font-weight: 600;
+  letter-spacing: 0.1px;
 }
-.revamp-cta:hover { background: rgba(212,175,55,0.07); color: var(--revamp-gold) }
+.revamp-cta:hover { background: rgba(212,175,55,0.08); color: var(--revamp-gold); transform: translateY(-1px); }
+
+/* Primary CTA variation for stronger visual weight */
+.revamp-cta.primary {
+  background: var(--revamp-gold);
+  color: #081017;
+  border: none;
+  box-shadow: 0 10px 30px rgba(212,175,55,0.12);
+}
+.revamp-cta.primary:hover { transform: translateY(-2px) scale(1.01) }
 
 /* Make image containers responsive and keep heavy effects on larger viewports */
 @media (min-width: 768px) {

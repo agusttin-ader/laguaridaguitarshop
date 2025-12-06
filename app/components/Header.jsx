@@ -48,7 +48,7 @@ export default function Header() {
   
 
   const navLinkClass =
-    "nav-link px-3 py-2 text-sm md:text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60";
+    "nav-link revamp-nav-link px-3 py-2 text-sm md:text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold-100)]/60";
 
   // Lock body scroll while the mobile menu is open to prevent background scroll
   useEffect(() => {
