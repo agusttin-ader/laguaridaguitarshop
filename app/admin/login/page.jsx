@@ -387,13 +387,15 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="brand" style={{display:'flex',gap:12,alignItems:'center'}}>
-          <div className="brand-mark" aria-hidden style={{flex:'0 0 auto'}}>
-            <Image src="/images/logo-rect.svg" alt="La Guarida" width={160} height={80} className="object-contain block" />
+        <div className="brand" style={{display:'grid', gridTemplateColumns:'auto 1fr', alignItems:'center', gap:12, alignContent:'center'}}>
+          <div className="brand-mark" aria-hidden style={{width:160, height:80, display:'flex', alignItems:'center', justifyContent:'center'}}>
+            <Image src="/images/logo-rect.svg" alt="La Guarida" width={160} height={80} className="object-contain block" style={{objectFit:'contain', width:'100%', height:'100%'}} />
           </div>
-          <div style={{textAlign:'left'}}>
-            <div className="brand-title">La Guarida Guitarshop</div>
-            <div className="muted" style={{fontSize:12}}>Acceso administradores</div>
+          <div style={{display:'grid', alignContent:'center', justifyItems:'start', gap:4}}>
+              <div className="brand-title" style={{margin:0, fontSize:18, lineHeight:1, wordSpacing:'10px', letterSpacing:'0.6px'}}>
+                La Guarida Guitarshop
+              </div>
+            <div className="muted" style={{fontSize:12, opacity:0.9}}>Acceso administradores</div>
           </div>
         </div>
 
