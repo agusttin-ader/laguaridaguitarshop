@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
@@ -386,8 +387,10 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="brand">
-          <div className="brand-mark" aria-hidden />
+        <div className="brand" style={{display:'flex',gap:12,alignItems:'center'}}>
+          <div className="brand-mark" aria-hidden style={{flex:'0 0 auto'}}>
+            <Image src="/images/logo-rect.svg" alt="La Guarida" width={160} height={80} className="object-contain block" />
+          </div>
           <div style={{textAlign:'left'}}>
             <div className="brand-title">La Guarida Guitarshop</div>
             <div className="muted" style={{fontSize:12}}>Acceso administradores</div>
