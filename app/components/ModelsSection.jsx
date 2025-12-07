@@ -205,7 +205,7 @@ export default async function ModelsSection() {
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex w-4/5 mx-auto items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-5 py-2 text-sm font-medium text-[#0D0D0D] shadow-sm transition-transform duration-150 hover:scale-105 cta-gold-hover"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-5 py-2 text-sm font-medium text-[#0D0D0D] shadow-sm transition-transform duration-150 hover:scale-105 cta-gold-hover"
                   >
                     Me interesa
                   </a>
