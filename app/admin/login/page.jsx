@@ -345,18 +345,6 @@ export default function AdminLogin() {
 
   // In-app recovery handler removed.
 
-  async function signInWithGoogle() {
-    setMessage('')
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
-      const redirectTo = baseUrl + '/admin/login'
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } })
-      if (error) setMessage(error.message)
-    } catch (err) {
-      console.error('google sign in error', err)
-      setMessage('Error iniciando sesión con Google')
-    }
-  }
 
   async function handleSignOut() {
     setMessage('')
@@ -439,8 +427,6 @@ export default function AdminLogin() {
         </form>
 
         <div style={{marginTop:12, display:'flex', flexDirection:'column', gap:8}}>
-          <button type="button" className="btn btn-ghost" onClick={signInWithGoogle}>Entrar con Google</button>
-
           {currentUser && (
             <div className="admin-user-card">
               <div className="admin-user-email"><strong>Conectado como:</strong> {currentUser.email}</div>
