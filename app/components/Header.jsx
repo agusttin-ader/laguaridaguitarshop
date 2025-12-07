@@ -99,7 +99,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#0D0D0D] text-[#EDEDED] font-sans revamp-header">
-      <div className="mx-auto flex h-[64px] md:h-[80px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[56px] md:h-[80px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200 revamp-brand flex items-center gap-3"

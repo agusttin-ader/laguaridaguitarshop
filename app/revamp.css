@@ -223,6 +223,21 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   box-shadow: 0 14px 36px rgba(212,175,55,0.16), 0 1px 0 rgba(0,0,0,0.35) inset;
 }
 
+/* Bottom navigation for mobile — app-like experience */
+.bottom-nav { display: none }
+@media (max-width: 1023px) {
+  .bottom-nav { display: flex }
+  /* Reduce header brand mark on small screens to avoid pushing content too far */
+  .revamp-brand-mark { width: 56px; height: 56px; flex: 0 0 56px }
+  .revamp-logo { display: none }
+  .revamp-header .mx-auto { padding-left: 10px; padding-right: 10px }
+}
+
+@media (max-width: 639px) {
+  .bottom-nav { bottom: 8px; width: 92%; padding: 6px }
+  .bottom-nav .nav-item span { display: block; font-size: 11px }
+}
+
 /* WhatsApp 'Me interesa' product CTA: dark background, gold outline, white text/icon
    - Initial: dark gray background (#141414-ish), white text, thin gold border
    - Hover: keep dark background, add golden shadow/glow and slight lift
