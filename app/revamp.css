@@ -197,14 +197,14 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   gap: 10px;
 }
 .revamp-brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 128px;
+  height: 128px;
+  border-radius: 20px;
   background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 44px;
+  flex: 0 0 128px;
 }
 .revamp-logo {
   font-weight: 600;
@@ -309,7 +309,7 @@ a.revamp-cta.whatsapp-cta:hover {
 }
 
 @media (min-width: 1024px) {
-  .revamp-brand-mark { width:48px; height:48px }
+  .revamp-brand-mark { width:208px; height:208px }
   .revamp-logo { font-size: 1.05rem }
 }
 

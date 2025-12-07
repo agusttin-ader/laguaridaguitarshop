@@ -105,9 +105,9 @@ export default function Header() {
           className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200 revamp-brand flex items-center gap-3"
           aria-label="Ir a inicio"
         >
-          <div className="revamp-brand-mark" aria-hidden>
+            <div className="revamp-brand-mark" aria-hidden>
             {/* Rectangular logo (SVG placed at /public/images/logo-rect.svg) */}
-            <Image src="/images/logo-rect.svg" alt="La Guarida" width={160} height={56} className="object-contain rounded-sm block logo-mark" style={{background:'transparent', boxShadow:'none'}} />
+            <Image src="/images/logo-rect.svg" alt="La Guarida" width={520} height={200} className="object-contain rounded-sm block logo-mark" style={{background:'transparent', boxShadow:'none'}} />
           </div>
           <span className="revamp-logo hidden md:inline-block">La Guarida Guitarshop</span>
         </Link>
