@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" aria-label="La Guarida Logo" viewBox="0 0 560 560"><rect width="560" height="560" fill="transparent" rx="18"/><path d="M0-110C40-90 80-30 68 30 56 92 0 110 0 110s-56-18-68-80C-80-30-40-90 0-110" style="fill:#d4af37" transform="translate(280 280)"/><path fill="#0d0d0d" d="M280 200c22 15 44 55 38 105-5 45-38 60-38 60s-33-15-38-60c-6-50 16-90 38-105"/><text y="12" fill="#d4af37" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'" font-size="64" font-weight="700" text-anchor="middle" transform="translate(280 280)">G</text></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" viewBox="0 0 560 560" role="img" aria-label="La Guarida Logo">
+  <defs>
+    <style>
+      .mark { fill: #D4AF37 }
+    </style>
+  </defs>
+
+  <!-- transparent background so header background shows through -->
+  <rect x="0" y="0" width="560" height="560" rx="18" fill="transparent" />
+
+  <!-- central logo mark only (no gold frame/background) -->
+  <g transform="translate(280,280)">
+    <path d="M0,-110 C40,-90 80,-30 68,30 C56,92 0,110 0,110 C0,110 -56,92 -68,30 C-80,-30 -40,-90 0,-110 Z" class="mark" />
+    <path d="M0,-80 C22,-65 44,-25 38,25 C33,70 0,85 0,85 C0,85 -33,70 -38,25 C-44,-25 -22,-65 0,-80 Z" fill="#0D0D0D" />
+    <text x="0" y="12" text-anchor="middle" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'" font-weight="700" font-size="64" fill="#D4AF37">G</text>
+  </g>
+</svg>

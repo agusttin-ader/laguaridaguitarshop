@@ -1,1 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" aria-label="Candado" viewBox="0 0 128 128"><defs><linearGradient id="b" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f8e7c1"/><stop offset="1" stop-color="#d4af37"/></linearGradient><filter id="a" width="160%" height="160%" x="-30%" y="-30%"><feDropShadow dx="0" dy="6" flood-color="#000" flood-opacity=".35" stdDeviation="10"/></filter></defs><circle cx="64" cy="64" r="60" fill="#0b0b0b"/><g transform="matrix(.75 0 0 .75 32 24)"><g filter="url(#a)"><path fill="url(#b)" d="M40 52a6 6 0 0 0-6 6v14a6 6 0 0 0 6 6h24a6 6 0 0 0 6-6V58a6 6 0 0 0-6-6z"/></g><path fill="none" stroke="#f8e7c1" stroke-linecap="round" stroke-linejoin="round" stroke-width="6" d="M28 52V38a20 20 0 1 1 40 0v14"/><path fill="#081017" d="M52 66a4 4 0 1 1-8 0 4 4 0 0 1 8 0"/><rect width="6" height="8" x="49" y="70" fill="#081017" rx="2"/></g></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lock icon inspired by Heroicons (MIT) and styled to fit the circular badge.
+  Scales to fill the circle and uses a gold fill to match site accents.
+-->
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Candado">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#F8E7C1" />
+      <stop offset="1" stop-color="#D4AF37" />
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- circular badge background -->
+  <circle cx="64" cy="64" r="60" fill="#0b0b0b" />
+
+  <!-- lock (centered and scaled to occupy most of the circle) -->
+  <g transform="translate(32,24) scale(0.75)">
+    <g filter="url(#shadow)">
+      <!-- lock body (solid) -->
+      <path fill="url(#goldGrad)" d="M40 52a6 6 0 0 0-6 6v14a6 6 0 0 0 6 6h24a6 6 0 0 0 6-6V58a6 6 0 0 0-6-6H40z"/>
+    </g>
+    <!-- shackle (stroke) -->
+    <path d="M28 52V38a20 20 0 1 1 40 0v14" stroke="#F8E7C1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <!-- keyhole (dark) -->
+    <path d="M52 66a4 4 0 1 1-8 0 4 4 0 0 1 8 0z" fill="#081017" />
+    <rect x="49" y="70" width="6" height="8" rx="2" fill="#081017" />
+  </g>
+</svg>

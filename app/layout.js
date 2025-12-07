@@ -6,7 +6,6 @@ import Footer from "./components/Footer";
 import ToasterProvider from './components/ToasterProvider'
 import WhatsAppFloating from './components/WhatsAppFloating'
 import ImageOrientationNormalizer from './components/ImageOrientationNormalizer'
-import BottomNav from './components/BottomNav'
 
 const inter = Inter({
   variable: "--font-inter",
@@ -89,7 +88,6 @@ export default function RootLayout({ children }) {
         <ImageOrientationNormalizer />
         {children}
         <Footer />
-        <BottomNav />
         <WhatsAppFloating />
       </body>
     </html>

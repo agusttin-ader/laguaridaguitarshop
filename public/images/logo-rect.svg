@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" aria-label="La Guarida — Instrumentos" viewBox="0 0 560 300"><rect width="560" height="300" fill="transparent" rx="6"/><g text-anchor="middle"><text dy="-6" style="font-family:Inter,system-ui,-apple-system,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;;font-weight:700;font-size:40px;fill:#fff;letter-spacing:6px" transform="translate(280 150)">LA GUARIDA</text><text dy="36" style="font-family:Inter,system-ui,-apple-system,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;;font-weight:600;font-size:18px;fill:#cfcfcf;letter-spacing:4px" transform="translate(280 150)">INSTRUMENTOS</text></g></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 300" role="img" aria-label="La Guarida — Instrumentos">
+  <defs>
+    <style>
+      .title { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'; font-weight: 700; font-size: 40px; fill: #FFFFFF; letter-spacing: 6px }
+      .subtitle { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'; font-weight: 600; font-size: 18px; fill: #cfcfcf; letter-spacing: 4px }
+    </style>
+  </defs>
+
+  <!-- transparent background so header background shows through -->
+  <rect x="0" y="0" width="560" height="300" rx="6" fill="transparent" />
+
+  <!-- Centered text only (no gold frame) -->
+  <g text-anchor="middle" transform="translate(280,150)">
+    <text class="title" dy="-6">LA GUARIDA</text>
+    <text class="subtitle" dy="36">INSTRUMENTOS</text>
+  </g>
+</svg>
