@@ -44,9 +44,9 @@ export default function ProductCard({ product, href = null, isFirst = false }){
                   window.open(whatsappHref, '_blank', 'noopener')
                 }
               }}
-              className="flex w-4/5 mx-auto items-center justify-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 cta-gold-hover"
+              className="inline-flex items-center gap-2 rounded-full bg-[#EDEDED] px-3 py-1 text-sm font-medium text-[#0D0D0D] transition duration-200 ease-out group-hover:scale-105 hover:bg-[#D4AF37] hover:text-[#081017] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 cta-gold-hover"
             >
-              Consultar
+              Ver detalles
             </button>
           </div>
       </div>

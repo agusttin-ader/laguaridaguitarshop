@@ -55,12 +55,12 @@ function GuitarCard({ title, description, price, image }) {
         </div>
 
         <div className="mt-4 flex items-center justify-between gap-3">
-          <div className="flex items-baseline gap-3">
-            <span className="text-lg md:text-xl font-extrabold text-[var(--revamp-foreground)]">{price}</span>
-            <span className="text-sm text-white/60">USD</span>
+          <div className="flex items-baseline gap-3 whitespace-nowrap">
+            <span className="text-lg md:text-xl font-extrabold text-[var(--revamp-foreground)] whitespace-nowrap">{price}</span>
+            <span className="text-sm text-white/60 whitespace-nowrap">USD</span>
           </div>
 
-          <Button href={whatsappHref} className="w-4/5 mx-auto text-[#081017] bg-[var(--revamp-gold)] cta-gold-hover">Consultar</Button>
+          <Button href={whatsappHref} className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-[#081017] bg-[var(--revamp-gold)] cta-gold-hover">Ver detalles</Button>
         </div>
       </div>
     </article>
