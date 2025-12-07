@@ -686,7 +686,7 @@ export default function ProductPage({ model }) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Contactar por WhatsApp: Me interesa ${model.title}`}
-              className="revamp-cta primary whatsapp-cta w-full flex items-center justify-center gap-3"
+              className="revamp-cta primary whatsapp-cta w-4/5 mx-auto flex items-center justify-center gap-3"
             >
               <FaWhatsapp className="h-4 w-4 text-white" aria-hidden />
               Me interesa

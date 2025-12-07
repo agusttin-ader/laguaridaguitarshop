@@ -387,15 +387,13 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="brand" style={{display:'grid', gridTemplateColumns:'auto 1fr', alignItems:'center', gap:12, alignContent:'center'}}>
-          <div className="brand-mark" aria-hidden style={{width:160, height:80, display:'flex', alignItems:'center', justifyContent:'center'}}>
-            <Image src="/images/logo-rect.svg" alt="La Guarida" width={160} height={80} className="object-contain block" style={{objectFit:'contain', width:'100%', height:'100%'}} />
+        <div className="brand" style={{display:'flex', alignItems:'center', gap:16}}>
+          <div className="brand-mark" aria-hidden style={{width:220, height:88, display:'flex', alignItems:'center', justifyContent:'center', flex:'0 0 220px', background:'transparent', boxShadow:'none', border:'none'}}>
+            <Image src="/images/logo-rect.svg" alt="La Guarida" width={220} height={88} className="object-contain block" style={{objectFit:'contain', width:'100%', height:'100%', background:'transparent', boxShadow:'none'}} />
           </div>
-          <div style={{display:'grid', alignContent:'center', justifyItems:'start', gap:4}}>
-              <div className="brand-title" style={{margin:0, fontSize:18, lineHeight:1, wordSpacing:'10px', letterSpacing:'0.6px'}}>
-                La Guarida Guitarshop
-              </div>
-            <div className="muted" style={{fontSize:12, opacity:0.9}}>Acceso administradores</div>
+          <div style={{textAlign:'left'}}>
+            <div className="brand-title">La Guarida Guitarshop</div>
+            <div className="muted" style={{fontSize:12}}>Acceso administradores</div>
           </div>
         </div>
 
@@ -420,13 +418,13 @@ export default function AdminLogin() {
           </div>
 
           <div style={{display:'flex',justifyContent:'center',gap:8,alignItems:'center',marginTop:8}}>
-            <button className="btn btn-primary" type="submit" disabled={loading}>
+            <button className="btn whatsapp-cta" type="submit" disabled={loading} style={{width:'50%', maxWidth: '50%', padding:'12px 20px', margin:'0 auto', textAlign:'center', display:'block'}}>
               {loading && (
                 <svg className="spinner" width="16" height="16" viewBox="0 0 50 50" aria-hidden>
                   <circle className="path" cx="25" cy="25" r="20" fill="none" strokeWidth="5"></circle>
                 </svg>
               )}
-              <span style={{marginLeft: loading ? 8 : 0}}>{loading? 'Procesando...' : 'Entrar'}</span>
+              <span style={{marginLeft: loading ? 8 : 0, display:'inline-block', width:'100%', textAlign:'center'}}>{loading? 'Procesando...' : 'Iniciar sesión'}</span>
             </button>
           </div>
         </form>

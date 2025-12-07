@@ -60,7 +60,7 @@ function GuitarCard({ title, description, price, image }) {
             <span className="text-sm text-white/60">USD</span>
           </div>
 
-          <Button href={whatsappHref} className="text-[#081017] bg-[var(--revamp-gold)]">Consultar</Button>
+          <Button href={whatsappHref} className="w-4/5 mx-auto text-[#081017] bg-[var(--revamp-gold)] cta-gold-hover">Consultar</Button>
         </div>
       </div>
     </article>
