@@ -160,6 +160,42 @@ export async function DELETE(request) {
     console.error('Failed to remove product from products.json', err)
   }
 
+  // Also remove the deleted product id from the persisted settings (featured list)
+  try {
+    const settingsPath = path.join(process.cwd(), 'data', 'settings.json')
+    let settings = {}
+    try {
+      const raw = await fs.promises.readFile(settingsPath, 'utf8')
+      settings = JSON.parse(raw || '{}')
+    } catch {
+      settings = {}
+    }
+
+    const targetId = id || (dbResult && Array.isArray(dbResult) && dbResult[0] && dbResult[0].id) || null
+    let didChange = false
+    if (targetId) {
+      if (Array.isArray(settings.featured)) {
+        const before = settings.featured.length
+        settings.featured = settings.featured.filter((fid) => fid !== targetId)
+        if (settings.featured.length !== before) didChange = true
+      }
+      if (settings.featuredMain && typeof settings.featuredMain === 'object' && Object.prototype.hasOwnProperty.call(settings.featuredMain, targetId)) {
+        delete settings.featuredMain[targetId]
+        didChange = true
+      }
+    }
+
+    if (didChange) {
+      try {
+        await fs.promises.writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf8')
+      } catch (werr) {
+        console.error('Failed to write settings.json after product delete', werr)
+      }
+    }
+  } catch (err) {
+    console.error('Failed to update settings.json after delete', err)
+  }
+
   return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
 
