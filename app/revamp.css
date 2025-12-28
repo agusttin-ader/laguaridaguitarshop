@@ -18,7 +18,7 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 .hero-section {
   background: linear-gradient(180deg, rgba(11,11,11,0.96), rgba(6,6,6,0.98));
   color: var(--revamp-foreground);
-  padding-top: 18px;
+  padding-top: 22px;
   padding-bottom: 40px;
   /* let hero size itself on small screens so text doesn't get cut */
 }
@@ -47,10 +47,18 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 /* Make hero heading slightly more refined and compact on mobile */
 .hero-section h1 {
   font-weight: 600;
-  line-height: 1.05;
+  line-height: 1.02;
   margin: 0;
 }
 .hero-section p { color: #cfcfcf; margin-top: 10px }
+
+/* (temporary mobile-only hero tweaks removed here to avoid affecting desktop) */
+
+/* (product page layout tweaks removed — reverted to original structure) */
+
+/* Avoid heavy animations for hero per guidelines */
+.hero-section .hero-cta, .hero-section h1, .hero-section p { transition: none; }
+
 
 /* small-phone specific tuning removed — keeping mobile-first defaults */
 
@@ -70,6 +78,158 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 .mobile-drawer { left: 0; right: 0 }
 .revamp-footer a { color: var(--revamp-muted); transition: color 160ms ease }
 .revamp-footer a:hover { color: var(--revamp-gold) }
+
+/* Footer: mobile & tablet improvements
+   - increase vertical padding
+   - stack elements vertically for easier reading
+   - improve contrast and touch targets
+   - keep links and logic unchanged
+*/
+@media (max-width: 1023px) {
+  .revamp-footer {
+    padding: 28px 16px; /* more vertical breathing, slight horizontal inset */
+    background: linear-gradient(180deg, rgba(6,6,6,1), rgba(12,12,12,1));
+    border-top-color: rgba(255,255,255,0.04);
+  }
+
+  .revamp-footer .max-w-7xl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .revamp-footer .footer-row {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .revamp-footer a {
+    display: inline-block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: #f3f3f3;
+    background: transparent;
+  }
+
+  .revamp-footer a:hover, .revamp-footer a:focus { color: var(--revamp-gold); background: rgba(212,175,55,0.04); }
+
+  /* increase contrast for footer headings/text */
+  .revamp-footer .footer-heading { color: #ffffff; font-weight: 700; }
+  .revamp-footer .footer-sub { color: #d9d9d9; }
+
+  /* Ensure legal/credits are readable but de-emphasized */
+  .revamp-footer .footer-legal { font-size: 0.92rem; color: #cfcfcf; opacity: 0.9; }
+}
+
+@media (max-width: 639px) {
+  .revamp-footer {
+    padding: 34px 12px;
+  }
+  .revamp-footer .max-w-7xl { gap: 16px; }
+  .revamp-footer a { width: 100%; max-width: 360px; }
+}
+
+/* Layout organization: make footer content flow responsively
+   - mobile: stacked, centered
+   - desktop: row with social links left and legal text right
+   This uses structural selectors so we don't need to change JSX markup. */
+.revamp-footer .max-w-7xl {
+  box-sizing: border-box;
+  height: auto !important; /* override any fixed utility height */
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.revamp-footer .max-w-7xl > .w-full {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.revamp-footer .max-w-7xl > .w-full > .mb-3 {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+  /* Ensure icon + text alignment consistency inside the social row */
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 a,
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px; /* space between icon and text */
+    vertical-align: middle;
+    padding: 8px 12px;
+    min-height: 44px; /* consistent hit area */
+    line-height: 1;
+    justify-content: center; /* keeps visual centered on narrow screens */
+    color: var(--revamp-muted);
+    background: transparent;
+  }
+
+  /* Make sure SVG icons have a consistent size and don't stretch */
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    display: inline-block;
+  }
+
+  /* Keep the label text vertically centered and prevent wrapping between icon and text when possible */
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 span {
+    display: inline-block;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+.revamp-footer .max-w-7xl > .w-full .footer-legal {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .revamp-footer {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .revamp-footer .max-w-7xl {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* On larger viewports arrange items horizontally */
+  .revamp-footer .max-w-7xl > .w-full {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 {
+    justify-content: flex-start;
+  }
+
+  .revamp-footer .max-w-7xl > .w-full .footer-legal {
+    text-align: right;
+  }
+
+  /* ensure social link visuals are compact on desktop */
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 a,
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: var(--revamp-muted);
+    background: transparent;
+  }
+}
 
 /* Make image containers responsive and keep heavy effects on larger viewports */
 @media (min-width: 768px) {
@@ -162,6 +322,70 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   .hero-section .revamp-title { font-size: 1.5rem }
 }
 
+/* Increase card inner padding and section spacing on mobile/tablet for better hierarchy */
+@media (max-width: 1023px) {
+  .revamp-card { padding: 14px !important; }
+  .revamp-card .px-5 { padding-left: 16px !important; padding-right: 16px !important; }
+  .revamp-card .py-5 { padding-top: 14px !important; padding-bottom: 14px !important; }
+
+  /* Increase vertical rhythm between top-level sections */
+  .revamp-section { padding-top: 2.5rem; padding-bottom: 2.75rem; }
+  .revamp-section + .revamp-section { margin-top: 1.25rem; }
+
+  /* Improve hierarchy: larger section titles, muted subtitles */
+  .revamp-section-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.9rem; }
+  .revamp-subtitle { color: #c9c9c9; font-size: 0.95rem; }
+
+  /* Card title vs body spacing */
+  .revamp-card .card-title { font-size: 1.05rem; margin-bottom: 8px; font-weight: 700; }
+  .revamp-card .card-body { font-size: 0.98rem; color: #d6d6d6; line-height: 1.5; }
+
+  /* CTAs aligned and separated from body */
+  .revamp-card .revamp-cta { margin-top: 12px; }
+}
+
+/* Typography refinement for mobile & tablet: increase headings, reduce paragraph size,
+   and adjust line-height for legibility without changing fonts. */
+@media (max-width: 1023px) {
+  /* Primary hero and section headings */
+  .revamp-title { font-size: 2.4rem; line-height: 1.06; }
+  .revamp-section-title { font-size: 1.25rem; line-height: 1.08; }
+
+  /* Card titles */
+  .revamp-card .card-title { font-size: 1.12rem; line-height: 1.12; }
+
+  /* Subhead / subtitle reduction for better hierarchy */
+  .revamp-subtitle { font-size: 0.95rem; line-height: 1.45; }
+
+  /* Paragraph/body copy slightly smaller and with relaxed line-height for mobile */
+  .revamp-card .card-body, .product-description p, .prose p, .revamp-section p, p {
+    font-size: 0.96rem; /* slightly reduced */
+    line-height: 1.5; /* comfortable reading on narrow screens */
+    color: #d7d7d7;
+  }
+
+  /* Tighten small captions and metadata slightly */
+  .text-sm, small { font-size: 0.85rem; line-height: 1.3; }
+}
+
+@media (max-width: 639px) {
+  /* Mobile specific: keep headings strong but readable */
+  .revamp-title { font-size: 2.05rem; line-height: 1.08; }
+  .revamp-section-title { font-size: 1.08rem; line-height: 1.12; }
+  .revamp-card .card-title { font-size: 1.0rem; }
+  .revamp-card .card-body, .revamp-section p, .prose p, p { font-size: 0.94rem; line-height: 1.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revamp-title, .revamp-section-title, .revamp-card .card-title { transition: none !important; }
+}
+
+@media (max-width: 639px) {
+  .revamp-card { padding: 12px !important; }
+  .revamp-section { padding-top: 1.75rem; padding-bottom: 2rem; }
+  .revamp-section-title { font-size: 1.0rem; margin-bottom: 0.6rem; }
+}
+
 /* Make hero image and layout adapt so text is never cut off */
 .hero-section .max-w-7xl { padding-left: 12px; padding-right: 12px }
 .hero-section .hero-copy { padding-top: 18px; padding-bottom: 18px }
@@ -190,26 +414,35 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   background: linear-gradient(180deg, rgba(8,8,8,0.98), rgba(10,10,10,0.98));
   border-bottom: 1px solid rgba(255,255,255,0.03);
 }
-.revamp-header .mx-auto { padding-left: 14px; padding-right: 14px }
+/* Compact header heights for mobile/tablet while preserving desktop sizing */
+.revamp-header .mx-auto {
+  padding-left: 14px;
+  padding-right: 14px;
+  height: 56px; /* reduced mobile header height */
+  align-items: center;
+}
 .revamp-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px; /* slightly tighter brand spacing on small screens */
 }
+/* Make the rectangular logo mark smaller on mobile and tablet, expand on larger viewports */
 .revamp-brand-mark {
-  width: 128px;
-  height: 128px;
-  border-radius: 20px;
+  width: 96px;
+  height: 44px;
+  border-radius: 8px;
   background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 128px;
+  flex: 0 0 auto;
+  overflow: hidden; /* ensure any decorative edges of the SVG are clipped */
+  position: relative; /* for pseudo elements that mask decorative edges */
 }
 .revamp-logo {
   font-weight: 600;
   letter-spacing: 0.2px;
-  font-size: 1rem;
+  font-size: 0.98rem;
 }
 
 /* subtle gold glow around the logo image to lift it from the header */
@@ -217,7 +450,46 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   border-radius: 10px;
   box-shadow: 0 8px 22px rgba(212,175,55,0.12), 0 1px 0 rgba(0,0,0,0.35) inset;
   transition: box-shadow 200ms ease, transform 160ms ease;
+  /* force the image to cover and be slightly wider so decorative gold bars are outside the visible area */
+  object-fit: cover !important;
+  object-position: center !important;
+  width: 140% !important;
+  height: 100% !important;
+  max-width: none !important;
+  display: block !important;
 }
+
+/* Mask the decorative gold vertical bars by placing solid covers at the sides
+   This leaves only the central dark rectangle + text visible. Adjust widths
+   to taste if golden bars are wider/narrower. */
+.revamp-brand-mark::before,
+.revamp-brand-mark::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18px; /* cover thickness; adjust if needed */
+  background: #0D0D0D; /* same as header background to blend */
+  z-index: 5;
+  pointer-events: none;
+}
+.revamp-brand-mark::before { left: 0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.revamp-brand-mark::after { right: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+/* Apply same masking for admin/login brand mark which uses `.brand-mark` */
+.brand-mark { position: relative; overflow: hidden; }
+.brand-mark::before, .brand-mark::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 18px;
+  background: #0D0D0D;
+  z-index: 5;
+  pointer-events: none;
+}
+.brand-mark::before { left: 0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.brand-mark::after { right: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 .revamp-brand-mark .logo-mark:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 14px 36px rgba(212,175,55,0.16), 0 1px 0 rgba(0,0,0,0.35) inset;
@@ -284,7 +556,7 @@ a.revamp-cta.whatsapp-cta:hover {
 
 /* Navigation links - larger hit area on mobile */
 .revamp-nav-link {
-  padding: 10px 12px;
+  padding: 8px 10px; /* slightly tighter on mobile for compact header */
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
@@ -293,12 +565,12 @@ a.revamp-cta.whatsapp-cta:hover {
 
 /* Mobile hamburger: larger tap target + subtle ring */
 .revamp-header .hamburger-btn {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 .revamp-header .hamburger-btn:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px }
 
@@ -312,6 +584,119 @@ a.revamp-cta.whatsapp-cta:hover {
   .revamp-brand-mark { width:208px; height:208px }
   .revamp-logo { font-size: 1.05rem }
 }
+
+/* Tablet breakpoint: slightly larger header and logo than mobile but smaller than desktop */
+@media (min-width: 768px) {
+  .revamp-header .mx-auto { height: 68px; }
+  .revamp-brand-mark { width: 128px; height: 40px; border-radius: 10px; }
+  .revamp-header .hamburger-btn { width: 44px; height: 44px; }
+  .revamp-nav-link { padding: 9px 12px; }
+}
+
+/* Tablet (landscape phones and tablets) — increase logo presence */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .revamp-header .mx-auto { height: 92px; }
+  /* Increase logo container and make the image fill its height for better presence */
+  .revamp-brand-mark { width: 200px; height: 64px; border-radius: 12px; padding: 4px; }
+  /* Make the image fill the available height for stronger presence */
+  .revamp-brand-mark .logo-mark {
+    display: block;
+    height: 64px; /* increase image height to fill container */
+    max-width: 220px;
+    width: auto;
+    object-fit: contain;
+  }
+  .revamp-brand { gap: 12px; }
+  .revamp-header .hamburger-btn { width: 50px; height: 50px; }
+  .revamp-nav-link { padding: 10px 14px; }
+}
+
+/* ------------------------------------------------------------------
+   Header entrance animation (mobile & tablet)
+   - Subtle fade + vertical slide on initial load
+   - Duration: ~240ms, gentle easing
+   - Respects prefers-reduced-motion
+   - Only applied on viewports up to tablet width (<= 1023px)
+   ------------------------------------------------------------------ */
+@keyframes revamp-header-enter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revamp-header .mx-auto { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 1023px) {
+  /* run animation once on initial render */
+  .revamp-header .mx-auto {
+    animation: revamp-header-enter 240ms cubic-bezier(.2,.9,.3,1) both;
+    will-change: transform, opacity;
+  }
+
+  /* small fine-tuning for tighter feel on phones */
+  .revamp-header .mx-auto { padding-left: 12px; padding-right: 12px; }
+  .revamp-brand { gap: 6px; }
+  .revamp-nav-link { padding: 7px 10px; }
+
+  /* make sure the logo image behaves well in the smaller container */
+  .revamp-brand-mark .logo-mark {
+    max-width: 100%;
+    height: 24px; /* keep visual balance with reduced header height */
+    object-fit: contain;
+  }
+
+  /* slightly less rounded hamburger on tiny screens for compactness */
+  .revamp-header .hamburger-btn { border-radius: 8px; }
+}
+
+/* Small-screen tuning: increase logo mark size per common mobile widths
+   - 320px (very small phones)
+   - 375px (small/medium phones)
+   - 414/425px (larger phones)
+   Keep visual balance and preserve final desktop sizes. */
+@media (max-width: 320px) {
+  /* Very small phones: keep logo visible but not oversized */
+  .revamp-brand-mark { width: 110px; height: 40px; }
+  .revamp-brand-mark .logo-mark { height: 30px; max-width: 96px; }
+}
+
+@media (min-width: 321px) and (max-width: 375px) {
+  /* Small/medium phones: tuned to avoid overflow */
+  .revamp-brand-mark { width: 128px; height: 44px; }
+  .revamp-brand-mark { overflow: hidden; }
+  .revamp-brand-mark .logo-mark { height: 30px; max-width: 120px; box-shadow: 0 6px 14px rgba(212,175,55,0.08); }
+}
+
+@media (min-width: 376px) and (max-width: 425px) {
+  /* Larger phones: tuned down to fit header */
+  .revamp-brand-mark { width: 150px; height: 48px; overflow: hidden; }
+  .revamp-brand-mark .logo-mark { height: 36px; max-width: 140px; box-shadow: 0 6px 16px rgba(212,175,55,0.09); }
+}
+
+/* Specific tuning for common mobile widths (375px, 393px etc.)
+   Crop the rectangular SVG so the golden vertical bars are outside
+   the visible area by making the image cover and slightly wider than
+   its container. The container keeps `overflow:hidden` so edges are clipped.
+*/
+@media (min-width: 375px) and (max-width: 425px) {
+  .revamp-brand-mark { overflow: hidden; }
+  .revamp-brand-mark .logo-mark {
+    object-fit: cover !important;
+    object-position: center !important;
+    width: 140% !important; /* push golden edges out of view */
+    height: 100% !important;
+    max-width: none !important;
+    display: block !important;
+  }
+}
+
+@media (min-width: 426px) and (max-width: 767px) {
+  /* Narrow tablets / landscape phones */
+  .revamp-brand-mark { width: 160px; height: 52px; }
+  .revamp-brand-mark .logo-mark { height: 42px; max-width: 144px; }
+}
+
 
 
 /* Hero specific typography utilities (mobile-first) */
@@ -334,6 +719,118 @@ a.revamp-cta.whatsapp-cta:hover {
   .revamp-subtitle { font-size: 1.05rem; }
 }
 
+/* (global typographic overrides removed — keeping previous desktop defaults) */
+
+
+/* Optimize hero for mobile & tablet: increase title hierarchy, reduce subtitle,
+   improve vertical spacing and cap hero height to 70% of viewport. Only styles.
+   Respects prefers-reduced-motion. */
+@media (max-width: 1023px) {
+  .hero-section {
+    max-height: 70vh;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center; /* center content vertically */
+    padding-top: 18px; /* modest breathing */
+    padding-bottom: 18px;
+    overflow: hidden;
+  }
+
+  /* Make title more prominent on tablet/mobile without changing markup */
+  .revamp-title {
+    font-size: 2.25rem; /* tablet baseline */
+    line-height: 1.04;
+    margin: 0 0 8px 0;
+  }
+
+  /* Subtle reduction for secondary text to increase hierarchy */
+  .revamp-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    margin-top: 6px;
+    max-width: 40ch;
+    color: #d1d1d1;
+  }
+
+  /* Tighter copy paddings so hero doesn't exceed target height */
+  .hero-section .hero-copy {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  /* CTAs sit slightly closer to the copy on small screens */
+  .hero-section .hero-cta {
+    margin-top: 10px;
+  }
+
+  /* If hero contains large images, ensure they scale down */
+  .hero-section img, .hero-section .hero-image { max-height: 46vh; object-fit: cover; }
+  }
+
+@media (max-width: 639px) {
+  /* Mobile-specific tuning: maintain strong headline presence but keep it readable */
+  .revamp-title { font-size: 1.95rem; line-height: 1.06; }
+  .revamp-subtitle { font-size: 0.9rem; }
+  .hero-section { padding-top: 14px; padding-bottom: 14px; }
+  .hero-section img, .hero-section .hero-image { max-height: 50vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-section, .revamp-title, .revamp-subtitle { transition: none !important; animation: none !important; }
+}
+
+/* Buttons / CTAs: mobile & tablet refinements
+   - increase touch target (min-height)
+   - improve visual weight (font-weight, subtle shadow)
+   - stronger contrast while preserving existing color tokens
+   - smooth transitions for hover/active
+   - applied only on mobile/tablet (<=1023px)
+*/
+@media (max-width: 1023px) {
+  .revamp-cta, .hero-cta, .btn-gold, .whatsapp-cta, .revamp-card .revamp-cta {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    min-height: 50px !important; /* larger touch target */
+    padding: 12px 18px !important;
+    font-weight: 700 !important;
+    font-size: 0.98rem !important;
+    border-radius: 12px !important;
+    transition: transform 180ms var(--header-ease), box-shadow 180ms var(--header-ease), background 160ms var(--header-ease), color 160ms var(--header-ease) !important;
+    will-change: transform, box-shadow;
+  }
+
+  /* Make primary CTA more prominent while keeping existing color variables */
+  .revamp-cta.cta-primary, .revamp-cta.primary, a.revamp-cta.cta-primary {
+    box-shadow: 0 10px 30px rgba(2,6,23,0.36);
+  }
+
+  /* Improve telephone/whatsapp style contrast if present */
+  .revamp-cta.whatsapp-cta, .whatsapp-cta {
+    padding: 12px 16px !important;
+    border-width: 1.5px !important;
+    box-shadow: 0 10px 30px rgba(212,175,55,0.10) !important;
+  }
+
+  /* Active/tap state must be immediate and clear on touch */
+  .revamp-cta:active, .hero-cta:active, .whatsapp-cta:active {
+    transform: translateY(0) !important;
+    opacity: 0.95 !important;
+    box-shadow: 0 6px 14px rgba(2,6,23,0.28) !important;
+  }
+
+  /* Hover on touch devices will be ignored; keep subtle hover for pointer devices */
+  .revamp-cta:hover, .hero-cta:hover { transform: translateY(-2px); }
+
+  /* Ensure buttons use full width in stacked mobile contexts if they are block elements */
+  .revamp-card .revamp-cta, .hero-section .hero-cta { width: 100%; max-width: 100%; }
+}
+
+@media (max-width: 639px) {
+  .revamp-cta, .hero-cta, .whatsapp-cta { min-height: 54px !important; padding: 14px 16px !important; font-size: 1rem !important; }
+}
+
 @media (min-width: 1024px) {
   .revamp-title { font-size: 3rem; /* ~48px */ }
   .revamp-subtitle { font-size: 1.125rem; }
@@ -349,6 +846,30 @@ a.revamp-cta.whatsapp-cta:hover {
 .product-thumbnails { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 6px; }
 .product-thumbnails img { width: 72px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; }
 .product-thumbnails img[aria-current="true"] { box-shadow: 0 8px 20px rgba(2,6,23,0.45); transform: translateY(-3px); border-color: rgba(212,175,55,0.12); }
+
+/* Admin login: responsive logo sizing tweaks
+   - Small phones (<=320px): make logo visually larger
+   - Narrow phones/tablets (~321-425px): scale it down a bit
+   - Default: moderate scale to fit the card
+*/
+.admin-login .brand-mark { width: 100%; max-width: 420px; height: 140px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; overflow: visible; }
+.admin-login .brand-mark img { width: 100%; height: auto; transform: scale(1.5); transform-origin: center; transition: transform 160ms ease; }
+
+@media (max-width: 320px) {
+  .admin-login .brand-mark { max-width: 320px; height: 180px; }
+  .admin-login .brand-mark img { transform: scale(1.95); }
+}
+
+@media (min-width: 321px) and (max-width: 375px) {
+  .admin-login .brand-mark { max-width: 300px; height: 120px; }
+  .admin-login .brand-mark img { transform: scale(1.25); }
+}
+
+@media (min-width: 376px) and (max-width: 425px) {
+  .admin-login .brand-mark { max-width: 260px; height: 110px; }
+  .admin-login .brand-mark img { transform: scale(1.05); }
+}
+
 .product-info { padding: 14px; background: transparent; }
 .product-ctas { display: flex; gap: 10px; margin-top: 12px; }
 .product-ctas .revamp-cta { flex: 1; }
@@ -387,6 +908,175 @@ a.revamp-cta.whatsapp-cta:hover {
               color var(--micro-duration) ease;
   will-change: transform, box-shadow;
 }
+
+/* Header-specific timing and easing variables to keep consistency */
+:root {
+  --header-ease: cubic-bezier(.2,.9,.3,1);
+  --header-fast: 160ms;
+  --header-medium: 240ms;
+}
+
+/* ---------------------------
+   Logo micro-presence animation
+   - subtle scale (0.97 -> 1) + opacity
+   - short duration, respects reduced-motion
+   --------------------------- */
+.revamp-brand-mark .logo-mark {
+  transition: transform var(--header-fast) var(--header-ease), opacity var(--header-fast) var(--header-ease);
+  transform-origin: center center;
+}
+
+@keyframes revamp-logo-presence {
+  from { transform: scale(0.97); opacity: 0.9; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revamp-brand-mark .logo-mark { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 1023px) {
+  /* run logo presence animation once on initial render on mobile/tablet */
+  .revamp-brand-mark .logo-mark { animation: revamp-logo-presence var(--header-fast) var(--header-ease) both; }
+
+  /* subtle interactive presence on hover/focus (non-intrusive) */
+  .revamp-brand-mark .logo-mark:hover,
+  .revamp-brand-mark .logo-mark:focus {
+    transform: scale(1.01);
+    opacity: 1;
+  }
+}
+
+/* Fine visual balance tweaks for very small viewports */
+@media (max-width: 425px) {
+  .revamp-brand { gap: 6px; }
+  .revamp-brand-mark { padding-right: 6px; }
+  .revamp-brand-mark .logo-mark { display: block; width: auto; max-width: 100%; height: auto; }
+  /* ensure the header container doesn't overflow when logo grows */
+  .revamp-header .mx-auto { padding-left: 10px; padding-right: 10px; }
+}
+
+@media (max-width: 375px) {
+  .revamp-brand { gap: 5px; }
+  .revamp-brand-mark { padding-right: 4px; }
+}
+
+
+/* ---------------------------
+   Navigation link polish
+   - color/opacity transitions
+   - animated underline using scaleX
+   - clear active state on touch (mobile)
+   --------------------------- */
+.revamp-nav-link {
+  position: relative;
+  transition: color var(--header-fast) var(--header-ease), opacity var(--header-fast) var(--header-ease), transform var(--header-fast) var(--header-ease);
+}
+.revamp-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center center;
+  height: 2px;
+  width: 56%;
+  background: var(--revamp-gold, rgba(212,175,55,1));
+  transition: transform var(--header-fast) var(--header-ease), opacity var(--header-fast) var(--header-ease);
+  opacity: 0;
+  border-radius: 2px;
+}
+.revamp-nav-link:hover::after,
+.revamp-nav-link:focus::after,
+.revamp-nav-link[aria-current="page"]::after {
+  transform: translateX(-50%) scaleX(1);
+  opacity: 1;
+}
+
+/* stronger feedback when pressing on mobile (tap) */
+.revamp-nav-link:active {
+  opacity: 0.85;
+  transform: translateY(0.5px);
+}
+
+/* ensure accessible contrast doesn't degrade on hover */
+.revamp-nav-link:hover, .revamp-nav-link:focus { color: var(--revamp-gold); }
+
+/* ---------------------------
+   Header CTA polish (if present)
+   - subtle shadow & lift on hover
+   --------------------------- */
+.revamp-header .revamp-cta {
+  transition: box-shadow var(--header-fast) var(--header-ease), transform var(--header-fast) var(--header-ease), background var(--header-fast) var(--header-ease);
+}
+.revamp-header .revamp-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(2,6,23,0.36); }
+.revamp-header .revamp-cta:active { transform: translateY(0); box-shadow: 0 6px 18px rgba(2,6,23,0.28); }
+
+/* ---------------------------
+   Hamburger icon optimized animation
+   - use small rotations/translates and fade middle line
+   - responds to .active class set by existing JS
+   --------------------------- */
+.hamburger-icon .line {
+  transition: transform var(--header-medium) var(--header-ease), opacity var(--header-medium) var(--header-ease);
+  transform-origin: center center;
+}
+.hamburger-btn.active .hamburger-icon .line.top {
+  transform: translateY(6px) rotate(45deg);
+}
+.hamburger-btn.active .hamburger-icon .line.middle {
+  opacity: 0;
+  transform: scaleX(0.6);
+}
+.hamburger-btn.active .hamburger-icon .line.bottom {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* keep hover affordance on the button itself */
+.revamp-header .hamburger-btn:hover { transform: translateY(-1px); }
+
+/* ---------------------------
+   Mobile drawer (menu) entry/exit
+   - fade + slight translateY
+   - no layout push: use transform + opacity
+   --------------------------- */
+.mobile-drawer {
+  transition: opacity 200ms var(--header-ease), transform 200ms var(--header-ease);
+  will-change: transform, opacity;
+}
+.mobile-drawer.closed {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+.mobile-drawer.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-drawer, .hamburger-icon .line, .revamp-nav-link::after, .revamp-brand-mark .logo-mark { transition: none !important; animation: none !important; }
+}
+
+/* ---------------------------
+   Scroll behavior helpers (CSS-only)
+   - styles applied when a controlling class (e.g. .shrink) is toggled by JS
+   - we do NOT add JS here; these rules will animate if a class is present
+   --------------------------- */
+.revamp-header {
+  transition: background 160ms var(--header-ease), backdrop-filter 160ms var(--header-ease);
+}
+.revamp-header.shrink {
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(6px);
+}
+.revamp-header.shrink .mx-auto {
+  height: 52px; /* smaller header when scrolled */
+  transition: height 160ms var(--header-ease), padding 160ms var(--header-ease);
+  padding-left: 12px; padding-right: 12px;
+}
+
 
 /* Slight lift on card hover (already subtle elsewhere) */
 .revamp-card:hover { transform: translateY(-4px) scale(1.002); }

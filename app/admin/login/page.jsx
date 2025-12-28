@@ -387,26 +387,22 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <div className="brand" style={{display:'flex', alignItems:'center', gap:16}}>
-          <div className="brand-mark" aria-hidden style={{width:220, height:88, display:'flex', alignItems:'center', justifyContent:'center', flex:'0 0 220px', background:'transparent', boxShadow:'none', border:'none'}}>
-            <Image src="/images/logo-rect.svg" alt="La Guarida" width={220} height={88} className="object-contain block" style={{objectFit:'contain', width:'100%', height:'100%', background:'transparent', boxShadow:'none'}} />
-          </div>
-          <div style={{textAlign:'left'}}>
-            <div className="brand-title">La Guarida Guitarshop</div>
-            <div className="muted" style={{fontSize:12}}>Acceso administradores</div>
+          <div className="brand" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexDirection:'column', textAlign:'center'}}>
+            <div className="brand-mark" aria-hidden style={{width:'100%', maxWidth:420, height:140, display:'flex', alignItems:'center', justifyContent:'center', background:'transparent', boxShadow:'none', border:'none', marginBottom:12, overflow:'hidden'}}>
+            <Image loading="eager" src="/images/logo-rect.svg" alt="La Guarida" width={420} height={176} className="object-contain block" style={{objectFit:'cover', objectPosition:'center', width:'130%', height:'100%', maxHeight:140, background:'transparent', boxShadow:'none'}} />
           </div>
         </div>
 
         <form onSubmit={handleLogin}>
           <div className="form-row">
-            <label>Email</label>
-            <input placeholder="tu@correo.com" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required />
+            <label htmlFor="admin-email">Email</label>
+            <input id="admin-email" name="email" placeholder="tu@correo.com" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} autoComplete="email" required />
           </div>
 
           <div className="form-row">
-            <label>Contraseña</label>
+            <label htmlFor="admin-password">Contraseña</label>
             <div className="input-wrap" style={{position:'relative'}}>
-              <input className={`password-input ${showPassword ? 'revealed' : ''}`} placeholder="••••••••" type={showPassword ? 'text' : 'password'} value={password} onChange={(e)=>setPassword(e.target.value)} required />
+              <input id="admin-password" name="password" className={`password-input ${showPassword ? 'revealed' : ''}`} placeholder="••••••••" type={showPassword ? 'text' : 'password'} value={password} onChange={(e)=>setPassword(e.target.value)} autoComplete="current-password" required />
               <button type="button" aria-pressed={showPassword} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} className="eye-btn eye-right" onClick={toggleShowPassword}>
                 {showPassword ? (
                   <EyeSlashIcon className="h-4 w-4" aria-hidden />

@@ -168,57 +168,57 @@ export default function NewProductForm({ onCreated, onCancel }){
 
       <form onSubmit={handleSubmit} className="new-product-form">
         <div className="form-row">
-          <label>Título</label>
-          <input className="form-input" value={title} onChange={(e)=>setTitle(e.target.value)} required />
+          <label htmlFor="newproduct-title">Título</label>
+          <input id="newproduct-title" name="title" className="form-input" value={title} onChange={(e)=>setTitle(e.target.value)} required />
         </div>
 
         <div className="row-inline">
           <div className="form-row" style={{width:140}}>
-            <label>Precio</label>
-            <input className="form-input" value={price} onChange={(e)=>setPrice(e.target.value)} type="number" step="0.01" />
+            <label htmlFor="newproduct-price">Precio</label>
+            <input id="newproduct-price" name="price" className="form-input" value={price} onChange={(e)=>setPrice(e.target.value)} type="number" step="0.01" />
           </div>
           <div className="form-row" style={{width:160}}>
-            <label>Marca</label>
-            <input className="form-input" value={marca} onChange={(e)=>setMarca(e.target.value)} placeholder="Fender" />
+            <label htmlFor="newproduct-marca">Marca</label>
+            <input id="newproduct-marca" name="marca" className="form-input" value={marca} onChange={(e)=>setMarca(e.target.value)} placeholder="Fender" />
           </div>
           <div className="form-row flex-1">
-            <label>Modelo</label>
-            <input className="form-input" value={modelo} onChange={(e)=>setModelo(e.target.value)} placeholder="Stratocaster" />
+            <label htmlFor="newproduct-modelo">Modelo</label>
+            <input id="newproduct-modelo" name="modelo" className="form-input" value={modelo} onChange={(e)=>setModelo(e.target.value)} placeholder="Stratocaster" />
           </div>
         </div>
 
         <div className="form-row">
-          <label>Descripción</label>
-          <textarea className="form-input" value={description} onChange={(e)=>setDescription(e.target.value)} />
+          <label htmlFor="newproduct-description">Descripción</label>
+          <textarea id="newproduct-description" name="description" className="form-input" value={description} onChange={(e)=>setDescription(e.target.value)} />
         </div>
 
         <div className="row-inline" style={{marginTop:8}}>
           <div className="form-row" style={{width:120}}>
-            <label>Año</label>
-            <input className="form-input" placeholder='2020' value={year} onChange={(e)=>setYear(e.target.value)} type='number' />
+            <label htmlFor="newproduct-year">Año</label>
+            <input id="newproduct-year" name="year" className="form-input" placeholder='2020' value={year} onChange={(e)=>setYear(e.target.value)} type='number' />
           </div>
           <div className="form-row flex-1">
-            <label>Color</label>
-            <input className="form-input" placeholder='sunburst' value={color} onChange={(e)=>setColor(e.target.value)} />
+            <label htmlFor="newproduct-color">Color</label>
+            <input id="newproduct-color" name="color" className="form-input" placeholder='sunburst' value={color} onChange={(e)=>setColor(e.target.value)} />
           </div>
         </div>
 
         <div className="row-inline" style={{marginTop:8}}>
           <div className="form-row" style={{width:200}}>
-            <label>Microfonos</label>
-            <input className="form-input" value={microfonos} onChange={(e)=>setMicrofonos(e.target.value)} placeholder="SSS / HH" />
+            <label htmlFor="newproduct-microfonos">Microfonos</label>
+            <input id="newproduct-microfonos" name="microfonos" className="form-input" value={microfonos} onChange={(e)=>setMicrofonos(e.target.value)} placeholder="SSS / HH" />
           </div>
           <div className="form-row" style={{width:200}}>
-            <label>Puente</label>
-            <input className="form-input" value={puente} onChange={(e)=>setPuente(e.target.value)} placeholder="Tremolo" />
+            <label htmlFor="newproduct-puente">Puente</label>
+            <input id="newproduct-puente" name="puente" className="form-input" value={puente} onChange={(e)=>setPuente(e.target.value)} placeholder="Tremolo" />
           </div>
         </div>
 
         {/* Image upload block placed after primary fields for mobile-first flow */}
         <div className="form-row" style={{marginTop:12}}>
-          <label>Imágenes (múltiples)</label>
+          <label htmlFor="newproduct-images">Imágenes (múltiples)</label>
           <div className="file-input-wrap">
-            <input ref={fileInputRef} className="file-input-hidden" type="file" multiple onChange={handleFiles} accept="image/*" />
+            <input id="newproduct-images" name="images" ref={fileInputRef} className="file-input-hidden" type="file" multiple onChange={handleFiles} accept="image/*" />
             <button type="button" className="btn-file" onClick={openFilePicker}>Subir imágenes</button>
           </div>
           {files.length > 0 && <div className="file-names" style={{marginTop:8}}>{files.map(f=>f.name).join(', ')}</div>}

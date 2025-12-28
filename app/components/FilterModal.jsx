@@ -70,28 +70,28 @@ export default function FilterModal({ isOpen, onClose, onApply, initial = {} }) 
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm text-white/60">Marca</label>
-            <input value={filters.marca ?? ''} onChange={e => update('marca', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: Fender" />
+            <label htmlFor="filter-marca" className="text-sm text-white/60">Marca</label>
+            <input id="filter-marca" name="marca" value={filters.marca ?? ''} onChange={e => update('marca', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: Fender" />
           </div>
 
           <div>
-            <label className="text-sm text-white/60">Modelo</label>
-            <input value={filters.modelo ?? ''} onChange={e => update('modelo', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: Stratocaster" />
+            <label htmlFor="filter-modelo" className="text-sm text-white/60">Modelo</label>
+            <input id="filter-modelo" name="modelo" value={filters.modelo ?? ''} onChange={e => update('modelo', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: Stratocaster" />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="text-sm text-white/60">Año</label>
-            <input value={filters.year ?? ''} onChange={e => update('year', e.target.value)} type="text" inputMode="numeric" className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: 2014" />
+            <label htmlFor="filter-year" className="text-sm text-white/60">Año</label>
+            <input id="filter-year" name="year" value={filters.year ?? ''} onChange={e => update('year', e.target.value)} type="text" inputMode="numeric" className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: 2014" />
           </div>
 
           <div>
-            <label className="text-sm text-white/60">Color</label>
-            <input value={filters.color ?? ''} onChange={e => update('color', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: Sunburst" />
+            <label htmlFor="filter-color" className="text-sm text-white/60">Color</label>
+            <input id="filter-color" name="color" value={filters.color ?? ''} onChange={e => update('color', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: Sunburst" />
           </div>
 
           <div>
-            <label className="text-sm text-white/60">Micrófonos</label>
-            <input value={filters.pickups ?? ''} onChange={e => update('pickups', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: HH, SS" />
+            <label htmlFor="filter-pickups" className="text-sm text-white/60">Micrófonos</label>
+            <input id="filter-pickups" name="pickups" value={filters.pickups ?? ''} onChange={e => update('pickups', e.target.value)} className="mt-1 w-full rounded-xl bg-[#0f0f0f] border border-white/6 px-3 py-2 text-white placeholder:text-white/40 focus:ring-2 focus:ring-[#D4AF37]/25" placeholder="Ej: HH, SS" />
           </div>
 
             

@@ -107,7 +107,7 @@ export default function Header() {
         >
             <div className="revamp-brand-mark" aria-hidden>
             {/* Rectangular logo (SVG placed at /public/images/logo-rect.svg) */}
-            <Image src="/images/logo-rect.svg" alt="La Guarida" width={520} height={200} className="object-contain rounded-sm block logo-mark" style={{background:'transparent', boxShadow:'none'}} />
+            <Image loading="eager" src="/images/logo-rect.svg" alt="La Guarida" width={520} height={200} className="object-contain rounded-sm block logo-mark" style={{background:'transparent', boxShadow:'none'}} />
           </div>
           <span className="revamp-logo hidden md:inline-block">La Guarida Guitarshop</span>
         </Link>
@@ -121,7 +121,7 @@ export default function Header() {
             Modelos
           </Link>
           <Link href="/contacto" className={navLinkClass}>
-            Contacto
+            Sobre La Guarida
           </Link>
           {isLoggedIn && (
             <Link href="/admin/dashboard" className={navLinkClass}>
@@ -180,7 +180,7 @@ export default function Header() {
         <nav className="flex flex-col gap-1 px-4 pb-4 max-h-[58vh] overflow-auto" aria-label="Menú móvil">
           <Link href="/" onClick={(e)=>{ e.preventDefault(); setOpen(false); setTimeout(()=>router.push('/'),420) }} className="py-3 text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)]">Inicio</Link>
           <Link href="/modelos" onClick={(e)=>{ e.preventDefault(); setOpen(false); setTimeout(()=>router.push('/modelos'),420) }} className="py-3 text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)]">Modelos</Link>
-          <Link href="/contacto" onClick={(e)=>{ e.preventDefault(); setOpen(false); setTimeout(()=>router.push('/contacto'),420) }} className="py-3 text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)]">Contacto</Link>
+          <Link href="/contacto" onClick={(e)=>{ e.preventDefault(); setOpen(false); setTimeout(()=>router.push('/contacto'),420) }} className="py-3 text-base font-medium transition-colors duration-200 ease-out hover:text-[var(--gold-100)]">Sobre La Guarida</Link>
           {isLoggedIn && (
             <Link href="/admin/dashboard" onClick={(e)=>{ e.preventDefault(); setOpen(false); setTimeout(()=>router.push('/admin/dashboard'),420) }} className="mt-2 w-full inline-flex items-center gap-3 rounded-lg btn-panel-mobile px-3 py-3 text-sm font-medium text-[#EDEDED] bg-transparent transition transform-gpu border-t border-white/6 justify-start" aria-label="Ir a Administración">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#D4AF37] block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M16 3v4M8 3v4"/></svg>
