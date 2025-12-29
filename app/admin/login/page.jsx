@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
@@ -387,9 +386,31 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-          <div className="brand" style={{display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexDirection:'column', textAlign:'center'}}>
-            <div className="brand-mark" aria-hidden style={{width:'100%', maxWidth:420, height:140, display:'flex', alignItems:'center', justifyContent:'center', background:'transparent', boxShadow:'none', border:'none', marginBottom:12, overflow:'hidden'}}>
-            <Image loading="eager" src="/images/logo-rect.svg" alt="La Guarida" width={420} height={176} className="object-contain block" style={{objectFit:'cover', objectPosition:'center', width:'130%', height:'100%', maxHeight:140, background:'transparent', boxShadow:'none'}} />
+        <div
+          className="brand"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 28,
+            width: '100%',
+          }}
+        >
+          <div
+            className="brand-title"
+            style={{
+              width: '100%',
+              textAlign: 'center',
+              fontSize: 26,
+              lineHeight: 1.2,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#EDEDED',
+            }}
+          >
+            La Guarida Instrumentos
           </div>
         </div>
 

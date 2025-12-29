@@ -445,10 +445,10 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   font-size: 0.98rem;
 }
 
-/* subtle gold glow around the logo image to lift it from the header */
+/* Neutral (non-gold) treatment for the header logo image */
 .revamp-brand-mark .logo-mark {
   border-radius: 10px;
-  box-shadow: 0 8px 22px rgba(212,175,55,0.12), 0 1px 0 rgba(0,0,0,0.35) inset;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45), 0 1px 0 rgba(0,0,0,0.35) inset;
   transition: box-shadow 200ms ease, transform 160ms ease;
   /* force the image to cover and be slightly wider so decorative gold bars are outside the visible area */
   object-fit: cover !important;
@@ -492,7 +492,7 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 .brand-mark::after { right: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 .revamp-brand-mark .logo-mark:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 14px 36px rgba(212,175,55,0.16), 0 1px 0 rgba(0,0,0,0.35) inset;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.55), 0 1px 0 rgba(0,0,0,0.35) inset;
 }
 
 /* WhatsApp 'Me interesa' product CTA: dark background, gold outline, white text/icon

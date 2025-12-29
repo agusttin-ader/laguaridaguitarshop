@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import Hero from "./components/Hero";
 import ModelsSection from "./components/ModelsSection";
+import SettingsRefresher from "./components/SettingsRefresher";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://laguaridaguitarshop.com'
 
@@ -25,6 +26,7 @@ export const metadata = {
 export default function Home() {
   return (
     <main className="font-sans">
+      <SettingsRefresher />
       <Hero />
       <ModelsSection />
     </main>

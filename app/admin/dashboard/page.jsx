@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState, useRef, memo } from 'react'
+import React, { useEffect, useState, useRef, memo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../../../lib/supabaseClient'
@@ -50,6 +50,7 @@ export default function AdminDashboard(){
   const saveFeaturedTimeout = useRef(null)
   const dragIndexRef = useRef(null)
   const editDragIndexRef = useRef(null)
+  const featuredCleanedRef = useRef(false)
   const router = useRouter()
 
   
@@ -266,7 +267,7 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     } catch (err) { console.error('Failed to fetch settings', err) }
   }
 
-  async function saveFeaturedToServer(nextSettings){
+  const saveFeaturedToServer = useCallback(async (nextSettings) => {
     try {
       const body = { featured: nextSettings.featured, featuredMain: nextSettings.featuredMain }
       const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) })
@@ -280,20 +281,22 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
       try {
         if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
           const bc = new BroadcastChannel('la-guarida-settings')
-          bc.postMessage({ type: 'featured-updated', featured: json.featured })
+          const msg = { type: 'featured-updated', featured: json.featured }
+          try { bc.postMessage(msg) } catch(e){ console.warn('Broadcast post failed', e) }
+          try { console.debug && console.debug('Broadcast sent', msg) } catch(_){ }
           bc.close()
         }
       } catch (_) {}
     } catch (err) { console.error('Error saving featured', err); toast.error('Error guardando destacados') }
-  }
+  }, [token])
 
-  function scheduleSaveFeatured(nextSettings){
+  const scheduleSaveFeatured = useCallback((nextSettings) => {
     if (saveFeaturedTimeout.current) clearTimeout(saveFeaturedTimeout.current)
     // debounce 800ms
-    saveFeaturedTimeout.current = setTimeout(()=>{
+    saveFeaturedTimeout.current = setTimeout(() => {
       saveFeaturedToServer(nextSettings)
     }, 800)
-  }
+  }, [saveFeaturedToServer])
 
   // Toggle featured helper to reuse in checkbox and mobile overlay
   function toggleFeaturedById(id) {
@@ -323,6 +326,42 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
     if (isOwner) fetchRequests()
   },[token])
   /* eslint-enable react-hooks/exhaustive-deps */
+
+  // Ensure settings.featured does not contain ids of products that no
+  // longer exist. Otherwise the length check (max 3) can block selection
+  // even when the user only sees 1 o 2 destacados visibles.
+  useEffect(() => {
+    try {
+      if (featuredCleanedRef.current) return
+      if (!products || products.length === 0) return
+      if (!settings || !Array.isArray(settings.featured)) return
+
+      const validIds = new Set(
+        (products || []).map((p) => p.id || p.slug || p.title)
+      )
+      const current = settings.featured || []
+      const cleaned = current.filter((id) => validIds.has(id))
+
+      // If nothing changed, avoid unnecessary writes
+      if (cleaned.length === current.length) return
+
+      const nextFeaturedMain = { ...(settings.featuredMain || {}) }
+      for (const id of current) {
+        if (!validIds.has(id) && Object.prototype.hasOwnProperty.call(nextFeaturedMain, id)) {
+          delete nextFeaturedMain[id]
+        }
+      }
+
+      const nextSettings = { ...settings, featured: cleaned, featuredMain: nextFeaturedMain }
+      featuredCleanedRef.current = true
+      setSettings(nextSettings)
+      // Persist cleanup so futuras sesiones ya vean la lista corregida
+      try { scheduleSaveFeatured(nextSettings) } catch (_) {}
+    } catch (e) {
+      // fallback: no romper el panel por errores de limpieza
+      console.warn('Failed to clean featured list', e)
+    }
+  }, [products, settings, scheduleSaveFeatured])
 
   // Listen to product creation broadcasts from other tabs (or the new product page)
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -645,8 +684,28 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                                           const json = await res.json().catch(()=>null)
                                           if (!res.ok) throw json || 'error'
                                           toast.success('Producto eliminado')
-                                          fetchProducts()
-                                          fetchSettings()
+                                          // Refresh products first
+                                          await fetchProducts()
+                                          // If deleted product is in featured, remove and persist
+                                          try {
+                                            const existing = Array.isArray(settings.featured) ? settings.featured.slice() : []
+                                            const key = p.id || p.slug || p.title
+                                            const filtered = existing.filter(f => f !== key)
+                                            const nextFeaturedMain = { ...(settings.featuredMain || {}) }
+                                            if (key && Object.prototype.hasOwnProperty.call(nextFeaturedMain, key)) {
+                                              delete nextFeaturedMain[key]
+                                            }
+                                            if (filtered.length !== existing.length || Object.keys(nextFeaturedMain).length !== Object.keys(settings.featuredMain || {}).length) {
+                                              const nextSettings = { ...settings, featured: filtered, featuredMain: nextFeaturedMain }
+                                              await saveFeaturedToServer(nextSettings)
+                                              setSettings(nextSettings)
+                                            } else {
+                                              await fetchSettings()
+                                            }
+                                          } catch (e) {
+                                            console.warn('Failed to update featured after delete', e)
+                                            try { await fetchSettings() } catch (_) {}
+                                          }
                                         } catch (err) { console.error(err); toast.error('Error eliminando producto') }
                                       }
                                     })
@@ -964,10 +1023,12 @@ const FeaturedThumb = memo(function FeaturedThumb({ prod, fid, idx, isSelected, 
                     } catch (delErr) { console.warn('Failed to delete previous hero image', delErr) }
                     try {
                       if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-                        const bc = new BroadcastChannel('la-guarida-settings')
-                        bc.postMessage({ type: 'hero-updated', url: json.heroImage })
-                        bc.close()
-                      }
+                          const bc = new BroadcastChannel('la-guarida-settings')
+                          const msg = { type: 'hero-updated', url: json.heroImage }
+                          try { bc.postMessage(msg) } catch(e){ console.warn('Broadcast post failed', e) }
+                          try { console.debug && console.debug('Broadcast sent', msg) } catch(_){}
+                          bc.close()
+                        }
                     } catch (bcErr) { /* ignore */ }
                   } catch (err) { console.error(err); toast.error('Error actualizando portada') }
                   finally { setSavingSettings(false) }

@@ -1,14 +1,13 @@
 {
   "featured": [
-    "39f2c35f-b475-4b90-9d19-94b24f6f0463",
-    "071cc615-5c59-4721-ab25-44f998b1b9df",
-    "5360921d-8d9a-4d7f-94c0-5ffeedb291fc"
+    "5360921d-8d9a-4d7f-94c0-5ffeedb291fc",
+    "f578651c-9de8-4f4f-b4b1-cef9f363a47f",
+    "0803c94b-5994-4759-aff7-253b0abeef77"
   ],
   "heroImage": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1764557194868_IMG_7905.jpg",
   "featuredMain": {
     "071cc615-5c59-4721-ab25-44f998b1b9df": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763916441832_IMG_9049.jpg",
     "0803c94b-5994-4759-aff7-253b0abeef77": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1764359532517_1764359530436_IMG_8679.jpg-w320.webp",
-    "39f2c35f-b475-4b90-9d19-94b24f6f0463": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763842023014_IMG_7888.jpg",
     "5360921d-8d9a-4d7f-94c0-5ffeedb291fc": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1763920215133_IMG_9396.jpg",
     "b451a25c-a490-48b6-acc3-cb40c79c0e65": "https://nlxihuohlbzxfsumnfxk.supabase.co/storage/v1/object/public/product-images/1764340518334_1764340515558_IMG_7274.jpg-w320.webp"
   }

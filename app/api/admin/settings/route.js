@@ -80,30 +80,43 @@ function applyEnvOverrides(settings){
 }
 
 async function writeSettings(obj) {
-  // 1) Try write to filesystem first (local dev)
+  // When SUPABASE_SERVICE_ROLE_KEY is configured we treat the database as the
+  // source of truth and always upsert there first. Filesystem/storage are
+  // treated as best-effort mirrors so that all readers (like ModelsSection)
+  // see the same data that the admin panel writes.
+
+  const hasServiceRole = !!process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (hasServiceRole) {
+    try {
+      const upsertRes = await supabaseAdmin
+        .from('settings')
+        .upsert({ id: 'site', payload: obj }, { returning: 'minimal' })
+      if (!upsertRes.error) {
+        lastWriteSource = 'database'
+        // Fire-and-forget filesystem mirror for local debugging; ignore errors.
+        try {
+          fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
+        } catch (_) {}
+        return
+      }
+    } catch (_) {
+      // fall through to filesystem/storage fallbacks below
+    }
+  }
+
+  // 1) Try write to filesystem (local dev or when DB is unavailable)
   try {
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(obj, null, 2), 'utf-8')
     lastWriteSource = 'filesystem'
     return
   } catch (e) {
-    // If writing to local filesystem fails (e.g., Vercel read-only),
-    // try DB upsert (preferred server persistence) — requires `settings` table
-    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      try {
-        const upsertRes = await supabaseAdmin.from('settings').upsert({ id: 'site', payload: obj }, { returning: 'minimal' })
-        if (!upsertRes.error) {
-          lastWriteSource = 'database'
-          return
-        }
-      } catch (_) {
-        // ignore DB write errors and fallthrough to storage
-      }
-    }
-
-    // 2) Try Storage fallback
+    // 2) Try Storage fallback (for serverless envs without writable FS/DB)
     try {
       const buf = Buffer.from(JSON.stringify(obj, null, 2), 'utf-8')
-      const { data, error } = await supabaseAdmin.storage.from('product-images').upload('site-settings/settings.json', buf, { upsert: true })
+      const { error } = await supabaseAdmin.storage
+        .from('product-images')
+        .upload('site-settings/settings.json', buf, { upsert: true })
       if (error) throw error
       lastWriteSource = 'storage'
       return
