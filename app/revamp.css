@@ -73,6 +73,15 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   border-top: 1px solid rgba(255,255,255,0.03);
 }
 
+/* Footer brand logo: small, subtle PNG above brand name */
+.revamp-footer .footer-brand-logo {
+  max-width: 80px;
+  width: 100%;
+  height: auto;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
 /* Ensure the mobile menu drawer doesn't create horizontal overflow */
 .mobile-drawer, .mobile-drawer.open, .mobile-drawer.closed { inset: 0 0 auto 0; width: 100%; box-sizing: border-box }
 .mobile-drawer { left: 0; right: 0 }
@@ -110,13 +119,16 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 
   .revamp-footer a {
     display: inline-block;
-    padding: 10px 12px;
-    border-radius: 8px;
     color: #f3f3f3;
     background: transparent;
   }
 
-  .revamp-footer a:hover, .revamp-footer a:focus { color: var(--revamp-gold); background: rgba(212,175,55,0.04); }
+  /* Hover sólo cambia el color del texto, sin fondo de cajita */
+  .revamp-footer a:hover,
+  .revamp-footer a:focus {
+    color: var(--revamp-gold);
+    background: transparent;
+  }
 
   /* increase contrast for footer headings/text */
   .revamp-footer .footer-heading { color: #ffffff; font-weight: 700; }
@@ -166,14 +178,28 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   .revamp-footer .max-w-7xl > .w-full > .mb-3 button {
     display: inline-flex;
     align-items: center;
-    gap: 10px; /* space between icon and text */
+    gap: 10px; /* espacio entre icono y texto */
     vertical-align: middle;
-    padding: 8px 12px;
-    min-height: 44px; /* consistent hit area */
+    padding: 0; /* sin padding de caja, sólo texto + icono */
+    min-height: auto;
     line-height: 1;
-    justify-content: center; /* keeps visual centered on narrow screens */
-    color: var(--revamp-muted);
+    justify-content: center; /* mantiene centrado en pantallas angostas */
+    /* color base viene de .revamp-footer a / button para que :hover pueda sobrescribir */
     background: transparent;
+    border-radius: 0;
+    cursor: pointer; /* mano en WhatsApp (button) y sensación de link */
+  }
+
+  /* Hover dorado específico para los tres (Instagram, WhatsApp, Email) */
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 a:hover,
+  .revamp-footer .max-w-7xl > .w-full > .mb-3 button:hover {
+    color: var(--revamp-gold);
+  }
+
+  /* Refuerzo específico para el botón de WhatsApp del footer */
+  .footer-whatsapp-link:hover,
+  .footer-whatsapp-link:focus-visible {
+    color: var(--revamp-gold) !important;
   }
 
   /* Make sure SVG icons have a consistent size and don't stretch */
@@ -221,11 +247,11 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
     text-align: right;
   }
 
-  /* ensure social link visuals are compact on desktop */
+  /* ensure social link visuals are compact on desktop (sin cajita) */
   .revamp-footer .max-w-7xl > .w-full > .mb-3 a,
   .revamp-footer .max-w-7xl > .w-full > .mb-3 button {
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 0;
+    border-radius: 0;
     color: var(--revamp-muted);
     background: transparent;
   }
@@ -411,8 +437,14 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
 
 /* Header / Navigation revamp (scoped) */
 .revamp-header {
-  background: linear-gradient(180deg, rgba(8,8,8,0.98), rgba(10,10,10,0.98));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.6)
+  );
   border-bottom: 1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 /* Compact header heights for mobile/tablet while preserving desktop sizing */
 .revamp-header .mx-auto {
@@ -426,18 +458,29 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   align-items: center;
   gap: 8px; /* slightly tighter brand spacing on small screens */
 }
-/* Make the rectangular logo mark smaller on mobile and tablet, expand on larger viewports */
+/* Brand text label next to the logo in the header */
+.revamp-brand-label {
+  font-family: var(--font-libre-baskerville), Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  line-height: 1;
+  color: #f5f5f5;
+  opacity: 0.9;
+}
+
+.revamp-brand:hover .revamp-brand-label,
+.revamp-brand:focus-visible .revamp-brand-label {
+  color: var(--revamp-gold);
+  opacity: 1;
+}
+/* Generic brand mark wrapper (actual behavior customized per context, e.g. header/login) */
 .revamp-brand-mark {
-  width: 96px;
-  height: 44px;
-  border-radius: 8px;
-  background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
-  overflow: hidden; /* ensure any decorative edges of the SVG are clipped */
-  position: relative; /* for pseudo elements that mask decorative edges */
+  background: transparent;
 }
 .revamp-logo {
   font-weight: 600;
@@ -445,54 +488,12 @@ body, .revamp-section, .revamp-title, .revamp-subtitle {
   font-size: 0.98rem;
 }
 
-/* Neutral (non-gold) treatment for the header logo image */
+/* Logo image inside brand mark behaves as a simple mark (no cropping or heavy framing) */
 .revamp-brand-mark .logo-mark {
-  border-radius: 10px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.45), 0 1px 0 rgba(0,0,0,0.35) inset;
-  transition: box-shadow 200ms ease, transform 160ms ease;
-  /* force the image to cover and be slightly wider so decorative gold bars are outside the visible area */
-  object-fit: cover !important;
-  object-position: center !important;
-  width: 140% !important;
-  height: 100% !important;
-  max-width: none !important;
-  display: block !important;
-}
-
-/* Mask the decorative gold vertical bars by placing solid covers at the sides
-   This leaves only the central dark rectangle + text visible. Adjust widths
-   to taste if golden bars are wider/narrower. */
-.revamp-brand-mark::before,
-.revamp-brand-mark::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 18px; /* cover thickness; adjust if needed */
-  background: #0D0D0D; /* same as header background to blend */
-  z-index: 5;
-  pointer-events: none;
-}
-.revamp-brand-mark::before { left: 0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-.revamp-brand-mark::after { right: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-
-/* Apply same masking for admin/login brand mark which uses `.brand-mark` */
-.brand-mark { position: relative; overflow: hidden; }
-.brand-mark::before, .brand-mark::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 18px;
-  background: #0D0D0D;
-  z-index: 5;
-  pointer-events: none;
-}
-.brand-mark::before { left: 0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-.brand-mark::after { right: 0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-.revamp-brand-mark .logo-mark:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 14px 36px rgba(0,0,0,0.55), 0 1px 0 rgba(0,0,0,0.35) inset;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
 }
 
 /* WhatsApp 'Me interesa' product CTA: dark background, gold outline, white text/icon
@@ -560,6 +561,11 @@ a.revamp-cta.whatsapp-cta:hover {
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.9;
 }
 .revamp-nav-link:hover { background: rgba(212,175,55,0.04); color: var(--revamp-gold) }
 
@@ -578,34 +584,27 @@ a.revamp-cta.whatsapp-cta:hover {
 .revamp-header #mobile-menu a, .revamp-header #mobile-menu button {
   padding: 14px 16px !important;
   border-radius: 10px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.9;
 }
 
 @media (min-width: 1024px) {
-  .revamp-brand-mark { width:208px; height:208px }
   .revamp-logo { font-size: 1.05rem }
+  .revamp-nav-link { font-size: 1.25rem; }
 }
 
-/* Tablet breakpoint: slightly larger header and logo than mobile but smaller than desktop */
+/* Tablet breakpoint: taller header to match larger logo */
 @media (min-width: 768px) {
-  .revamp-header .mx-auto { height: 68px; }
-  .revamp-brand-mark { width: 128px; height: 40px; border-radius: 10px; }
+  .revamp-header .mx-auto { height: 96px; }
   .revamp-header .hamburger-btn { width: 44px; height: 44px; }
   .revamp-nav-link { padding: 9px 12px; }
 }
 
 /* Tablet (landscape phones and tablets) — increase logo presence */
 @media (min-width: 768px) and (max-width: 1023px) {
-  .revamp-header .mx-auto { height: 92px; }
-  /* Increase logo container and make the image fill its height for better presence */
-  .revamp-brand-mark { width: 200px; height: 64px; border-radius: 12px; padding: 4px; }
-  /* Make the image fill the available height for stronger presence */
-  .revamp-brand-mark .logo-mark {
-    display: block;
-    height: 64px; /* increase image height to fill container */
-    max-width: 220px;
-    width: auto;
-    object-fit: contain;
-  }
+  .revamp-header .mx-auto { height: 96px; }
   .revamp-brand { gap: 12px; }
   .revamp-header .hamburger-btn { width: 50px; height: 50px; }
   .revamp-nav-link { padding: 10px 14px; }
@@ -657,21 +656,17 @@ a.revamp-cta.whatsapp-cta:hover {
    Keep visual balance and preserve final desktop sizes. */
 @media (max-width: 320px) {
   /* Very small phones: keep logo visible but not oversized */
-  .revamp-brand-mark { width: 110px; height: 40px; }
-  .revamp-brand-mark .logo-mark { height: 30px; max-width: 96px; }
+  .revamp-header .revamp-brand-mark { height: 42px; }
 }
 
 @media (min-width: 321px) and (max-width: 375px) {
   /* Small/medium phones: tuned to avoid overflow */
-  .revamp-brand-mark { width: 128px; height: 44px; }
-  .revamp-brand-mark { overflow: hidden; }
-  .revamp-brand-mark .logo-mark { height: 30px; max-width: 120px; box-shadow: 0 6px 14px rgba(212,175,55,0.08); }
+  .revamp-header .revamp-brand-mark { height: 42px; }
 }
 
 @media (min-width: 376px) and (max-width: 425px) {
   /* Larger phones: tuned down to fit header */
-  .revamp-brand-mark { width: 150px; height: 48px; overflow: hidden; }
-  .revamp-brand-mark .logo-mark { height: 36px; max-width: 140px; box-shadow: 0 6px 16px rgba(212,175,55,0.09); }
+  .revamp-header .revamp-brand-mark { height: 42px; }
 }
 
 /* Specific tuning for common mobile widths (375px, 393px etc.)
@@ -680,21 +675,55 @@ a.revamp-cta.whatsapp-cta:hover {
    its container. The container keeps `overflow:hidden` so edges are clipped.
 */
 @media (min-width: 375px) and (max-width: 425px) {
-  .revamp-brand-mark { overflow: hidden; }
-  .revamp-brand-mark .logo-mark {
-    object-fit: cover !important;
-    object-position: center !important;
-    width: 140% !important; /* push golden edges out of view */
-    height: 100% !important;
-    max-width: none !important;
-    display: block !important;
-  }
+  .revamp-header .revamp-brand-mark { height: 42px; }
 }
 
 @media (min-width: 426px) and (max-width: 767px) {
   /* Narrow tablets / landscape phones */
-  .revamp-brand-mark { width: 160px; height: 52px; }
-  .revamp-brand-mark .logo-mark { height: 42px; max-width: 144px; }
+  .revamp-header .revamp-brand-mark { height: 42px; }
+}
+
+/* ------------------------------------------------------------------
+   New circular header logo
+   The previous rules for .revamp-brand-mark assumed a wide rectangle
+   and intentionally cropped the sides with overflow + pseudo-elements.
+   Now that the logo is a circular badge, we want the full shape
+   visible without side masking, and sized only by the header spec.
+   ------------------------------------------------------------------ */
+.revamp-header .revamp-brand-mark {
+  width: auto;
+  height: 42px; /* mobile default max-height */
+  padding: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.revamp-header .revamp-brand-mark::before,
+.revamp-header .revamp-brand-mark::after {
+  content: none;
+}
+
+/* Desktop: allow up to 96px logo height inside a taller header */
+@media (min-width: 1024px) {
+  .revamp-header .mx-auto {
+    height: 112px;
+  }
+  .revamp-header .revamp-brand-mark {
+    height: 96px;
+  }
+}
+
+/* Logo image scales to container while preserving aspect ratio */
+.revamp-header .logo-img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-height: 100%;
+  /* subtle shadow to separate the circular badge from dark header */
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.55));
 }
 
 
@@ -847,27 +876,36 @@ a.revamp-cta.whatsapp-cta:hover {
 .product-thumbnails img { width: 72px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); cursor: pointer; }
 .product-thumbnails img[aria-current="true"] { box-shadow: 0 8px 20px rgba(2,6,23,0.45); transform: translateY(-3px); border-color: rgba(212,175,55,0.12); }
 
-/* Admin login: responsive logo sizing tweaks
-   - Small phones (<=320px): make logo visually larger
-   - Narrow phones/tablets (~321-425px): scale it down a bit
-   - Default: moderate scale to fit the card
-*/
-.admin-login .brand-mark { width: 100%; max-width: 420px; height: 140px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; overflow: visible; }
-.admin-login .brand-mark img { width: 100%; height: auto; transform: scale(1.5); transform-origin: center; transition: transform 160ms ease; }
+/* Admin login: clean logo above the form (no extra background) */
+.admin-login .brand-mark {
+  width: 100%;
+  max-width: 230px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0; /* no extra margin around the login logo container */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.admin-login .brand-mark img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
 
 @media (max-width: 320px) {
-  .admin-login .brand-mark { max-width: 320px; height: 180px; }
-  .admin-login .brand-mark img { transform: scale(1.95); }
+  .admin-login .brand-mark { max-width: 202px; }
 }
 
 @media (min-width: 321px) and (max-width: 375px) {
-  .admin-login .brand-mark { max-width: 300px; height: 120px; }
-  .admin-login .brand-mark img { transform: scale(1.25); }
+  .admin-login .brand-mark { max-width: 212px; }
 }
 
 @media (min-width: 376px) and (max-width: 425px) {
-  .admin-login .brand-mark { max-width: 260px; height: 110px; }
-  .admin-login .brand-mark img { transform: scale(1.05); }
+  .admin-login .brand-mark { max-width: 222px; }
 }
 
 .product-info { padding: 14px; background: transparent; }
@@ -890,6 +928,18 @@ a.revamp-cta.whatsapp-cta:hover {
 .about-page .prose-invert > div { border-radius: 14px; }
 .about-page .rounded-2xl { border-radius: 14px; }
 .about-page a { color: var(--revamp-gold); font-weight: 600 }
+.about-page header p {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #f5f5f5;
+  opacity: 0.96;
+}
+.about-page .about-logo-mark {
+  max-width: 288px; /* ~20% más grande */
+  width: 100%;
+  height: auto;
+}
 
 /* Small utility: show placeholder when no image exists */
 .no-image { display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg,#0a0a0a,#060606); color: #9b9b9b; font-weight: 600; height: 220px; border-radius: 12px; }
@@ -914,37 +964,6 @@ a.revamp-cta.whatsapp-cta:hover {
   --header-ease: cubic-bezier(.2,.9,.3,1);
   --header-fast: 160ms;
   --header-medium: 240ms;
-}
-
-/* ---------------------------
-   Logo micro-presence animation
-   - subtle scale (0.97 -> 1) + opacity
-   - short duration, respects reduced-motion
-   --------------------------- */
-.revamp-brand-mark .logo-mark {
-  transition: transform var(--header-fast) var(--header-ease), opacity var(--header-fast) var(--header-ease);
-  transform-origin: center center;
-}
-
-@keyframes revamp-logo-presence {
-  from { transform: scale(0.97); opacity: 0.9; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .revamp-brand-mark .logo-mark { animation: none !important; transition: none !important; }
-}
-
-@media (max-width: 1023px) {
-  /* run logo presence animation once on initial render on mobile/tablet */
-  .revamp-brand-mark .logo-mark { animation: revamp-logo-presence var(--header-fast) var(--header-ease) both; }
-
-  /* subtle interactive presence on hover/focus (non-intrusive) */
-  .revamp-brand-mark .logo-mark:hover,
-  .revamp-brand-mark .logo-mark:focus {
-    transform: scale(1.01);
-    opacity: 1;
-  }
 }
 
 /* Fine visual balance tweaks for very small viewports */
