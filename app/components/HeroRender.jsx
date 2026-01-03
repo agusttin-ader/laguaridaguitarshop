@@ -35,7 +35,6 @@ export default function HeroRender({ heroImage }) {
           fill
           style={{ objectFit: 'cover', filter: 'blur(40px)', opacity: 0.6, transform: 'scale(1.05)' }}
           loading="eager"
-          priority
         />
 
         {/* Darken the lower area so copy and CTAs remain readable */}

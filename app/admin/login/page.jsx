@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import { supabase } from '../../../lib/supabaseClient'
@@ -397,20 +398,14 @@ export default function AdminLogin() {
             width: '100%',
           }}
         >
-          <div
-            className="brand-title"
-            style={{
-              width: '100%',
-              textAlign: 'center',
-              fontSize: 26,
-              lineHeight: 1.2,
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#EDEDED',
-            }}
-          >
-            La Guarida Instrumentos
+          <div className="brand-mark">
+            <Image
+              src="/images/logo-main.png"
+              alt="La Guarida Guitar Shop"
+              width={260}
+              height={260}
+              priority
+            />
           </div>
         </div>
 

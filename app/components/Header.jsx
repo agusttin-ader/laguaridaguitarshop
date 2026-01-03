@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from 'next/image'
+import Image from "next/image";
 import { FiLogOut } from 'react-icons/fi'
 import { supabase } from '../../lib/supabaseClient'
 import { useRouter, usePathname } from 'next/navigation'
@@ -98,27 +98,26 @@ export default function Header() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#0D0D0D] text-[#EDEDED] font-sans revamp-header">
+    <header className="z-50 w-full bg-[#0D0D0D] text-[#EDEDED] font-sans revamp-header">
       <div className="mx-auto flex h-[64px] md:h-[80px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="text-lg font-semibold tracking-wide hover:text-[var(--gold-100)] transition-colors duration-200 revamp-brand flex items-center gap-3"
           aria-label="Ir a inicio"
         >
-          <div className="revamp-brand-mark" aria-hidden>
-            {/* Rectangular logo (SVG placed at /public/images/logo-rect.svg) */}
+          <div className="revamp-brand-mark" aria-hidden="true">
             <Image
-              src="/images/logo-rect.svg"
-              alt="La Guarida"
-              width={520}
+              src="/images/logo-main.png"
+              alt="La Guarida Guitar Shop"
+              width={200}
               height={200}
-              loading="eager"
               priority
-              className="object-contain rounded-sm block logo-mark"
-              style={{ background: 'transparent', boxShadow: 'none' }}
+              className="logo-img w-auto object-contain"
             />
           </div>
-          <span className="revamp-logo hidden md:inline-block">La Guarida Guitarshop</span>
+          <span className="revamp-brand-label" aria-hidden="true">
+            La Guarida
+          </span>
         </Link>
 
         {/* Desktop nav (large screens and up) */}

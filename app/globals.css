@@ -42,10 +42,8 @@
   .btn, .btn-primary, .btn-file { padding: 12px 14px !important; font-size: 15px !important; border-radius: 10px !important; width: 100% !important; box-shadow: 0 10px 26px rgba(2,6,23,0.06) !important }
   .btn-ghost { padding: 10px 12px !important; width: 100% !important }
 
-  /* Admin login adjustments */
+  /* Admin login adjustments (brand mark sizing handled in revamp.css) */
   .admin-login .brand { gap: 8px !important }
-  .admin-login .brand-mark { width:44px !important; height:44px !important }
-  .admin-login .brand-title { font-size:16px !important }
 
   /* Hero: prefer shorter height and avoid heavy crop transitions */
   .hero-section .hero-image { height: 48vh !important; object-position: center 24% !important; transition: none !important }
@@ -828,8 +826,6 @@ img, picture, video, canvas, svg { max-width: 100%; height: auto; display: block
 .admin-login .brand {
   display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:12px
 }
-.admin-login .brand-mark{ width:52px; height:52px; border-radius:10px; background:linear-gradient(135deg,#D4AF37,#EDEDED); box-shadow: 0 8px 30px rgba(212,175,55,0.12) inset; }
-.admin-login .brand-title{ font-weight:700; font-size:18px; color: #fff; letter-spacing:0.2px }
 
 .admin-login .form-row label { color: #d7d7d7 }
 .admin-login .form-row input[type="email"], .admin-login .form-row input[type="password"] { padding:12px 14px; font-size:15px; border-radius:10px }

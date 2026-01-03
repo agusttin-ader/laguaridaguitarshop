@@ -1,4 +1,4 @@
-import { Inter, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
 import "./revamp.css";
 import Header from "./components/Header";
@@ -18,6 +18,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const libreBaskerville = Libre_Baskerville({
+  variable: "--font-libre-baskerville",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
 const SITE_NAME = 'laguaridaguitarshop'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://laguaridaguitarshop.com'
 const DEFAULT_DESCRIPTION = 'La Guarida Guitarshop — Guitarras, usados y clásicos. Compra y vende guitarras en Argentina.'
@@ -30,7 +36,10 @@ export const metadata = {
   description: DEFAULT_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
   icons: {
-    icon: '/favicon.ico'
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ]
   },
   openGraph: {
     title: 'La Guarida Guitarshop',
@@ -81,7 +90,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://nlxihuohlbzxfsumnfxk.supabase.co" crossOrigin="" />
       </head>
       <body
-        className={`${inter.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${geistMono.variable} ${libreBaskerville.variable} antialiased`}
       >
         <Header />
         <ToasterProvider />

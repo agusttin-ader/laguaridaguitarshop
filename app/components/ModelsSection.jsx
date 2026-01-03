@@ -147,7 +147,7 @@ export default async function ModelsSection() {
                         sizes="(min-width: 1024px) 50vw, 100vw"
                         quality={80}
                         className="object-cover object-center transition-transform duration-500 transform-gpu"
-                        loading="eager"
+                        loading="lazy"
                       />
                     )
                   }
@@ -160,7 +160,7 @@ export default async function ModelsSection() {
                       sizes="(min-width: 1024px) 50vw, 100vw"
                       quality={90}
                       className="object-cover object-center transition-transform duration-500 transform-gpu"
-                      loading="eager"
+                      loading="lazy"
                     />
                     )
                 })()}
